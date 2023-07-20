@@ -4,7 +4,7 @@ The gem we're building in the Open Source Retreat https://kaspthrb.gumroad.com/l
 
 ## Installation
 
-TOOD: Replace with private package install instructions.
+TODO: Replace with private package install instructions.
 
 Install the gem and add to the application's Gemfile by executing:
 

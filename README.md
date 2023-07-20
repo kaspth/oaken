@@ -1,6 +1,6 @@
 # Oaken
 
-The gem we're building in the Open Source Retreat https://kaspthrb.gumroad.com/l/open-source-retreat
+The gem we're building in the Open Source Retreat https://kaspthrb.gumroad.com/l/open-source-retreat-summer-2023
 
 ## Installation
 

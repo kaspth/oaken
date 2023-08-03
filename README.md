@@ -31,3 +31,11 @@ The gem is available as open source under the terms of the [MIT License](https:/
 ## Code of Conduct
 
 Everyone interacting in the Oaken project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/kaspth/oaken/blob/main/CODE_OF_CONDUCT.md).
+
+## Support
+
+Initial development is supported in part by:
+
+<a href="https://arrows.to">
+ <img src="https://github.com/kaspth/oaken/assets/56947/39437a5f-875d-43d5-8d7b-0808a895e55b" />
+</a>

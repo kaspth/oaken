@@ -37,5 +37,5 @@ Everyone interacting in the Oaken project's codebases, issue trackers, chat room
 Initial development is supported in part by:
 
 <a href="https://arrows.to">
- <img src="https://github.com/kaspth/oaken/assets/56947/39437a5f-875d-43d5-8d7b-0808a895e55b" />
+ <img src="https://user-images.githubusercontent.com/56947/258236465-06c692a7-738e-44bd-914e-fecc697317ce.png" />
 </a>

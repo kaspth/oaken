@@ -17,14 +17,14 @@ module Oaken
   class Stored::Memory
     def initialize(name)
       @name = name
-      @fixtures = {}
+      @objects = {}
     end
 
     def update(name, **attributes)
       require "ostruct" # TODO: Remove OpenStruct relatively soon.
 
-      @fixtures[name] = OpenStruct.new(attributes)
-      self.class.define_method(name) { @fixtures[name] }
+      @objects[name] = OpenStruct.new(attributes)
+      self.class.define_method(name) { @objects[name] }
 
       # if record = @records.find_by(id: name.hash)
       #   record.update! **attributes

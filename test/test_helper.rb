@@ -10,6 +10,9 @@ class Oaken::Test < Minitest::Test
 end
 
 User = Struct.new(:name)
+Oaken::Data.memory.register :users, User
 
-Oaken::Data.register :users, User
+Comment = Struct.new(:name)
+Oaken::Data.records.register :comments, Comment
+
 Oaken::Data.users.update :kasper, name: "Kasper"

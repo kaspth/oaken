@@ -5,14 +5,6 @@ require_relative "oaken/version"
 module Oaken
   class Error < StandardError; end
 
-  module Data
-    extend self
-
-    def self.register(key, type)
-      stored = Stored::Memory.new(type) and define_method(key) { stored }
-    end
-  end
-
   module Stored; end
   class Stored::Abstract
     def initialize(type)
@@ -53,5 +45,23 @@ module Oaken
         @type.create!(id: id.hash, **attributes)
       end
     end
+  end
+
+  module Data
+    extend self
+
+    class Provider < Struct.new(:data, :provider)
+      def register(key, type)
+        stored = provider.new(type) and data.define_method(key) { stored }
+      end
+    end
+
+    def self.provider(name, provider)
+      define_singleton_method(name) { (@providers ||= {})[name] ||= Provider.new(self, provider) }
+      class_eval "def #{name}; self.class.#{name}; end"
+    end
+
+    provider :memory, Stored::Memory
+    provider :records, Stored::ActiveRecord
   end
 end

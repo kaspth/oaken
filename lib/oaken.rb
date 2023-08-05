@@ -23,12 +23,22 @@ module Oaken
     def update(name, **attributes)
       @objects[name] = @type.new(**attributes)
       self.class.define_method(name) { @objects[name] }
+    end
+  end
 
-      # if record = @type.find_by(id: name.hash)
-      #   record.update! **attributes
-      # else
-      #   @type.create!(attributes)
-      # end
+  class Stored::ActiveRecord
+    def initialize(name, type)
+      @name, @type = name, type
+    end
+
+    def update(name, **attributes)
+      self.class.define_method(name) { @type.find(name.hash) }
+
+      if record = @type.find_by(id: name.hash)
+        record.update!(**attributes)
+      else
+        @type.create!(**attributes)
+      end
     end
   end
 end

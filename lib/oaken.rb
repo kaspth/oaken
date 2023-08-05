@@ -63,5 +63,11 @@ module Oaken
 
     provider :memory, Stored::Memory
     provider :records, Stored::ActiveRecord
+
+    def self.load_from(directory)
+      Dir.glob("#{directory}/**/*").sort.each do |file|
+        Oaken::Data.class_eval File.read(file)
+      end
+    end
   end
 end

@@ -8,22 +8,21 @@ module Oaken
   module Data
     extend self
 
-    def users
-      @@users ||= Stored::Memory.new(:users)
+    require "ostruct" # TODO: Remove OpenStruct relatively soon.
+    def self.register(key, type = OpenStruct)
+      stored = Stored::Memory.new(key, type) and define_method(key) { stored }
     end
   end
 
   module Stored; end
   class Stored::Memory
-    def initialize(name)
-      @name = name
+    def initialize(name, type)
+      @name, @type = name, type
       @objects = {}
     end
 
     def update(name, **attributes)
-      require "ostruct" # TODO: Remove OpenStruct relatively soon.
-
-      @objects[name] = OpenStruct.new(attributes)
+      @objects[name] = @type.new(**attributes)
       self.class.define_method(name) { @objects[name] }
 
       # if record = @records.find_by(id: name.hash)

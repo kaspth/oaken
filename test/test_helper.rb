@@ -9,4 +9,5 @@ class Oaken::Test < Minitest::Test
   include Oaken::Data
 end
 
+Oaken::Data.register :users
 Oaken::Data.users.update :kasper, name: "Kasper"

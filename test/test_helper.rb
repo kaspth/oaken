@@ -9,6 +9,4 @@ class Oaken::Test < Minitest::Test
   include Oaken::Data
 end
 
-Oaken::Data.seeds do
-  users.update :kasper, name: "Kasper"
-end
+Oaken::Data.users.update :kasper, name: "Kasper"

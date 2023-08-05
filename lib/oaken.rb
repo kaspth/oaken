@@ -11,10 +11,6 @@ module Oaken
     def users
       @@users ||= Table.new(:users)
     end
-
-    def self.seeds(&block)
-      module_eval(&block)
-    end
   end
 
   class Table

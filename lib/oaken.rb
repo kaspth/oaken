@@ -9,14 +9,14 @@ module Oaken
     extend self
 
     def self.register(key, type)
-      stored = Stored::Memory.new(key, type) and define_method(key) { stored }
+      stored = Stored::Memory.new(type) and define_method(key) { stored }
     end
   end
 
   module Stored; end
   class Stored::Abstract
-    def initialize(key, type)
-      @key, @type = key, type
+    def initialize(type)
+      @type = type
     end
 
     def update(id, **attributes)

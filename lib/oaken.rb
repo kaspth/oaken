@@ -24,10 +24,10 @@ module Oaken
       @objects[name] = @type.new(**attributes)
       self.class.define_method(name) { @objects[name] }
 
-      # if record = @records.find_by(id: name.hash)
+      # if record = @type.find_by(id: name.hash)
       #   record.update! **attributes
       # else
-      #   @records.create!(attributes)
+      #   @type.create!(attributes)
       # end
     end
   end

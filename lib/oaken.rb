@@ -5,7 +5,7 @@ require_relative "oaken/version"
 module Oaken
   class Error < StandardError; end
 
-  module Tables
+  module Data
     extend self
 
     def users

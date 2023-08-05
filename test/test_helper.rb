@@ -6,9 +6,9 @@ require "oaken"
 require "minitest/autorun"
 
 class Oaken::Test < Minitest::Test
-  include Oaken::Tables
+  include Oaken::Data
 end
 
-Oaken::Tables.seeds do
+Oaken::Data.seeds do
   users.update :kasper, name: "Kasper"
 end

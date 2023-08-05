@@ -15,23 +15,23 @@ module Oaken
 
   module Stored; end
   class Stored::Abstract
-    def initialize(name, type)
-      @name, @type = name, type
+    def initialize(key, type)
+      @key, @type = key, type
     end
 
-    def update(name, **attributes)
-      self.class.define_method(name) { find(name) }
+    def update(id, **attributes)
+      self.class.define_method(id) { find(id) }
     end
   end
 
   class Stored::Memory < Stored::Abstract
-    def find(name)
-      objects.fetch(name)
+    def find(id)
+      objects.fetch(id)
     end
 
-    def update(name, **attributes)
+    def update(id, **attributes)
       super
-      objects[name] = @type.new(**attributes)
+      objects[id] = @type.new(**attributes)
     end
 
     private def objects
@@ -40,14 +40,14 @@ module Oaken
   end
 
   class Stored::ActiveRecord < Stored::Abstract
-    def find(name)
-      @type.find(name.hash)
+    def find(id)
+      @type.find(id.hash)
     end
 
-    def update(name, **attributes)
+    def update(id, **attributes)
       super
 
-      if record = @type.find_by(id: name.hash)
+      if record = @type.find_by(id: id.hash)
         record.update!(**attributes)
       else
         @type.create!(**attributes)

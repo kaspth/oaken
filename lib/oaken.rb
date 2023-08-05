@@ -50,7 +50,7 @@ module Oaken
       if record = @type.find_by(id: id.hash)
         record.update!(**attributes)
       else
-        @type.create!(**attributes)
+        @type.create!(id: id.hash, **attributes)
       end
     end
   end

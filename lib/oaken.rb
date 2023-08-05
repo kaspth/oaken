@@ -9,11 +9,12 @@ module Oaken
     extend self
 
     def users
-      @@users ||= Table.new(:users)
+      @@users ||= Stored::Memory.new(:users)
     end
   end
 
-  class Table
+  module Stored; end
+  class Stored::Memory
     def initialize(name)
       @name = name
       @fixtures = {}

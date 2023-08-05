@@ -9,5 +9,7 @@ class Oaken::Test < Minitest::Test
   include Oaken::Data
 end
 
-Oaken::Data.register :users
+User = Struct.new(:name)
+
+Oaken::Data.register :users, User
 Oaken::Data.users.update :kasper, name: "Kasper"

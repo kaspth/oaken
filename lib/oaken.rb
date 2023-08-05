@@ -8,8 +8,7 @@ module Oaken
   module Data
     extend self
 
-    require "ostruct" # TODO: Remove OpenStruct relatively soon.
-    def self.register(key, type = OpenStruct)
+    def self.register(key, type)
       stored = Stored::Memory.new(key, type) and define_method(key) { stored }
     end
   end

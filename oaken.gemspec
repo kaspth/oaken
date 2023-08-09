@@ -30,8 +30,6 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { File.basename(_1) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "activesupport"
-
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
 end

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/string/inflections"
-
 require "oaken/version"
 
 module Oaken
@@ -53,9 +51,10 @@ module Oaken
     extend self
 
     class Provider < Struct.new(:data, :provider)
-      def register(type)
+      def register(type, key = nil)
+        key ||= type.name.gsub("::", "_").tap(&:downcase!) << "s"
         stored = provider.new(type)
-        data.define_method(type.to_s.underscore.tr("/", "_").pluralize) { stored }
+        data.define_method(key) { stored }
       end
     end
 

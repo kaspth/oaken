@@ -22,7 +22,5 @@ class OakenTest < Oaken::Test
   def test_updating_fixture
     users.update :kasper, name: "Kasper2"
     assert_equal "Kasper2", users.kasper.name
-
-    users.update :kasper, name: "Kasper" # TODO: Hack to pretend we've got transactional tests working. Remove after we've connected Active Record.
   end
 end

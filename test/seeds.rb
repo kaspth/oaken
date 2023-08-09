@@ -1,4 +1,4 @@
-memory.register User
+records.register User
 users.update :kasper, name: "Kasper"
 
 records.register Comment

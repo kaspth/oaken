@@ -39,3 +39,9 @@ Initial development is supported in part by:
 <a href="https://arrows.to">
  <img src="https://user-images.githubusercontent.com/56947/258236465-06c692a7-738e-44bd-914e-fecc697317ce.png" />
 </a>
+
+And by:
+
+- [Alexandre Ruban](https://github.com/alexandreruban)
+
+As a sponsor you're welcome to submit a pull request to add your own name here.

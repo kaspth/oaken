@@ -27,7 +27,7 @@ end
 class Comment < ActiveRecord::Base
 end
 
-
+Oaken::Data.records.preregister ActiveRecord::Base.connection.tables.grep_v(/^ar_/)
 Oaken::Data.load_from "test/seeds"
 
 class Oaken::Test < ActiveSupport::TestCase

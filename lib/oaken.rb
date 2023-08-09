@@ -64,6 +64,7 @@ module Oaken
 
     provider :memory, Stored::Memory
     provider :records, Stored::ActiveRecord
+    def register(...) = records.register(...) # Set Active Record as the default provider.
 
     def self.load_from(directory)
       Dir.glob("#{directory}{,/**/*}.rb").sort.each do |file|

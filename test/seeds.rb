@@ -1,4 +1,4 @@
-records.register User
+register User
 users.update :kasper, name: "Kasper"
 
-records.register Comment
+register Comment

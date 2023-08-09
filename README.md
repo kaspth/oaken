@@ -43,5 +43,6 @@ Initial development is supported in part by:
 And by:
 
 - [Alexandre Ruban](https://github.com/alexandreruban)
+- [Lars Kronfält](https://github.com/larkro)
 
 As a sponsor you're welcome to submit a pull request to add your own name here.

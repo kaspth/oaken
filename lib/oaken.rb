@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-require_relative "oaken/version"
+require "active_support/core_ext/string/inflections"
+
+require "oaken/version"
 
 module Oaken
   class Error < StandardError; end
@@ -51,14 +53,14 @@ module Oaken
     extend self
 
     class Provider < Struct.new(:data, :provider)
-      def register(key, type)
-        stored = provider.new(type) and data.define_method(key) { stored }
+      def register(type)
+        stored = provider.new(type)
+        data.define_method(type.to_s.underscore.tr("/", "_").pluralize) { stored }
       end
     end
 
     def self.provider(name, provider)
       define_singleton_method(name) { (@providers ||= {})[name] ||= Provider.new(self, provider) }
-      class_eval "def #{name}; self.class.#{name}; end"
     end
 
     provider :memory, Stored::Memory

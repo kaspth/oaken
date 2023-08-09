@@ -1,2 +1,2 @@
-Comment = Struct.new(:name, keyword_init: true)
-records.register :comments, Comment
+::Comment = Struct.new(:name, keyword_init: true)
+records.register Comment

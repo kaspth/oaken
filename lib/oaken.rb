@@ -14,6 +14,12 @@ module Oaken
     def update(id, **attributes)
       self.class.define_method(id) { find(id) }
     end
+
+    def preregister(names)
+      names.each do |name|
+        register name
+      end
+    end
   end
 
   class Stored::Memory < Stored::Abstract
@@ -56,6 +62,13 @@ module Oaken
         stored = provider.new(type)
         data.define_method(key) { stored }
       end
+
+      def preregister(names)
+        names.each do |name|
+          stored = provider.new(name.singularize.classify.constantize)
+          data.define_method(name) { stored }
+        end
+      end
     end
 
     def self.provider(name, provider)
@@ -64,6 +77,7 @@ module Oaken
 
     provider :memory, Stored::Memory
     provider :records, Stored::ActiveRecord
+    def register(...) = records.register(...) # Set Active Record as the default provider.
 
     def self.load_from(directory)
       Dir.glob("#{directory}{,/**/*}.rb").sort.each do |file|

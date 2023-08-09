@@ -2,26 +2,15 @@ PATH
   remote: .
   specs:
     oaken (0.2.0)
-      activesupport
 
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (7.0.6)
-      concurrent-ruby (~> 1.0, >= 1.0.2)
-      i18n (>= 1.6, < 2)
-      minitest (>= 5.1)
-      tzinfo (~> 2.0)
-    concurrent-ruby (1.2.2)
-    i18n (1.14.1)
-      concurrent-ruby (~> 1.0)
     minitest (5.18.1)
     minitest-sprint (1.2.2)
       path_expander (~> 1.1)
     path_expander (1.1.1)
     rake (13.0.6)
-    tzinfo (2.0.6)
-      concurrent-ruby (~> 1.0)
 
 PLATFORMS
   arm64-darwin-21

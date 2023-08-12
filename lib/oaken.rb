@@ -27,12 +27,6 @@ module Oaken
     def update(id, **attributes)
       self.class.define_method(id) { find(id) }
     end
-
-    def preregister(names)
-      names.each do |name|
-        register name
-      end
-    end
   end
 
   class Stored::Memory < Stored::Abstract

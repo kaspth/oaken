@@ -17,6 +17,26 @@ class OakenTest < Oaken::Test
 
   def test_accessing_fixture
     assert_equal "Kasper", users.kasper.name
+    assert_equal "Coworker", users.coworker.name
+
+    assert_equal [accounts.business], users.kasper.accounts
+    assert_equal [accounts.business], users.coworker.accounts
+    assert_equal [users.kasper, users.coworker], accounts.business.users
+  end
+
+  def test_default_attributes_last_into_test
+    users.update :homer
+    assert_equal [accounts.business], users.homer.accounts
+  end
+
+  def test_default_attributes_block
+    users.with accounts: [accounts.update(:home_co, name: "Yo")] do
+      users.update :homer
+    end
+    assert_equal [accounts.home_co], users.homer.accounts
+
+    users.update :homer
+    assert_equal [accounts.business], users.homer.accounts
   end
 
   def test_updating_fixture

@@ -70,15 +70,15 @@ module Oaken
     extend self
 
     class Provider < Struct.new(:data, :provider)
-      def register(type, key = Oaken.inflector.tableize(type.name))
-        stored = provider.new(type)
-        data.define_method(key) { stored }
-      end
-
       def preregister(names)
         names.each do |name|
           type = Oaken.inflector.classify(name).safe_constantize and register type, name
         end
+      end
+
+      def register(type, key = Oaken.inflector.tableize(type.name))
+        stored = provider.new(type)
+        data.define_method(key) { stored }
       end
     end
 

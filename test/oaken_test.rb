@@ -31,7 +31,7 @@ class OakenTest < Oaken::Test
 
   def test_default_attributes_block
     users.with accounts: [accounts.update(:home_co, name: "Yo")] do
-      users.update :homer, name: "Homer"
+      users.update :homer
     end
     assert_equal [accounts.home_co], users.homer.accounts
 

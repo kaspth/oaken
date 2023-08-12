@@ -26,8 +26,12 @@ module Oaken
     end
 
     def with(**attributes)
-      previous_attributes, @attributes = @attributes, attributes
-      yield if block_given?
+      if block_given?
+        previous_attributes, @attributes = @attributes, @attributes.merge(attributes)
+        yield
+      else
+        @attributes = attributes
+      end
     ensure
       @attributes = previous_attributes if block_given?
     end

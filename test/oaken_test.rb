@@ -24,13 +24,17 @@ class OakenTest < Oaken::Test
     assert_equal [users.kasper, users.coworker], accounts.business.users
   end
 
+  def test_default_attributes_override
+    assert_equal "Big Business Co.", accounts.business.name
+  end
+
   def test_default_attributes_last_into_test
     users.update :homer
     assert_equal [accounts.business], users.homer.accounts
   end
 
   def test_default_attributes_block
-    users.with accounts: [accounts.update(:home_co, name: "Yo")] do
+    users.with accounts: [accounts.update(:home_co)] do
       users.update :homer
     end
     assert_equal [accounts.home_co], users.homer.accounts

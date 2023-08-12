@@ -10,6 +10,17 @@ ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:"
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 
 ActiveRecord::Schema.define do
+  create_table :accounts, force: true do |t|
+    t.string :name, null: false
+    t.timestamps
+  end
+
+  create_table :memberships, force: true do |t|
+    t.integer :account_id, null: false
+    t.integer :user_id,    null: false
+    t.timestamps
+  end
+
   create_table :users, force: true do |t|
     t.string :name, null: false
     t.timestamps
@@ -21,7 +32,19 @@ ActiveRecord::Schema.define do
   end
 end
 
+class Account < ActiveRecord::Base
+  has_many :memberships, dependent: :destroy
+  has_many :users, through: :memberships, dependent: :destroy
+end
+
+class Membership < ActiveRecord::Base
+  belongs_to :account
+  belongs_to :user
+end
+
 class User < ActiveRecord::Base
+  has_many :memberships
+  has_many :accounts, through: :memberships
 end
 
 class Comment < ActiveRecord::Base

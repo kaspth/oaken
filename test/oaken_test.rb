@@ -17,6 +17,8 @@ class OakenTest < Oaken::Test
 
   def test_accessing_fixture
     assert_equal "Kasper", users.kasper.name
+    assert_equal accounts.business.memberships, users.kasper.memberships
+    assert_equal [accounts.business], users.kasper.accounts
   end
 
   def test_updating_fixture

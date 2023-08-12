@@ -11,7 +11,7 @@ module Oaken
     end
 
     def classify(string)
-      string.singularize.classify
+      string.chomp("s").gsub(/_([a-z])/) { $1.upcase }.sub(/^\w/, &:upcase)
     end
   end
 

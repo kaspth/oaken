@@ -9,6 +9,10 @@ module Oaken
     def tableize(string)
       string.gsub("::", "_").tap(&:downcase!) << "s"
     end
+
+    def classify(string)
+      string.singularize.classify
+    end
   end
 
   singleton_class.attr_accessor :inflector
@@ -73,7 +77,7 @@ module Oaken
 
       def preregister(names)
         names.each do |name|
-          stored = provider.new(name.singularize.classify.constantize)
+          stored = provider.new(Oaken.inflector.classify(name).constantize)
           data.define_method(name) { stored }
         end
       end

@@ -1,3 +1,5 @@
 accounts.update :business, name: "Big Business Co."
 
-users.update :kasper, name: "Kasper", accounts: [accounts.business]
+users.with accounts: [accounts.business]
+users.update :kasper, name: "Kasper"
+users.update :coworker, name: "Coworker"

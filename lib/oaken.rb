@@ -22,10 +22,19 @@ module Oaken
   class Stored::Abstract
     def initialize(type)
       @type = type
+      @attributes = {}
+    end
+
+    def with(**attributes)
+      previous_attributes, @attributes = @attributes, attributes
+      yield if block_given?
+    ensure
+      @attributes = previous_attributes if block_given?
     end
 
     def update(id, **attributes)
       self.class.define_method(id) { find(id) }
+      @attributes.merge(attributes)
     end
   end
 
@@ -35,7 +44,7 @@ module Oaken
     end
 
     def update(id, **attributes)
-      super
+      attributes = super
       objects[id] = @type.new(**attributes)
     end
 
@@ -50,7 +59,7 @@ module Oaken
     end
 
     def update(id, **attributes)
-      super
+      attributes = super
 
       if record = @type.find_by(id: id.hash)
         record.update!(**attributes)

@@ -25,7 +25,7 @@ class OakenTest < Oaken::Test
   end
 
   def test_default_attributes_last_into_test
-    users.update :homer, name: "Homer"
+    users.update :homer
     assert_equal [accounts.business], users.homer.accounts
   end
 

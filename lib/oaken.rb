@@ -27,12 +27,6 @@ module Oaken
     def update(id, **attributes)
       self.class.define_method(id) { find(id) }
     end
-
-    def preregister(names)
-      names.each do |name|
-        register name
-      end
-    end
   end
 
   class Stored::Memory < Stored::Abstract
@@ -70,16 +64,15 @@ module Oaken
     extend self
 
     class Provider < Struct.new(:data, :provider)
+      def preregister(names)
+        names.each do |name|
+          type = Oaken.inflector.classify(name).safe_constantize and register type, name
+        end
+      end
+
       def register(type, key = Oaken.inflector.tableize(type.name))
         stored = provider.new(type)
         data.define_method(key) { stored }
-      end
-
-      def preregister(names)
-        names.each do |name|
-          stored = provider.new(Oaken.inflector.classify(name).constantize)
-          data.define_method(name) { stored }
-        end
       end
     end
 

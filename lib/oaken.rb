@@ -5,6 +5,19 @@ require "oaken/version"
 module Oaken
   class Error < StandardError; end
 
+  class Inflector
+    def tableize(string)
+      string.gsub(/(?<=[a-z])(?=[A-Z])/, "_").gsub("::", "_").tap(&:downcase!) << "s"
+    end
+
+    def classify(string)
+      string.chomp("s").gsub(/_([a-z])/) { $1.upcase }.sub(/^\w/, &:upcase)
+    end
+  end
+
+  singleton_class.attr_accessor :inflector
+  @inflector = Inflector.new
+
   module Stored; end
   class Stored::Abstract
     def initialize(type)
@@ -57,15 +70,14 @@ module Oaken
     extend self
 
     class Provider < Struct.new(:data, :provider)
-      def register(type, key = nil)
-        key ||= type.name.gsub("::", "_").tap(&:downcase!) << "s"
+      def register(type, key = Oaken.inflector.tableize(type.name))
         stored = provider.new(type)
         data.define_method(key) { stored }
       end
 
       def preregister(names)
         names.each do |name|
-          stored = provider.new(name.singularize.classify.constantize)
+          stored = provider.new(Oaken.inflector.classify(name).constantize)
           data.define_method(name) { stored }
         end
       end

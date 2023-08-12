@@ -77,8 +77,7 @@ module Oaken
 
       def preregister(names)
         names.each do |name|
-          stored = provider.new(Oaken.inflector.classify(name).constantize)
-          data.define_method(name) { stored }
+          type = Oaken.inflector.classify(name).safe_constantize and register type, name
         end
       end
     end

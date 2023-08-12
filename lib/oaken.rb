@@ -7,7 +7,7 @@ module Oaken
 
   class Inflector
     def tableize(string)
-      string.gsub("::", "_").tap(&:downcase!) << "s"
+      string.gsub(/(?<=[a-z])(?=[A-Z])/, "_").gsub("::", "_").tap(&:downcase!) << "s"
     end
 
     def classify(string)

@@ -48,6 +48,7 @@ class User < ActiveRecord::Base
 end
 
 class Comment < ActiveRecord::Base
+  after_create { raise "after_create" }
 end
 
 Oaken::Data.records.preregister ActiveRecord::Base.connection.tables.grep_v(/^ar_/)

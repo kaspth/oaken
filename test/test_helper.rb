@@ -30,6 +30,11 @@ ActiveRecord::Schema.define do
     t.string :title, null: false
     t.timestamps
   end
+
+  create_table :yaml_records, force: true do |t|
+    t.integer :account_id, null: false
+    t.string :name, null: false
+  end
 end
 
 class Account < ActiveRecord::Base
@@ -51,12 +56,20 @@ class Comment < ActiveRecord::Base
   after_create { raise "after_create" }
 end
 
+class YamlRecord < ActiveRecord::Base
+  belongs_to :account
+end
+
+require "active_record/fixtures"
+
 Oaken::Data.records.preregister ActiveRecord::Base.connection.tables.grep_v(/^ar_/)
 Oaken::Data.load_from "test/seeds"
 
 class Oaken::Test < ActiveSupport::TestCase
   include ActiveRecord::TestFixtures
+  self.fixture_path = "test/fixtures"
   self.use_transactional_tests = true
+  fixtures :all
 
   include Oaken::Data
 end

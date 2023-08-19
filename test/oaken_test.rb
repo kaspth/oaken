@@ -15,6 +15,10 @@ class OakenTest < Oaken::Test
     refute_nil ::Oaken::VERSION
   end
 
+  def test_fixture_yml_compatibility
+    assert_equal "YAML", YamlRecord.first.name
+  end
+
   def test_accessing_fixture
     assert_equal "Kasper", users.kasper.name
     assert_equal "Coworker", users.coworker.name

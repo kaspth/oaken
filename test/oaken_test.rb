@@ -17,6 +17,7 @@ class OakenTest < Oaken::Test
 
   def test_fixture_yml_compatibility
     assert_equal "YAML", YamlRecord.first.name
+    assert_equal accounts.business, YamlRecord.first.account
   end
 
   def test_accessing_fixture

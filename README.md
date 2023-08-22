@@ -18,11 +18,11 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 ### Fixture to Seed Converter
 
-You can now use Oaken to easily convert your Rails fixtures to seedable models. To utilize this feature, run the following command:
+You can convert your Rails fixtures to Oaken's seeds via the following command:
 
-    $ rails generate oaken:fixture_converter
+    $ bin/rails generate oaken:convert:fixtures
 
-This will convert `users.yml` to `users.rb`.
+This will convert anything in test/fixtures to test/seeds. E.g. `test/fixtures/users.yml` becomes `test/seeds/users.rb`.
 
 ## Development
 

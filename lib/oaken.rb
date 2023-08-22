@@ -83,9 +83,8 @@ module Oaken
     end
 
     def upsert(id, **attributes)
-      attributes = super
-
-      @type.upsert(attributes.merge!(id: id.hash))
+      record = @type.new(id: id.hash, **super).tap(&:validate!)
+      @type.upsert(record.attributes)
     end
   end
 

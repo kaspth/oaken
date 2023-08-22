@@ -19,9 +19,8 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
         FileUtils.mkdir_p(output_file.dirname)
 
         parsed_data = parse_fixture_file fixture_file
-
         unless parsed_data
-          say "Skipped #{fixture_file} due to the fixture file being empty", :yellow
+          say "Skipped empty #{fixture_file}", :yellow
           next
         end
 

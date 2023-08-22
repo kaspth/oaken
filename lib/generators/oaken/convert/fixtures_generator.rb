@@ -1,15 +1,15 @@
-require 'rails/generators/base'
-require 'yaml'
+require "rails/generators/base"
+require "yaml"
 
 module Oaken::Convert; end
 class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
-  source_root File.expand_path('templates', __dir__)
+  source_root File.expand_path("templates", __dir__)
 
   desc "This generator converts Rails fixtures to seedable models"
 
   def convert_fixtures_to_seeds
-    fixtures_path = Rails.root.join('test/fixtures')
-    seeds_path = Rails.root.join('test/seeds')
+    fixtures_path = Rails.root.join("test/fixtures")
+    seeds_path = Rails.root.join("test/seeds")
 
     Dir.glob("#{fixtures_path}/**/*.{yml,yaml}") do |fixture_file|
       begin
@@ -21,14 +21,14 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
         parsed_data = parse_fixture_file fixture_file
 
         unless parsed_data
-          say "Skipped '#{fixture_file}' due to the fixture file being empty", :yellow
+          say "Skipped #{fixture_file} due to the fixture file being empty", :yellow
           next
         end
 
         output = []
         parsed_data.each do |key, attributes|
           model_name = File.basename(relative_path, ".*")
-          attribute_strings = attributes.map { |k, v| "#{k}: #{recursive_convert(v)}" }.join(', ')
+          attribute_strings = attributes.map { |k, v| "#{k}: #{recursive_convert(v)}" }.join(", ")
           output << "#{model_name}.update :#{key}, #{attribute_strings}"
         end
 
@@ -36,7 +36,7 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
 
         say "Converted #{fixture_file} to #{output_file}", :green
       rescue Psych::SyntaxError
-        say "Skipped '#{fixture_file}' due to ERB content or other YAML parsing issues.", :yellow
+        say "Skipped #{fixture_file} due to ERB content or other YAML parsing issues.", :yellow
       end
     end
   end
@@ -48,10 +48,10 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
 
     def recursive_convert(input)
       if input.is_a?(Hash)
-        inner_hash = input.map { |k, v| "#{k}: #{recursive_convert(v)}" }.join(', ')
+        inner_hash = input.map { |k, v| "#{k}: #{recursive_convert(v)}" }.join(", ")
         "{ #{inner_hash} }"
       elsif input.is_a?(Array)
-        input.map { |item| recursive_convert(item) }.join(', ')
+        input.map { |item| recursive_convert(item) }.join(", ")
       else
         "\"#{input}\""
       end

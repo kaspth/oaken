@@ -48,6 +48,8 @@ module Oaken
         end
       end
     end
+
+    alias :upsert :update
   end
 
   class Stored::Memory < Stored::Abstract
@@ -78,6 +80,12 @@ module Oaken
       else
         @type.create!(id: id.hash, **attributes)
       end
+    end
+
+    def upsert(id, **attributes)
+      attributes = super
+      @type.new(attributes).validate!
+      @type.upsert({ id: id.hash, **attributes })
     end
   end
 

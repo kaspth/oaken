@@ -47,4 +47,13 @@ class OakenTest < Oaken::Test
     users.update :kasper, name: "Kasper2"
     assert_equal "Kasper2", users.kasper.name
   end
+
+  def test_upserting_vs_updating
+    assert_equal "Nice!", comments.praise.title
+
+    error = assert_raises RuntimeError do
+      comments.update :salty, title: "foo"
+    end
+    assert_equal "after_create", error.message
+  end
 end

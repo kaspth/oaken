@@ -12,19 +12,17 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
     Pathname.glob("**/*.{yml,yaml}", base: path) do |fixture_file|
       output_file = Pathname.new("test/seeds") / fixture_file.sub_ext(".rb")
 
-      parsed_data = parse_fixture_file path / fixture_file
-      unless parsed_data
-        say "Skipped empty #{fixture_file}", :yellow
-        next
-      end
+      if parsed = parse_fixture_file(path / fixture_file)
+        output = parsed.map do |key, attributes|
+          model_name = output_file.basename(".*")
+          attribute_strings = attributes.map { |k, v| "#{k}: #{recursive_convert(v)}" }.join(", ")
+          "#{model_name}.update :#{key}, #{attribute_strings}"
+        end
 
-      output = parsed_data.map do |key, attributes|
-        model_name = output_file.basename(".*")
-        attribute_strings = attributes.map { |k, v| "#{k}: #{recursive_convert(v)}" }.join(", ")
-        "#{model_name}.update :#{key}, #{attribute_strings}"
+        create_file output_file, output.join("\n")
+      else
+        create_file output_file, ""
       end
-
-      create_file output_file, output.join("\n")
     rescue Psych::SyntaxError
       say "Skipped #{fixture_file} due to ERB content or other YAML parsing issues.", :yellow
     end

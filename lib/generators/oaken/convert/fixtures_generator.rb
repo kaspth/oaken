@@ -14,9 +14,7 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
 
       if parsed = parse_fixture_file(path / fixture_file)
         output = parsed.map do |key, attributes|
-          model_name = output_file.basename(".*")
-          attribute_strings = attributes.map { |k, v| "#{k}: #{recursive_convert(v)}" }.join(", ")
-          "#{model_name}.update :#{key}, #{attribute_strings}"
+          "#{fixture_file.to_s.chomp(".yml")}.update :#{key}, #{recursive_convert(attributes, wrap: false)}"
         end
 
         create_file output_file, output.join("\n")
@@ -33,11 +31,11 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
       YAML.load_file(path)
     end
 
-    def recursive_convert(input)
+    def recursive_convert(input, wrap: true)
       case input
       when Hash
         inner_hash = input.map { |k, v| "#{k}: #{recursive_convert(v)}" }.join(", ")
-        "{ #{inner_hash} }"
+        wrap ? "{ #{inner_hash} }" : inner_hash
       when Array
         input.map { |item| recursive_convert(item) }.join(", ")
       else

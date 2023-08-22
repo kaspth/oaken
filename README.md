@@ -14,6 +14,16 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
     $ gem install oaken
 
+## Features
+
+### Fixture to Seed Converter
+
+You can now use Oaken to easily convert your Rails fixtures to seedable models. To utilize this feature, run the following command:
+
+    $ rails generate oaken:fixture_converter
+
+This will convert `users.yml` to `users.rb`.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `bin/test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -30,7 +40,7 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the Oaken project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/kaspth/oaken/blob/main/CODE_OF_CONDUCT.md).
+Everyone interacting in the Oaken project's codebases, issue trackers, chat rooms, and mailing lists is expected to follow the [code of conduct](https://github.com/kaspth/oaken/blob/main/CODE_OF_CONDUCT.md).
 
 ## Support
 

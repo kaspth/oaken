@@ -6,29 +6,23 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
   desc "Converts Rails fixtures to Oaken seeds"
   source_root File.expand_path("templates", __dir__)
 
-  def convert
-    path = Pathname.new("test/fixtures")
+  def convert_all
+    Pathname.glob("test/fixtures/**/*.{yml,yaml}") do |file|
+      yaml = YAML.load_file(file)
 
-    Pathname.glob("**/*.{yml,yaml}", base: path) do |fixture_file|
-      output_file = Pathname.new("test/seeds") / fixture_file.sub_ext(".rb")
-
-      if parsed = parse_fixture_file(path / fixture_file)
-        output = parsed.map do |key, attributes|
-          "#{fixture_file.to_s.chomp(".yml")}.update :#{key}, #{recursive_convert(attributes, wrap: false)}"
-        end
-
-        create_file output_file, output.join("\n")
-      else
-        create_file output_file, ""
-      end
+      model_name  = file.relative_path_from("test/fixtures").sub_ext ""
+      output_file = file.sub("fixtures", "seeds").sub_ext(".rb")
+      create_file output_file, convert_one(model_name, yaml) || ""
     rescue Psych::SyntaxError
       say "Skipped #{fixture_file} due to ERB content or other YAML parsing issues.", :yellow
     end
   end
 
   private
-    def parse_fixture_file(path)
-      YAML.load_file(path)
+    def convert_one(model_name, contents)
+      contents.map do |key, attributes|
+        "#{model_name}.update :#{key}, #{recursive_convert(attributes, wrap: false)}"
+      end.join("\n") if contents
     end
 
     def recursive_convert(input, wrap: true)

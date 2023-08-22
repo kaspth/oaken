@@ -83,8 +83,9 @@ module Oaken
     end
 
     def upsert(id, **attributes)
-      record = @type.new(id: id.hash, **super).tap(&:validate!)
-      @type.upsert(record.attributes, record_timestamps: true)
+      attributes = super
+      @type.new(attributes).validate!
+      @type.upsert({ id: id.hash, **attributes })
     end
   end
 

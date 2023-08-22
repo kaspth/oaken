@@ -24,11 +24,10 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
           next
         end
 
-        output = []
-        parsed_data.each do |key, attributes|
+        output = parsed_data.map do |key, attributes|
           model_name = File.basename(relative_path, ".*")
           attribute_strings = attributes.map { |k, v| "#{k}: #{recursive_convert(v)}" }.join(", ")
-          output << "#{model_name}.update :#{key}, #{attribute_strings}"
+          "#{model_name}.update :#{key}, #{attribute_strings}"
         end
 
         output_file.write output.join("\n")

@@ -26,7 +26,7 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
         model_name = model_path.tr("/", "_")
 
         contents.map do |key, attributes|
-          "#{model_name}.update :#{key}, #{recursive_convert(attributes, wrap: false)}"
+          "#{model_name}.update :#{key}, #{convert_hash(attributes)}"
         end.join("\n").tap do
           _1.prepend "register #{model_path.classify}\n" if model_path.include?("/")
         end
@@ -35,13 +35,14 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
 
     def recursive_convert(input, wrap: true)
       case input
-      when Hash
-        inner_hash = input.map { |k, v| "#{k}: #{recursive_convert(v)}" }.join(", ")
-        wrap ? "{ #{inner_hash} }" : inner_hash
-      when Array
-        input.map { |item| recursive_convert(item) }.join(", ")
+      when Hash  then "{ #{convert_hash(input)} }"
+      when Array then input.map { recursive_convert _1 }.join(", ")
       else
         "\"#{input}\""
       end
+    end
+
+    def convert_hash(hash)
+      hash.map { |k, v| "#{k}: #{recursive_convert(v)}" }.join(", ")
     end
 end

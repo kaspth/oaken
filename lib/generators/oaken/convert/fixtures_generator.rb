@@ -33,7 +33,7 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
       end
     end
 
-    def recursive_convert(input, wrap: true)
+    def recursive_convert(input)
       case input
       when Hash  then "{ #{convert_hash(input)} }"
       when Array then input.map { recursive_convert _1 }.join(", ")

@@ -38,8 +38,8 @@ class OakenTest < Oaken::Test
   end
 
   def test_updating_fixture
-    users.update :kasper, name: "Kasper2"
-    assert_equal "Kasper2", users.kasper.name
+    kasper = users.update :kasper, name: "Kasper2"
+    assert_equal "Kasper2", kasper.name
   end
 
   def test_upserting_vs_updating

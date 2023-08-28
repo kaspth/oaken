@@ -76,7 +76,7 @@ module Oaken
       attributes = super
 
       if record = @type.find_by(id: identify(id))
-        record.update!(**attributes)
+        record.tap { _1.update!(**attributes) }
       else
         @type.create!(id: identify(id), **attributes)
       end

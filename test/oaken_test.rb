@@ -29,36 +29,25 @@ class OakenTest < Oaken::Test
     assert_equal [users.kasper, users.coworker], accounts.business.users
   end
 
-  def test_default_attributes_override
-    assert_equal "Big Business Co.", accounts.business.name
-  end
-
-  def test_default_attributes_last_into_test
-    users.update :homer
-    assert_equal [accounts.business], users.homer.accounts
-  end
-
-  def test_default_attributes_block
-    users.with accounts: [accounts.update(:home_co)] do
+  def test_default_attributes
+    users.with name: -> { id.to_s.humanize }, accounts: [accounts.update(:home_co, name: "Home Co.")] do
       users.update :homer
     end
+    assert_equal "Homer", users.homer.name
     assert_equal [accounts.home_co], users.homer.accounts
-
-    users.update :homer
-    assert_equal [accounts.business], users.homer.accounts
   end
 
   def test_updating_fixture
-    users.update :kasper, name: "Kasper2"
-    assert_equal "Kasper2", users.kasper.name
+    kasper = users.update :kasper, name: "Kasper2"
+    assert_equal "Kasper2", kasper.name
   end
 
   def test_upserting_vs_updating
-    assert_equal "Nice!", comments.praise.title
+    assert_equal "Basic", plans.basic.title
 
     error = assert_raises RuntimeError do
-      comments.update :salty, title: "foo"
+      plans.update :salty, title: "foo", price_cents: 0
     end
-    assert_equal "after_create", error.message
+    assert_equal "after_save", error.message
   end
 end

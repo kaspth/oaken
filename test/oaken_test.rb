@@ -43,11 +43,11 @@ class OakenTest < Oaken::Test
   end
 
   def test_upserting_vs_updating
-    assert_equal "Nice!", comments.praise.title
+    assert_equal "Basic", plans.basic.title
 
     error = assert_raises RuntimeError do
-      comments.update :salty, title: "foo"
+      plans.update :salty, title: "foo", price_cents: 0
     end
-    assert_equal "after_create", error.message
+    assert_equal "after_save", error.message
   end
 end

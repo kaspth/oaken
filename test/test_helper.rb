@@ -26,8 +26,9 @@ ActiveRecord::Schema.define do
     t.timestamps
   end
 
-  create_table :comments, force: true do |t|
+  create_table :plans, force: true do |t|
     t.string :title, null: false
+    t.integer :price_cents, null: false
     t.timestamps
   end
 
@@ -52,8 +53,8 @@ class User < ActiveRecord::Base
   has_many :accounts, through: :memberships
 end
 
-class Comment < ActiveRecord::Base
-  after_create { raise "after_create" }
+class Plan < ActiveRecord::Base
+  after_save { raise "after_save" }
 end
 
 class YamlRecord < ActiveRecord::Base

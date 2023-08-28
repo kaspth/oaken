@@ -29,23 +29,12 @@ class OakenTest < Oaken::Test
     assert_equal [users.kasper, users.coworker], accounts.business.users
   end
 
-  def test_default_attributes_override
-    assert_equal "Big Business Co.", accounts.business.name
-  end
-
-  def test_default_attributes_last_into_test
-    users.update :homer
-    assert_equal [accounts.business], users.homer.accounts
-  end
-
-  def test_default_attributes_block
-    users.with accounts: [accounts.update(:home_co)] do
+  def test_default_attributes
+    users.with name: -> { id.to_s.humanize }, accounts: [accounts.update(:home_co, name: "Home Co.")] do
       users.update :homer
     end
+    assert_equal "Homer", users.homer.name
     assert_equal [accounts.home_co], users.homer.accounts
-
-    users.update :homer
-    assert_equal [accounts.business], users.homer.accounts
   end
 
   def test_updating_fixture

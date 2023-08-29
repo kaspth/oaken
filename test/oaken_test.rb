@@ -15,6 +15,15 @@ class OakenTest < Oaken::Test
     refute_nil ::Oaken::VERSION
   end
 
+  def test_helper_methods
+    assert_equal 2, accounts.increment_counter # We start at 2 since the seeds file state should pass into here.
+    assert_equal 3, accounts.increment_counter
+
+    assert_raise NoMethodError do
+      users.increment_counter
+    end
+  end
+
   def test_fixture_yml_compatibility
     assert_equal "YAML", YamlRecord.first.name
     assert_equal accounts.business, YamlRecord.first.account

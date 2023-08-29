@@ -6,7 +6,34 @@ require "oaken"
 require "active_record"
 require "minitest/autorun"
 
-ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
+module Rails
+  def self.root() = __dir__ # Needed for the sqlite3 tasks.
+end
+
+ActiveRecord::Base.configurations = {
+  sqlite:   { adapter: "sqlite3",    pool: 5, database: "tmp/oaken_test.sqlite3" },
+  mysql:    { adapter: "mysql2",     pool: 5, encoding: "utf8mb4", database: "oaken_test", username: "root", host: "localhost" },
+  postgres: { adapter: "postgresql", pool: 5, encoding: "unicode", database: "oaken_test" }
+}
+
+adapter = :sqlite
+
+database = ActiveRecord::Base.configurations.resolve(adapter).then do |config|
+  case adapter
+  when :sqlite   then ActiveRecord::Tasks::SQLiteDatabaseTasks.new(config)
+  when :mysql    then ActiveRecord::Tasks::MySQLDatabaseTasks.new(config)
+  when :postgres then ActiveRecord::Tasks::PostgreSQLDatabaseTasks.new(config)
+  end
+end
+
+begin
+  database.create
+rescue ActiveRecord::DatabaseAlreadyExists
+end
+
+Minitest.after_run { database.drop }
+
+ActiveRecord::Base.establish_connection(adapter)
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 
 ActiveRecord::Schema.define do

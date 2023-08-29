@@ -12,3 +12,5 @@ gem "minitest-sprint"
 
 gem "activerecord"
 gem "sqlite3"
+gem "mysql2"
+gem "pg"

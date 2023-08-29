@@ -22,7 +22,9 @@ GEM
     minitest (5.18.1)
     minitest-sprint (1.2.2)
       path_expander (~> 1.1)
+    mysql2 (0.5.5)
     path_expander (1.1.1)
+    pg (1.5.3)
     rake (13.0.6)
     sqlite3 (1.6.3-arm64-darwin)
     sqlite3 (1.6.3-x86_64-linux)
@@ -38,7 +40,9 @@ DEPENDENCIES
   activerecord
   minitest (~> 5.0)
   minitest-sprint
+  mysql2
   oaken!
+  pg
   rake (~> 13.0)
   sqlite3
 

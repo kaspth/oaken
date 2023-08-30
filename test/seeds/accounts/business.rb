@@ -8,3 +8,5 @@ accounts.increment_counter
 
 users.update :kasper,   name: "Kasper",   accounts: [business]
 users.update :coworker, name: "Coworker", accounts: [business]
+
+users.update name: "Third", accounts: [business]

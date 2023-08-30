@@ -36,8 +36,8 @@ module Oaken
       @attributes = previous_attributes if block_given?
     end
 
-    def update(id, **attributes)
-      self.class.define_method(id) { find(id) }
+    def update(id = nil, **attributes)
+      self.class.define_method(id) { find(id) } if id
 
       klass = nil
       attributes = @attributes.merge(attributes)
@@ -72,7 +72,7 @@ module Oaken
       @type.find identify id
     end
 
-    def update(id, **attributes)
+    def update(id = nil, **attributes)
       attributes = super
 
       if record = @type.find_by(id: identify(id))
@@ -82,7 +82,7 @@ module Oaken
       end
     end
 
-    def upsert(id, **attributes)
+    def upsert(id = nil, **attributes)
       attributes = super
       @type.new(attributes).validate!
       @type.upsert({ id: identify(id), **attributes })

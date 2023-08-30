@@ -35,7 +35,19 @@ class OakenTest < Oaken::Test
 
     assert_equal [accounts.business], users.kasper.accounts
     assert_equal [accounts.business], users.coworker.accounts
-    assert_equal [users.kasper, users.coworker], accounts.business.users
+
+    accounts.business.users.tap do
+      assert_includes _1, users.kasper
+      assert_includes _1, users.coworker
+    end
+  end
+
+  def test_unnamed_seeds
+    assert User.find_by(name: "Third")
+    assert_not_respond_to users, :third
+
+    assert Plan.find_by(title: "Premium")
+    assert_not_respond_to plans, :premium
   end
 
   def test_default_attributes

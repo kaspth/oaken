@@ -54,5 +54,6 @@ And by:
 
 - [Alexandre Ruban](https://github.com/alexandreruban)
 - [Lars Kronfält](https://github.com/larkro)
+- [Manuel Costa Reis](https://github.com/manuelfcreis)
 
 As a sponsor you're welcome to submit a pull request to add your own name here.

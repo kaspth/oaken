@@ -70,5 +70,8 @@ class OakenTest < Oaken::Test
       plans.update :salty, title: "foo", price_cents: 0
     end
     assert_equal "after_save", error.message
+
+    plans.upsert title: "Basic", price_cents: 0
+    assert_equal 0, plans.basic.price_cents
   end
 end

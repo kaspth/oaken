@@ -57,6 +57,8 @@ ActiveRecord::Schema.define do
     t.string :title, null: false
     t.integer :price_cents, null: false
     t.timestamps
+
+    t.index :title, unique: true
   end
 
   create_table :yaml_records, force: true do |t|

@@ -74,6 +74,7 @@ module Oaken
 
     def update(id = nil, **attributes)
       attributes = super
+      attributes.extract! :on_duplicate, :update_only, :returning, :unique_by, :record_timestamps
 
       if record = @type.find_by(id: identify(id))
         record.tap { _1.update!(**attributes) }
@@ -84,8 +85,10 @@ module Oaken
 
     def upsert(id = nil, **attributes)
       attributes = super
+      options = attributes.extract! :on_duplicate, :update_only, :returning, :unique_by, :record_timestamps
+
       @type.new(attributes).validate!
-      @type.upsert({ id: identify(id), **attributes })
+      @type.upsert({ id: identify(id), **attributes }, **options)
     end
 
     private def identify(id) = ::ActiveRecord::FixtureSet.identify(id, @type.type_for_attribute(@type.primary_key).type)

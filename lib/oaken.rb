@@ -69,26 +69,24 @@ module Oaken
 
   class Stored::ActiveRecord < Stored::Abstract
     def find(id)
-      @type.find identify id
+      @type.find id.hash
     end
 
     def update(id, **attributes)
       attributes = super
 
-      if record = @type.find_by(id: identify(id))
+      if record = @type.find_by(id: id.hash)
         record.tap { _1.update!(**attributes) }
       else
-        @type.create!(id: identify(id), **attributes)
+        @type.create!(id: id.hash, **attributes)
       end
     end
 
     def upsert(id, **attributes)
       attributes = super
       @type.new(attributes).validate!
-      @type.upsert({ id: identify(id), **attributes })
+      @type.upsert({ id: id.hash, **attributes })
     end
-
-    private def identify(id) = ::ActiveRecord::FixtureSet.identify(id, @type.type_for_attribute(@type.primary_key).type)
   end
 
   module Data

@@ -85,8 +85,8 @@ end
 
 require "active_record/fixtures"
 
-Oaken::Data.records.preregister ActiveRecord::Base.connection.tables.grep_v(/^ar_/)
-Oaken::Data.load_from "test/seeds"
+Oaken::Seeds.records.preregister ActiveRecord::Base.connection.tables.grep_v(/^ar_/)
+Oaken::Seeds.load_from "test/seeds"
 
 class Oaken::Test < ActiveSupport::TestCase
   include ActiveRecord::TestFixtures
@@ -94,5 +94,5 @@ class Oaken::Test < ActiveSupport::TestCase
   self.use_transactional_tests = true
   fixtures :all
 
-  include Oaken::Data
+  include Oaken::Seeds
 end

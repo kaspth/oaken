@@ -6,7 +6,7 @@ class OakenTest < Oaken::Test
   class SomeObject; end
 
   def test_register
-    Oaken::Data.memory.register SomeObject
+    Oaken::Seeds.memory.register SomeObject
     assert_respond_to self, :oaken_test_some_objects
   end
 

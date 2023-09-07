@@ -89,7 +89,7 @@ module Oaken
     end
   end
 
-  module Data
+  module Seeds
     extend self
 
     class Provider < Struct.new(:data, :provider)
@@ -115,7 +115,7 @@ module Oaken
 
     def self.load_from(directory)
       Dir.glob("#{directory}{,/**/*}.rb").sort.each do |file|
-        Oaken::Data.class_eval File.read(file)
+        class_eval File.read(file)
       end
     end
   end

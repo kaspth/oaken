@@ -58,11 +58,6 @@ ActiveRecord::Schema.define do
     t.integer :price_cents, null: false
     t.timestamps
   end
-
-  create_table :yaml_records, force: true do |t|
-    t.integer :account_id, null: false
-    t.string :name, null: false
-  end
 end
 
 class Account < ActiveRecord::Base

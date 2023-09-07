@@ -15,15 +15,6 @@ class OakenTest < Oaken::Test
     refute_nil ::Oaken::VERSION
   end
 
-  def test_helper_methods
-    assert_equal 2, accounts.increment_counter # We start at 2 since the seeds file state should pass into here.
-    assert_equal 3, accounts.increment_counter
-
-    assert_raise NoMethodError do
-      users.increment_counter
-    end
-  end
-
   def test_accessing_fixture
     assert_equal "Kasper", users.kasper.name
     assert_equal "Coworker", users.coworker.name
@@ -34,8 +25,8 @@ class OakenTest < Oaken::Test
   end
 
   def test_default_attributes
-    users.with name: -> { id.to_s.humanize }, accounts: [accounts.update(:home_co, name: "Home Co.")] do
-      users.update :homer
+    users.with accounts: [accounts.update(:home_co, name: "Home Co.")] do
+      users.update :homer, name: "Homer"
     end
     assert_equal "Homer", users.homer.name
     assert_equal [accounts.home_co], users.homer.accounts

@@ -38,15 +38,7 @@ module Oaken
 
     def update(id, **attributes)
       self.class.define_method(id) { find(id) }
-
-      klass = nil
-      attributes = @attributes.merge(attributes)
-      attributes.transform_values! do |value|
-        if !value.respond_to?(:call) then value else
-          klass ||= Struct.new(:id, *attributes.keys).new(id, *attributes.values)
-          klass.instance_exec(&value)
-        end
-      end
+      @attributes.merge(**attributes)
     end
 
     alias :upsert :update

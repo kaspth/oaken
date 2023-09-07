@@ -36,12 +36,10 @@ module Oaken
       @attributes = previous_attributes if block_given?
     end
 
-    def update(id, **attributes)
-      self.class.define_method(id) { find(id) }
+    def create(**attributes)
       @attributes.merge(**attributes)
     end
-
-    alias :upsert :update
+    alias :insert :create
   end
 
   class Stored::Memory < Stored::Abstract
@@ -49,9 +47,9 @@ module Oaken
       objects.fetch(id)
     end
 
-    def update(id, **attributes)
-      attributes = super
-      objects[id] = @type.new(**attributes)
+    # TODO: Figure out what to do for memory objects
+    def access(id, **attributes)
+      objects[id] = @type.new(**super(attributes))
     end
 
     private def objects
@@ -61,23 +59,26 @@ module Oaken
 
   class Stored::ActiveRecord < Stored::Abstract
     def find(id)
-      @type.find id.hash
+      @type.find id
     end
 
-    def update(id, **attributes)
-      attributes = super
+    def access(*names, **values)
+      positional = names.zip(@type.last(names.size)).to_h
 
-      if record = @type.find_by(id: id.hash)
-        record.tap { _1.update!(**attributes) }
-      else
-        @type.create!(id: id.hash, **attributes)
+      values.merge(positional).transform_values(&:id).each do |name, id|
+        self.class.define_method(name) { find id }
       end
     end
 
-    def upsert(id, **attributes)
+    def create(**attributes)
+      attributes = super
+      @type.create!(**attributes)
+    end
+
+    def insert(**attributes)
       attributes = super
       @type.new(attributes).validate!
-      @type.upsert({ id: id.hash, **attributes })
+      @type.insert(attributes)
     end
   end
 

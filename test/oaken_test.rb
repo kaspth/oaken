@@ -25,23 +25,25 @@ class OakenTest < Oaken::Test
   end
 
   def test_default_attributes
-    users.with accounts: [accounts.update(:home_co, name: "Home Co.")] do
-      users.update :homer, name: "Homer"
+    homer, home_co = nil, accounts.update(name: "Home Co.")
+
+    users.with accounts: [home_co] do
+      homer = users.update name: "Homer"
     end
-    assert_equal "Homer", users.homer.name
-    assert_equal [accounts.home_co], users.homer.accounts
+    assert_equal "Homer", homer.name
+    assert_equal [home_co], homer.accounts
   end
 
   def test_updating_fixture
-    kasper = users.update :kasper, name: "Kasper2"
-    assert_equal "Kasper2", kasper.name
+    users.kasper.update name: "Kasper2"
+    assert_equal "Kasper2", users.kasper.name
   end
 
   def test_upserting_vs_updating
     assert_equal "Basic", plans.basic.title
 
     error = assert_raises RuntimeError do
-      plans.update :salty, title: "foo", price_cents: 0
+      plans.update title: "foo", price_cents: 0
     end
     assert_equal "after_save", error.message
   end

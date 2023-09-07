@@ -1,4 +1,6 @@
-business = accounts.update :business, name: "Big Business Co."
+business = accounts.update name: "Big Business Co."
+accounts.access business: business
 
-users.update :kasper,   name: "Kasper",   accounts: [business]
-users.update :coworker, name: "Coworker", accounts: [business]
+users.update name: "Kasper",   accounts: [business]
+users.update name: "Coworker", accounts: [business]
+users.access :kasper, :coworker

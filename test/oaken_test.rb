@@ -34,8 +34,8 @@ class OakenTest < Oaken::Test
   end
 
   def test_default_attributes
-    users.with name: -> { id.to_s.humanize }, accounts: [accounts.update(:home_co, name: "Home Co.")] do
-      users.update :homer
+    users.with accounts: [accounts.update(:home_co, name: "Home Co.")] do
+      users.update :homer, name: "Homer"
     end
     assert_equal "Homer", users.homer.name
     assert_equal [accounts.home_co], users.homer.accounts

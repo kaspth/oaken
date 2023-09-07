@@ -25,10 +25,10 @@ class OakenTest < Oaken::Test
   end
 
   def test_default_attributes
-    homer, home_co = nil, accounts.update(name: "Home Co.")
+    homer, home_co = nil, accounts.create(name: "Home Co.")
 
     users.with accounts: [home_co] do
-      homer = users.update name: "Homer"
+      homer = users.create name: "Homer"
     end
     assert_equal "Homer", homer.name
     assert_equal [home_co], homer.accounts
@@ -43,7 +43,7 @@ class OakenTest < Oaken::Test
     assert_equal "Basic", plans.basic.title
 
     error = assert_raises RuntimeError do
-      plans.update title: "foo", price_cents: 0
+      plans.create title: "foo", price_cents: 0
     end
     assert_equal "after_save", error.message
   end

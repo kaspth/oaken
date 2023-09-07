@@ -36,11 +36,10 @@ module Oaken
       @attributes = previous_attributes if block_given?
     end
 
-    def update(**attributes)
+    def create(**attributes)
       @attributes.merge(**attributes)
     end
-
-    alias :upsert :update
+    alias :insert :create
   end
 
   class Stored::Memory < Stored::Abstract
@@ -48,9 +47,9 @@ module Oaken
       objects.fetch(id)
     end
 
-    def update(id, **attributes)
-      attributes = super
-      objects[id] = @type.new(**attributes)
+    # TODO: Figure out what to do for memory objects
+    def access(id, **attributes)
+      objects[id] = @type.new(**super(attributes))
     end
 
     private def objects
@@ -71,15 +70,15 @@ module Oaken
       end
     end
 
-    def update(**attributes)
+    def create(**attributes)
       attributes = super
       @type.create!(**attributes)
     end
 
-    def upsert(**attributes)
+    def insert(**attributes)
       attributes = super
       @type.new(attributes).validate!
-      @type.upsert(attributes)
+      @type.insert(attributes)
     end
   end
 

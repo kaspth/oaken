@@ -89,10 +89,15 @@ Oaken::Seeds.preregister ActiveRecord::Base.connection.tables.grep_v(/^ar_/)
 Oaken::Seeds.load_from "test/seeds"
 
 class Oaken::Test < ActiveSupport::TestCase
-  include ActiveRecord::TestFixtures
-  self.fixture_path = "test/fixtures"
-  self.use_transactional_tests = true
-  fixtures :all
-
   include Oaken::Seeds
+
+  # Override Minitest::Test#run to wrap each test in a transaction.
+  def run
+    result = nil
+    ActiveRecord::Base.transaction(requires_new: true) do
+      result = super
+      raise ActiveRecord::Rollback
+    end
+    result
+  end
 end

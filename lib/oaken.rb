@@ -28,22 +28,23 @@ module Oaken
       @type.find id
     end
 
-    def access(*names, **values)
-      positional = names.zip(@type.last(names.size)).to_h
-
-      values.merge(positional).transform_values(&:id).each do |name, id|
-        self.class.define_method(name) { find id }
+    def create(reader = nil, **attributes)
+      @type.create!(**attributes).tap do |record|
+        add_reader reader, record.id if reader
       end
     end
 
-    def create(**attributes)
-      @type.create!(**attributes)
+    def insert(reader = nil, **attributes)
+      @type.new(attributes).validate!
+      @type.insert(attributes).tap do
+        add_reader reader, @type.where(attributes).pick(:id) if reader
+      end
     end
 
-    def insert(**attributes)
-      @type.new(attributes).validate!
-      @type.insert(attributes)
-    end
+    private
+      def add_reader(name, id)
+        self.class.define_method(name) { find id }
+      end
   end
 
   module Seeds

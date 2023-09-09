@@ -1,2 +1,1 @@
-plans.insert title: "Basic", price_cents: 1000
-plans.access :basic
+plans.insert :basic, title: "Basic", price_cents: 1000

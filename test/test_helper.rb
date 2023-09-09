@@ -16,7 +16,7 @@ ActiveRecord::Base.configurations = {
   postgres: { adapter: "postgresql", pool: 5, encoding: "unicode", database: "oaken_test" }
 }
 
-adapter = :sqlite
+adapter = ENV.fetch("ADAPTER", :sqlite).to_sym
 
 database = ActiveRecord::Base.configurations.resolve(adapter).then do |config|
   case adapter

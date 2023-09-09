@@ -16,6 +16,10 @@ jobs:
         ruby:
           - '3.0'
           - '3.2.2'
+        adapter:
+          - sqlite
+          - postgres
+          - mysql
 
     steps:
     - uses: actions/checkout@v3
@@ -25,3 +29,5 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
     - run: bin/test
+      env:
+        ADAPTER: ${{ matrix.adapter }}

@@ -85,7 +85,7 @@ end
 
 require "active_record/fixtures"
 
-Oaken::Seeds.records.preregister ActiveRecord::Base.connection.tables.grep_v(/^ar_/)
+Oaken::Seeds.preregister ActiveRecord::Base.connection.tables.grep_v(/^ar_/)
 Oaken::Seeds.load_from "test/seeds"
 
 class Oaken::Test < ActiveSupport::TestCase

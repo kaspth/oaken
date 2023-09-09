@@ -1,6 +1,4 @@
-business = accounts.create name: "Big Business Co."
-accounts.access business: business
+business = accounts.create :business, name: "Big Business Co."
 
-users.create name: "Kasper",   accounts: [business]
-users.create name: "Coworker", accounts: [business]
-users.access :kasper, :coworker
+users.create :kasper,   name: "Kasper",   accounts: [business]
+users.create :coworker, name: "Coworker", accounts: [business]

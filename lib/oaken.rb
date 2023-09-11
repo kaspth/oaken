@@ -46,7 +46,8 @@ module Oaken
 
     private
       def add_reader(name, id)
-        self.class.define_method(name) { find id }
+        location = caller_locations.find { _1.path.start_with?("test/seeds") }
+        instance_eval "def #{name}; find #{id}; end", location.path, location.lineno
       end
   end
 
@@ -69,7 +70,7 @@ module Oaken
 
       Pathname.glob("#{directory}{,/**/*}.rb").sort.each do |path|
         path = Path.new(self, path)
-        path.process unless result.run(path.to_s)[:checksum] == path.checksum
+        path.process # unless result.run(path.to_s)[:checksum] == path.checksum
 
         result << path
       end
@@ -112,7 +113,7 @@ module Oaken
     end
 
     def process
-      @context.class_eval @source, @path.to_s, 0
+      @context.class_eval @source, to_s
     end
   end
 end

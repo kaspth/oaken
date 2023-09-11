@@ -16,6 +16,16 @@ class OakenTest < Oaken::Test
     assert_equal [users.kasper, users.coworker], accounts.business.users
   end
 
+  def test_source_attribution
+    business_location, kasper_location = [accounts.method(:business), users.method(:kasper)].map(&:source_location)
+    assert_match "test/seeds/accounts/business.rb", business_location.first
+    assert_match "test/seeds/accounts/business.rb", kasper_location.first
+
+    assert_operator business_location.second, :<, kasper_location.second
+
+    assert_match "test/seeds/data/plans.rb", plans.method(:basic).source_location.first
+  end
+
   def test_updating_fixture
     users.kasper.update name: "Kasper2"
     assert_equal "Kasper2", users.kasper.name

@@ -11,7 +11,7 @@ module Rails
 end
 
 ActiveRecord::Base.configurations = {
-  sqlite:   { adapter: "sqlite3",    pool: 5, database: "tmp/oaken_test.sqlite3" },
+  sqlite:   { adapter: "sqlite3",    pool: 5, database: "../tmp/oaken_test.sqlite3" },
   mysql:    { adapter: "mysql2",     pool: 5, encoding: "utf8mb4", database: "oaken_test", username: "root", host: "localhost" },
   postgres: { adapter: "postgresql", pool: 5, encoding: "unicode", database: "oaken_test" }
 }

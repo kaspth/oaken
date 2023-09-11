@@ -11,7 +11,7 @@ module Rails
 end
 
 ActiveRecord::Base.configurations = {
-  sqlite:   { adapter: "sqlite3",    pool: 5, database: "tmp/oaken_test.sqlite3" },
+  sqlite:   { adapter: "sqlite3",    pool: 5, database: "../tmp/oaken_test.sqlite3" },
   mysql:    { adapter: "mysql2",     pool: 5, encoding: "utf8mb4", database: "oaken_test", username: "root", host: "localhost" },
   postgres: { adapter: "postgresql", pool: 5, encoding: "unicode", database: "oaken_test" }
 }
@@ -31,33 +31,34 @@ begin
 rescue ActiveRecord::DatabaseAlreadyExists
 end
 
-Minitest.after_run { database.drop }
-
 ActiveRecord::Base.establish_connection(adapter)
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 
-ActiveRecord::Schema.define do
-  create_table :accounts, force: true do |t|
-    t.string :name, null: false
-    t.timestamps
-  end
+begin
+  ActiveRecord::Schema.define do
+    create_table :accounts do |t|
+      t.string :name, null: false
+      t.timestamps
+    end
 
-  create_table :memberships, force: true do |t|
-    t.integer :account_id, null: false
-    t.integer :user_id,    null: false
-    t.timestamps
-  end
+    create_table :memberships do |t|
+      t.integer :account_id, null: false
+      t.integer :user_id,    null: false
+      t.timestamps
+    end
 
-  create_table :users, force: true do |t|
-    t.string :name, null: false
-    t.timestamps
-  end
+    create_table :users do |t|
+      t.string :name, null: false
+      t.timestamps
+    end
 
-  create_table :plans, force: true do |t|
-    t.string :title, null: false
-    t.integer :price_cents, null: false
-    t.timestamps
+    create_table :plans do |t|
+      t.string :title, null: false
+      t.integer :price_cents, null: false
+      t.timestamps
+    end
   end
+rescue ActiveRecord::StatementInvalid
 end
 
 class Account < ActiveRecord::Base
@@ -101,3 +102,28 @@ class Oaken::Test < ActiveSupport::TestCase
     result
   end
 end
+
+# # If we keep it to a DSL what do we actually need to be able to skip the file?
+
+# # Create a statement for each line
+# # Same as Reference?
+# class Oaken::Seeds::Statement
+# end
+
+# # Create a result for each file
+# class Oaken::Seeds::Result
+#   # filename + checksum
+#   has_many :references
+# end
+
+# # users.create :kasper, name: "Kasper"
+# # create an Oaken::Seeds::Reference.create!(collection_name: "users", name: "kasper", id: )
+# class Oaken::Seeds::Reference < ActiveRecord::Base
+#   def define
+#     scope.define_method(name) { find record_id }
+#   end
+
+#   def scope
+#     Oaken::Seeds.public_send(collection_name)
+#   end
+# end

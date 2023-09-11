@@ -31,33 +31,34 @@ begin
 rescue ActiveRecord::DatabaseAlreadyExists
 end
 
-Minitest.after_run { database.drop }
-
 ActiveRecord::Base.establish_connection(adapter)
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 
-ActiveRecord::Schema.define do
-  create_table :accounts, force: true do |t|
-    t.string :name, null: false
-    t.timestamps
-  end
+begin
+  ActiveRecord::Schema.define do
+    create_table :accounts do |t|
+      t.string :name, null: false
+      t.timestamps
+    end
 
-  create_table :memberships, force: true do |t|
-    t.integer :account_id, null: false
-    t.integer :user_id,    null: false
-    t.timestamps
-  end
+    create_table :memberships do |t|
+      t.integer :account_id, null: false
+      t.integer :user_id,    null: false
+      t.timestamps
+    end
 
-  create_table :users, force: true do |t|
-    t.string :name, null: false
-    t.timestamps
-  end
+    create_table :users do |t|
+      t.string :name, null: false
+      t.timestamps
+    end
 
-  create_table :plans, force: true do |t|
-    t.string :title, null: false
-    t.integer :price_cents, null: false
-    t.timestamps
+    create_table :plans do |t|
+      t.string :title, null: false
+      t.integer :price_cents, null: false
+      t.timestamps
+    end
   end
+rescue ActiveRecord::StatementInvalid
 end
 
 class Account < ActiveRecord::Base

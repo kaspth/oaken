@@ -2,6 +2,8 @@
 
 require "oaken/version"
 require "pathname"
+require "yaml"
+require "digest/md5"
 
 module Oaken
   class Error < StandardError; end
@@ -63,19 +65,54 @@ module Oaken
     end
 
     def self.load_from(directory)
+      result = Result.new
+
       Pathname.glob("#{directory}{,/**/*}.rb").sort.each do |path|
-        Path.new(self, path).process
+        path = Path.new(self, path)
+        path.process unless result.run(path.to_s)[:checksum] == path.checksum
+
+        result << path
       end
+
+      result.write
+    end
+  end
+
+  class Result
+    def initialize
+      @path = Pathname.new("./tmp/oaken-result.yml")
+      @runs = @path.exist? ? YAML.load(@path.read) : {}
+    end
+
+    def run(path)
+      @runs[path.to_s]
+    end
+
+    def <<(path)
+      @runs[path.to_s] = { checksum: path.checksum }
+    end
+
+    def write
+      @path.write YAML.dump(@runs)
     end
   end
 
   class Path
     def initialize(context, path)
       @context, @path = context, path
+      @source = path.read
+    end
+
+    def to_s
+      @path.to_s
+    end
+
+    def checksum
+      Digest::MD5.hexdigest @source
     end
 
     def process
-      @context.class_eval @path.read
+      @context.class_eval @source
     end
   end
 end

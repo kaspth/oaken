@@ -23,8 +23,8 @@ module Oaken
 
   module Stored; end
   class Stored::ActiveRecord
-    def initialize(type)
-      @type = type
+    def initialize(key, type)
+      @key, @type = key, type
     end
 
     def find(id)
@@ -47,6 +47,7 @@ module Oaken
     private
       def add_reader(name, id)
         location = caller_locations(2, 10).find { _1.path.start_with?("test/seeds") }
+        Result.instance.run(location.path).add_reader @key, name, id, location
         instance_eval "def #{name}; find #{id}; end", location.path, location.lineno
       end
   end
@@ -61,16 +62,21 @@ module Oaken
     end
 
     def self.register(type, key = Oaken.inflector.tableize(type.name))
-      stored = Stored::ActiveRecord.new(type)
+      stored = Stored::ActiveRecord.new(key, type)
       define_method(key) { stored }
     end
 
     def self.load_from(directory)
-      result = Result.new
+      result = Result.instance
 
       Pathname.glob("#{directory}{,/**/*}.rb").sort.each do |path|
         path = Path.new(self, path)
-        path.process # unless result.run(path.to_s)[:checksum] == path.checksum
+        run  = result.run(path)
+        if run.processed? path
+          run.replay self
+        else
+          path.process
+        end
 
         result << path
       end
@@ -79,10 +85,15 @@ module Oaken
     end
   end
 
+  require "singleton"
   class Result
+    include Singleton
+
     def initialize
       @path = Pathname.new("./tmp/oaken-result.yml")
       @runs = @path.exist? ? YAML.load(@path.read) : {}
+      @runs.transform_values! { Run.new(**_1) }
+      @runs.default_proc = ->(h, k) { h[k] = Run.new(path: k) }
     end
 
     def run(path)
@@ -90,11 +101,39 @@ module Oaken
     end
 
     def <<(path)
-      @runs[path.to_s] = { checksum: path.checksum }
+      run(path).checksum = path.checksum
     end
 
     def write
-      @path.write YAML.dump(@runs)
+      @path.write YAML.dump(@runs.transform_values(&:to_h))
+    end
+
+    class Run
+      attr_accessor :checksum
+
+      def initialize(path:, checksum: nil, readers: [])
+        @path = path
+        @checksum = checksum
+        @readers = readers
+      end
+
+      def processed?(path)
+        checksum == path.checksum
+      end
+
+      def replay(context)
+        @readers.each do |key, name, id, path, lineno|
+          context.send(key).instance_eval "def #{name}; find #{id}; end", path, lineno
+        end
+      end
+
+      def add_reader(key, name, id, location)
+        @readers << [key, name, id, location.path, location.lineno]
+      end
+
+      def to_h
+        { path: @path, checksum: @checksum, readers: @readers.uniq }
+      end
     end
   end
 

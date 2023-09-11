@@ -46,7 +46,7 @@ module Oaken
 
     private
       def add_reader(name, id)
-        location = caller_locations.find { _1.path.start_with?("test/seeds") }
+        location = caller_locations(2, 10).find { _1.path.start_with?("test/seeds") }
         instance_eval "def #{name}; find #{id}; end", location.path, location.lineno
       end
   end

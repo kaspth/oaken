@@ -112,7 +112,7 @@ module Oaken
     end
 
     def process
-      @context.class_eval @source
+      @context.class_eval @source, @path.to_s, 0
     end
   end
 end

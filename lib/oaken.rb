@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "oaken/version"
+require "pathname"
 
 module Oaken
   class Error < StandardError; end
@@ -62,9 +63,19 @@ module Oaken
     end
 
     def self.load_from(directory)
-      Dir.glob("#{directory}{,/**/*}.rb").sort.each do |file|
-        class_eval File.read(file)
+      Pathname.glob("#{directory}{,/**/*}.rb").sort.each do |path|
+        Path.new(self, path).process
       end
+    end
+  end
+
+  class Path
+    def initialize(context, path)
+      @context, @path = context, path
+    end
+
+    def process
+      @context.class_eval @path.read
     end
   end
 end

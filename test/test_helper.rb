@@ -102,3 +102,28 @@ class Oaken::Test < ActiveSupport::TestCase
     result
   end
 end
+
+# # If we keep it to a DSL what do we actually need to be able to skip the file?
+
+# # Create a statement for each line
+# # Same as Reference?
+# class Oaken::Seeds::Statement
+# end
+
+# # Create a result for each file
+# class Oaken::Seeds::Result
+#   # filename + checksum
+#   has_many :references
+# end
+
+# # users.create :kasper, name: "Kasper"
+# # create an Oaken::Seeds::Reference.create!(collection_name: "users", name: "kasper", id: )
+# class Oaken::Seeds::Reference < ActiveRecord::Base
+#   def define
+#     scope.define_method(name) { find record_id }
+#   end
+
+#   def scope
+#     Oaken::Seeds.public_send(collection_name)
+#   end
+# end

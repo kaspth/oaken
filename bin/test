@@ -1,3 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env ruby
+$: << File.expand_path("../test", __dir__)
 
-bundle exec minitest "$@"
+require "bundler/setup"
+require "rails/plugin/test"

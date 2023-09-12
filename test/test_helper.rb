@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
-require "oaken"
+ENV["RAILS_ENV"] = "test"
+
+require "rails"
+require "rails/test_help"
 
 require "active_record"
-require "minitest/autorun"
 
-module Rails
-  def self.root() = __dir__ # Needed for the sqlite3 tasks.
-end
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+require "oaken"
 
 ActiveRecord::Base.configurations = {
   sqlite:   { adapter: "sqlite3",    pool: 5, database: "../tmp/oaken_test.sqlite3" },

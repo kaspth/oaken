@@ -66,18 +66,17 @@ module Oaken
       define_method(key) { stored }
     end
 
+    singleton_class.attr_reader :result
+
     def self.load_from(directory)
-      Result.new(directory).process do |run, path|
+      @result = Result.new(directory)
+      @result.process do |run, path|
         if run.processed? path
           run.replay self
         else
           path.process
         end
       end
-    end
-
-    def self.result
-      @result ||= Result.new
     end
   end
 
@@ -92,8 +91,9 @@ module Oaken
 
     def process
       Pathname.glob("#{@directory}{,/**/*}.rb").sort.each do |path|
-        self << path = Oaken::Path.new(Oaken::Seeds, path)
+        path = Oaken::Path.new(Oaken::Seeds, path)
         yield run(path), path
+        self << path
       end
 
       write

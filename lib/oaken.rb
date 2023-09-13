@@ -67,19 +67,13 @@ module Oaken
     end
 
     def self.load_from(directory)
-      Pathname.glob("#{directory}{,/**/*}.rb").sort.each do |path|
-        path = Path.new(self, path)
-        run  = result.run(path)
+      Result.with(directory) do |run, path|
         if run.processed? path
           run.replay self
         else
           path.process
         end
-
-        result << path
       end
-
-      result.write
     end
 
     def self.result
@@ -88,6 +82,17 @@ module Oaken
   end
 
   class Result
+    def self.with(directory)
+      result = new
+
+      Pathname.glob("#{directory}{,/**/*}.rb").sort.each do |path|
+        result << path = Oaken::Path.new(Oaken::Seeds, path)
+        yield result.run(path), path
+      end
+
+      result.write
+    end
+
     def initialize
       @path = Pathname.new("./tmp/oaken-result.yml")
       @runs = @path.exist? ? YAML.load(@path.read) : {}

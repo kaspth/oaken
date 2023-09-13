@@ -46,7 +46,7 @@ module Oaken
 
     private
       def add_reader(name, id)
-        location = caller_locations(2, 10).find { _1.path.start_with?("test/seeds") }
+        location = caller_locations(2, 10).find { _1.path.match?(/(db|test)\/seeds/) }
         Result.instance.run(location.path).add_reader @key, name, id, location
         instance_eval "def #{name}; find #{id}; end", location.path, location.lineno
       end
@@ -105,6 +105,7 @@ module Oaken
     end
 
     def write
+      @path.dirname.mkpath
       @path.write YAML.dump(@runs.transform_values(&:to_h))
     end
 

@@ -47,7 +47,7 @@ module Oaken
     private
       def add_reader(name, id)
         location = caller_locations(2, 10).find { _1.path.match?(/(db|test)\/seeds/) }
-        Result.instance.run(location.path).add_reader @key, name, id, location
+        Seeds.result.run(location.path).add_reader @key, name, id, location
         instance_eval "def #{name}; find #{id}; end", location.path, location.lineno
       end
   end
@@ -67,8 +67,6 @@ module Oaken
     end
 
     def self.load_from(directory)
-      result = Result.instance
-
       Pathname.glob("#{directory}{,/**/*}.rb").sort.each do |path|
         path = Path.new(self, path)
         run  = result.run(path)
@@ -83,12 +81,13 @@ module Oaken
 
       result.write
     end
+
+    def self.result
+      @result ||= Result.new
+    end
   end
 
-  require "singleton"
   class Result
-    include Singleton
-
     def initialize
       @path = Pathname.new("./tmp/oaken-result.yml")
       @runs = @path.exist? ? YAML.load(@path.read) : {}

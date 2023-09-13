@@ -105,6 +105,7 @@ module Oaken
     end
 
     def write
+      @path.dirname.mkpath
       @path.write YAML.dump(@runs.transform_values(&:to_h))
     end
 

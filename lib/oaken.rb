@@ -83,7 +83,7 @@ module Oaken
   class Result
     def initialize(directory)
       @directory = directory
-      @path = Pathname.new("./tmp/oaken-result.yml")
+      @path = Pathname.new("./tmp/oaken-result-#{Rails.env}.yml")
       @runs = @path.exist? ? YAML.load(@path.read) : {}
       @runs.transform_values! { Run.new(**_1) }
       @runs.default_proc = ->(h, k) { h[k] = Run.new(path: k) }

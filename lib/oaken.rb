@@ -94,48 +94,54 @@ module Oaken
       end
     end
 
-    require "fileutils"
     require "pstore"
 
-    class Entry
+    class Entry < DelegateClass(PStore)
+      def self.store_accessor(name)
+        define_method(name) { self[name] } and define_method("#{name}=") { |value| self[name] = value }
+      end
+      store_accessor :checksum
+      store_accessor :readers
+
       def self.within(directory)
         Pathname.glob("#{directory}{,/**/*}.rb").sort.map { new _1 }
       end
 
       def initialize(pathname)
         @file, @pathname = pathname.to_s, pathname
-        FileUtils.mkdir_p("tmp/oaken/" + @pathname.dirname.to_s)
-        @store = PStore.new("tmp/oaken/" + @file)
+        @compute_checksum = Digest::MD5.hexdigest(@pathname.read)
+
+        prepared_store_path = Pathname.new("tmp/oaken").join(pathname).tap { _1.dirname.mkpath }
+        super PStore.new(prepared_store_path)
       end
 
       def load_onto(seeds)
-        @store.transaction do
+        transaction do
           if replay?
             p "replaying #{@file}…"
-            @store[:readers].each do |key, name, id, lineno|
+            readers.each do |key, name, id, lineno|
               seeds.send(key).instance_eval "def #{name}; find #{id}; end", @file, lineno
             end
           else
-            @store[:checksum] = checksum
-            @store[:readers]  = []
-
+            reset
             seeds.class_eval @pathname.read, @file
           end
         end
       end
 
       def replay?
-        @store[:checksum] == checksum
+        checksum == @computed_checksum
       end
 
-      def checksum
-        Digest::MD5.hexdigest(@pathname.read)
+      def reset
+        self.checksum = @computed_checksum
+        self.readers  = Set.new
       end
 
       def define_reader(stored, name, id)
         lineno = self.lineno
         stored.instance_eval "def #{name}; find #{id}; end", @file, lineno
-        @store[:readers] << [stored.key, name, id, lineno]
+        readers << [stored.key, name, id, lineno]
       end
 
       def lineno

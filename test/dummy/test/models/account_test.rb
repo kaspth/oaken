@@ -5,4 +5,3 @@ class AccountTest < ActiveSupport::TestCase
     assert accounts.kaspers_donuts
   end
 end
-

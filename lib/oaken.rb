@@ -89,7 +89,7 @@ module Oaken
           if replay?
             p "replaying #{@file}…"
             @store[:readers].each do |key, name, id, lineno|
-              seeds.send(key).instance_eval "def #{name}() = find #{id}", @file, lineno
+              seeds.send(key).instance_eval "def #{name}; find #{id}; end", @file, lineno
             end
           else
             @store[:checksum] = checksum
@@ -110,7 +110,7 @@ module Oaken
 
       def define_reader(stored, name, id)
         lineno = self.lineno
-        stored.instance_eval "def #{name}() = find #{id}", @file, lineno
+        stored.instance_eval "def #{name}; find #{id}; end", @file, lineno
         @store[:readers] << [stored.key, name, id, lineno]
       end
 

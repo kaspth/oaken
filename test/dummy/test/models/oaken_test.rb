@@ -1,6 +1,10 @@
 require "test_helper"
 
 class OakenTest < ActiveSupport::TestCase
+  test "version number" do
+    refute_nil ::Oaken::VERSION
+  end
+
   test "accessing fixture" do
     assert_equal "Kasper", users.kasper.name
     assert_equal "Coworker", users.coworker.name

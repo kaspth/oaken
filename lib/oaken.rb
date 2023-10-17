@@ -23,7 +23,8 @@ module Oaken
 
   module Stored; end
   class Stored::ActiveRecord
-    delegate :loader, to: "Seeds"
+    attr_reader :key, :type
+    delegate :entry, to: "::Oaken::Seeds.loader"
 
     def initialize(key, type)
       @key, @type = key, type
@@ -35,27 +36,27 @@ module Oaken
 
     def create(reader = nil, **attributes)
       @type.create!(**attributes).tap do |record|
-        add_reader reader, record.id if reader
+        define_reader reader, record.id if reader
       end
     end
 
     def insert(reader = nil, **attributes)
       @type.new(attributes).validate!
       @type.insert(attributes).tap do
-        add_reader reader, @type.where(attributes).pick(:id) if reader
+        define_reader reader, @type.where(attributes).pick(:id) if reader
       end
     end
 
-    private
-      def add_reader(name, id)
-        location = caller_locations(2, 10).find { _1.path.match?(/(db|test)\/seeds/) }
-        # Seeds.result.run(location.path).add_reader @key, name, id, location
-        instance_eval "def #{name}; find #{id}; end", location.path, location.lineno
-      end
+    def define_reader(name, id)
+      entry.define_reader(self, name, id)
+    end
   end
 
   class Loader
+    attr_reader :entry
+
     def initialize(seeds, directories)
+      @entry = nil
       @seeds = seeds
       @entry_points = directories.to_h { [ _1, Entry.within(_1) ] }
     end
@@ -63,6 +64,7 @@ module Oaken
     def load_each
       @entry_points.each_value do |entries|
         entries.each do |entry|
+          @entry = entry
           entry.load_onto @seeds
         end
       end
@@ -74,11 +76,19 @@ module Oaken
       end
 
       def initialize(pathname)
-        @pathname = pathname
+        @file, @pathname = pathname.to_s, pathname
       end
 
       def load_onto(seeds)
-        seeds.class_eval @pathname.read, @pathname.to_s
+        seeds.class_eval @pathname.read, @file
+      end
+
+      def define_reader(stored, name, id)
+        stored.instance_eval "def #{name}() = find #{id}", @file, lineno
+      end
+
+      def lineno
+        caller_locations(3, 10).find { _1.path == @file }.lineno
       end
     end
   end

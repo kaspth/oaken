@@ -126,13 +126,14 @@ module Oaken
       end
 
       def replay(context)
-        @readers.each do |key, name, id, path, lineno|
+        @readers.each do |config|
+          key, name, id, path, lineno = config.values_at(:key, :name, :id, :path, :lineno)
           context.send(key).instance_eval "def #{name}; find #{id}; end", path, lineno
         end
       end
 
       def add_reader(key, name, id, location)
-        @readers << [key, name, id, location.path, location.lineno]
+        @readers << {key:, name:, id:, path: location.path, lineno: location.lineno}
       end
 
       def to_h

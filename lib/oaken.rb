@@ -133,7 +133,7 @@ module Oaken
       end
 
       def add_reader(key, name, id, location)
-        @readers << {key:, name:, id:, path: location.path, lineno: location.lineno}
+        @readers << { key: key, name: name, id: id, path: location.path, lineno: location.lineno }
       end
 
       def to_h

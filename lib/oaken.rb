@@ -2,7 +2,6 @@
 
 require "oaken/version"
 require "pathname"
-require "yaml"
 
 module Oaken
   class Error < StandardError; end

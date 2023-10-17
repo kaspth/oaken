@@ -22,9 +22,7 @@ module Oaken::Seeds
   end
 
   def self.load_one(path)
-    @loader = Oaken::Loader.new(path) unless loader_defined_before_entrance = defined?(@loader)
+    @loader = Oaken::Loader.new(path)
     @loader.load_onto(self)
-  ensure
-    @loader = nil unless loader_defined_before_entrance
   end
 end

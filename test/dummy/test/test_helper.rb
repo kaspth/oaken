@@ -5,7 +5,7 @@ require "rails/test_help"
 # ActiveRecord::Base.logger = Logger.new(STDOUT)
 
 Oaken::Seeds.preregister ActiveRecord::Base.connection.tables.grep_v(/^ar_/)
-Oaken::Seeds.load_from "db/seeds"
+Oaken::Seeds.load_from "db/seeds", "test/seeds"
 
 class ActiveSupport::TestCase
   # Run tests in parallel with specified workers

@@ -111,7 +111,7 @@ module Oaken
         @file, @pathname = pathname.to_s, pathname
         @computed_checksum = Digest::MD5.hexdigest(@pathname.read)
 
-        prepared_store_path = Pathname.new("tmp/oaken").join(pathname).tap { _1.dirname.mkpath }
+        prepared_store_path = Pathname.new("tmp/oaken/store/#{Rails.env}").join(pathname).tap { _1.dirname.mkpath }
         super PStore.new(prepared_store_path)
       end
 

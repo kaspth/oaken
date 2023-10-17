@@ -47,9 +47,38 @@ module Oaken
     private
       def add_reader(name, id)
         location = caller_locations(2, 10).find { _1.path.match?(/(db|test)\/seeds/) }
-        Seeds.result.run(location.path).add_reader @key, name, id, location
+        # Seeds.result.run(location.path).add_reader @key, name, id, location
         instance_eval "def #{name}; find #{id}; end", location.path, location.lineno
       end
+  end
+
+  class Loader
+    def initialize(seeds, directories)
+      @seeds = seeds
+      @entry_points = directories.to_h { [ _1, Entry.within(_1) ] }
+    end
+
+    def load_each
+      @entry_points.each_value do |entries|
+        entries.each do |entry|
+          entry.load_onto @seeds
+        end
+      end
+    end
+
+    class Entry
+      def self.within(directory)
+        Pathname.glob("#{directory}{,/**/*}.rb").sort.map { new _1 }
+      end
+
+      def initialize(pathname)
+        @pathname = pathname
+      end
+
+      def load_onto(seeds)
+        seeds.class_eval @pathname.read, @pathname.to_s
+      end
+    end
   end
 
   module Seeds
@@ -68,15 +97,11 @@ module Oaken
 
     singleton_class.attr_reader :result
 
-    def self.load_from(directory)
-      @result = Result.new(directory)
-      @result.process do |run, path|
-        if run.processed? path
-          run.replay self
-        else
-          path.process
-        end
-      end
+    def self.load_from(*directories)
+      @loader = Loader.new(self, directories) unless loader_defined_before_entrance = defined?(@loader)
+      @loader.load_each
+    ensure
+      @loader = nil unless loader_defined_before_entrance
     end
   end
 

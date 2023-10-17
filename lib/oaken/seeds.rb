@@ -7,10 +7,10 @@ module Oaken::Seeds
     end
   end
 
-  def self.register(type, key = Oaken.inflector.tableize(type.name))
-    stored = Oaken::Stored::ActiveRecord.new(key, type)
-    define_method(key) { stored }
+  def self.register(type, key = nil)
+    stored = provider.new(type, key) and define_method(key) { stored }
   end
+  def self.provider = Oaken::Stored::ActiveRecord
 
   singleton_class.attr_reader :loader
   delegate :entry, to: :loader

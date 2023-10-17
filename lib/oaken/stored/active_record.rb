@@ -1,4 +1,7 @@
-class Oaken::Stored::ActiveRecord < Struct.new(:key, :type)
+class Oaken::Stored::ActiveRecord < Struct.new(:type, :key)
+  def initialize(type, key = nil)
+    super(type, key || Oaken.inflector.tablelize(type))
+  end
   delegate :find, to: :type
 
   def create(reader = nil, **attributes)

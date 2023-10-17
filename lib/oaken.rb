@@ -70,6 +70,9 @@ module Oaken
       end
     end
 
+    require "fileutils"
+    require "pstore"
+
     class Entry
       def self.within(directory)
         Pathname.glob("#{directory}{,/**/*}.rb").sort.map { new _1 }
@@ -77,14 +80,38 @@ module Oaken
 
       def initialize(pathname)
         @file, @pathname = pathname.to_s, pathname
+        FileUtils.mkdir_p("tmp/oaken/" + @pathname.dirname.to_s)
+        @store = PStore.new("tmp/oaken/" + @file)
       end
 
       def load_onto(seeds)
-        seeds.class_eval @pathname.read, @file
+        @store.transaction do
+          if replay?
+            p "replaying #{@file}…"
+            @store[:readers].each do |key, name, id, lineno|
+              seeds.send(key).instance_eval "def #{name}() = find #{id}", @file, lineno
+            end
+          else
+            @store[:checksum] = checksum
+            @store[:readers]  = []
+
+            seeds.class_eval @pathname.read, @file
+          end
+        end
+      end
+
+      def replay?
+        @store[:checksum] == checksum
+      end
+
+      def checksum
+        Digest::MD5.hexdigest(@pathname.read)
       end
 
       def define_reader(stored, name, id)
+        lineno = self.lineno
         stored.instance_eval "def #{name}() = find #{id}", @file, lineno
+        @store[:readers] << [stored.key, name, id, lineno]
       end
 
       def lineno

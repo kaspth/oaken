@@ -43,6 +43,14 @@ module Oaken
       end
     end
   end
+
+  def self.preseed(*paths, env: Rails.env, connections: [])
+    [ActiveRecord::Base.connection, *connections].each do |conn|
+      Seeds.preregister conn.tables.grep_v(/^ar_/)
+    end
+
+    Seeds.load_from *paths.presence || "db/seeds"
+  end
 end
 
 require_relative "oaken/railtie" if defined?(Rails::Railtie)

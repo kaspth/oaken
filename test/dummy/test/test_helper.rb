@@ -4,13 +4,11 @@ require "rails/test_help"
 
 # ActiveRecord::Base.logger = Logger.new(STDOUT)
 
-Oaken::Seeds.preregister ActiveRecord::Base.connection.tables.grep_v(/^ar_/)
-Oaken::Seeds.load_from "db/seeds", "test/seeds"
-
 class ActiveSupport::TestCase
   # Run tests in parallel with specified workers
   parallelize workers: :number_of_processors
 
+  Oaken.preseed
   include Oaken::Seeds
 
   # Override Minitest::Test#run to wrap each test in a transaction.

@@ -52,6 +52,30 @@ module Oaken
     end
   end
 
+  module Seeds
+    extend self
+
+    def self.preregister(names)
+      names.each do |name|
+        type = Oaken.inflector.classify(name).safe_constantize and register type, name
+      end
+    end
+
+    def self.register(type, key = Oaken.inflector.tableize(type.name))
+      stored = Stored::ActiveRecord.new(key, type)
+      define_method(key) { stored }
+    end
+
+    singleton_class.attr_reader :loader
+
+    def self.load_from(*directories)
+      @loader = Loader.new(self, directories) unless loader_defined_before_entrance = defined?(@loader)
+      @loader.load_each
+    ensure
+      @loader = nil unless loader_defined_before_entrance
+    end
+  end
+
   class Loader
     attr_reader :entry
 
@@ -117,30 +141,6 @@ module Oaken
       def lineno
         caller_locations(3, 10).find { _1.path == @file }.lineno
       end
-    end
-  end
-
-  module Seeds
-    extend self
-
-    def self.preregister(names)
-      names.each do |name|
-        type = Oaken.inflector.classify(name).safe_constantize and register type, name
-      end
-    end
-
-    def self.register(type, key = Oaken.inflector.tableize(type.name))
-      stored = Stored::ActiveRecord.new(key, type)
-      define_method(key) { stored }
-    end
-
-    singleton_class.attr_reader :loader
-
-    def self.load_from(*directories)
-      @loader = Loader.new(self, directories) unless loader_defined_before_entrance = defined?(@loader)
-      @loader.load_each
-    ensure
-      @loader = nil unless loader_defined_before_entrance
     end
   end
 end

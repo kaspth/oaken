@@ -118,7 +118,7 @@ module Oaken
       def load_onto(seeds)
         transaction do
           if replay?
-            p "replaying #{@file}…"
+            puts "Replaying #{@file}…"
             readers.each do |key, name, id, lineno|
               seeds.send(key).instance_eval "def #{name}; find #{id}; end", @file, lineno
             end

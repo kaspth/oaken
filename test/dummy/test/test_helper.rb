@@ -2,6 +2,8 @@ ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
 
+# ActiveRecord::Base.logger = Logger.new(STDOUT)
+
 Oaken::Seeds.preregister ActiveRecord::Base.connection.tables.grep_v(/^ar_/)
 Oaken::Seeds.load_from "db/seeds"
 

@@ -71,9 +71,15 @@ module Oaken
 
     singleton_class.attr_reader :loader
 
-    def self.load_from(*directories)
-      @loader = Loader.new(self, directories) unless loader_defined_before_entrance = defined?(@loader)
-      @loader.load_each
+    def self.load_from(*paths)
+      paths.each do |path|
+        load_one path
+      end
+    end
+
+    def self.load_one(path)
+      @loader = Loader.new(path) unless loader_defined_before_entrance = defined?(@loader)
+      @loader.load_onto(self)
     ensure
       @loader = nil unless loader_defined_before_entrance
     end
@@ -82,18 +88,14 @@ module Oaken
   class Loader
     attr_reader :entry
 
-    def initialize(seeds, directories)
-      @entry = nil
-      @seeds = seeds
-      @entry_points = directories.to_h { [ _1, Entry.within(_1) ] }
+    def initialize(path)
+      @entries, @entry = Entry.within(path), nil
     end
 
-    def load_each
-      @entry_points.each_value do |entries|
-        entries.each do |entry|
-          @entry = entry
-          entry.load_onto @seeds
-        end
+    def load_onto(seeds)
+      @entries.each do |entry|
+        @entry = entry
+        @entry.load_onto seeds
       end
     end
 

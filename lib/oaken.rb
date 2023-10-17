@@ -27,7 +27,7 @@ module Oaken
   @inflector = Inflector.new
 
   singleton_class.attr_accessor :store_path
-  @store_path = Pathname.new "tmp/oaken/store/#{Rails.env}"
+  @store_path = Pathname.new "tmp/oaken/store"
 
   class Loader
     attr_reader :entry
@@ -44,3 +44,5 @@ module Oaken
     end
   end
 end
+
+require_relative "oaken/railtie" if defined?(Rails::Railtie)

@@ -23,6 +23,8 @@ module Oaken
 
   module Stored; end
   class Stored::ActiveRecord
+    delegate :loader, to: "Seeds"
+
     def initialize(key, type)
       @key, @type = key, type
     end
@@ -95,7 +97,7 @@ module Oaken
       define_method(key) { stored }
     end
 
-    singleton_class.attr_reader :result
+    singleton_class.attr_reader :loader
 
     def self.load_from(*directories)
       @loader = Loader.new(self, directories) unless loader_defined_before_entrance = defined?(@loader)

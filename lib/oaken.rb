@@ -109,7 +109,7 @@ module Oaken
 
       def initialize(pathname)
         @file, @pathname = pathname.to_s, pathname
-        @compute_checksum = Digest::MD5.hexdigest(@pathname.read)
+        @computed_checksum = Digest::MD5.hexdigest(@pathname.read)
 
         prepared_store_path = Pathname.new("tmp/oaken").join(pathname).tap { _1.dirname.mkpath }
         super PStore.new(prepared_store_path)

@@ -21,6 +21,9 @@ module Oaken
   singleton_class.attr_accessor :inflector
   @inflector = Inflector.new
 
+  singleton_class.attr_accessor :store_path
+  @store_path = Pathname.new "tmp/oaken/store/#{Rails.env}"
+
   module Stored; end
   class Stored::ActiveRecord
     attr_reader :key, :type
@@ -111,7 +114,7 @@ module Oaken
         @file, @pathname = pathname.to_s, pathname
         @computed_checksum = Digest::MD5.hexdigest(@pathname.read)
 
-        prepared_store_path = Pathname.new("tmp/oaken/store/#{Rails.env}").join(pathname).tap { _1.dirname.mkpath }
+        prepared_store_path = Oaken.store_path.join(pathname).tap { _1.dirname.mkpath }
         super PStore.new(prepared_store_path)
       end
 

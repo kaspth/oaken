@@ -43,13 +43,8 @@ class Oaken::Entry < DelegateClass(PStore)
     self.readers  = Set.new
   end
 
-  def define_reader(stored, name, id)
-    lineno = self.lineno
+  def define_reader(stored, name, id, lineno)
     stored.instance_eval "def #{name}; find #{id}; end", @file, lineno
     readers << [stored.key, name, id, lineno]
-  end
-
-  def lineno
-    caller_locations(3, 10).find { _1.path == @file }.lineno
   end
 end

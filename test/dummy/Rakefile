@@ -4,3 +4,9 @@
 require_relative "config/application"
 
 Rails.application.load_tasks
+
+namespace "db:seed" do
+  task demo: :environment do
+    Oaken::Seeds.seed "accounts/demo"
+  end
+end

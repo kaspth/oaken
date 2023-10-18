@@ -16,7 +16,19 @@ module Oaken::Seeds
   end
 
   def self.register(type, key = nil)
-    stored = provider.new(type, key) and define_method(key) { stored }
+    stored = provider.new(type, key) and define_method(stored.key) { stored }
   end
   def self.provider = Oaken::Stored::ActiveRecord
+
+  singleton_class.attr_reader :loader
+  delegate :entry, to: :loader
+
+  def self.load(directory = "db/seeds", include_env:)
+    @loader = Oaken::Loader.new directory, exclude: environments - [include_env]
+    @loader.load_onto self
+  end
+
+  def self.environments
+    Pathname("config/environments").children.map { _1.basename(_1.extname).to_s }
+  end
 end

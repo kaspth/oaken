@@ -32,8 +32,8 @@ module Oaken
   class Loader
     attr_reader :entry
 
-    def initialize(path)
-      @entries, @entry = Entry.within(path), nil
+    def initialize(path, exclude:)
+      @entries, @entry = Entry.within(path, exclude: exclude), nil
     end
 
     def load_onto(seeds)
@@ -44,15 +44,14 @@ module Oaken
     end
   end
 
-  singleton_class.attr_reader :loader
-  delegate :entry, to: :loader
-
-  def self.preseed(*paths, env: Rails.env)
-    paths = ["db/seeds"] unless paths.any?
-    paths.each do |path|
-      @loader = Loader.new(path)
-      @loader.load_onto Seeds
+  def self.seeds(&block)
+    if block_given?
+      Seeds.instance_eval(&block)
+    else
+      Rails.application.load_seed
     end
+
+    Seeds
   end
 end
 

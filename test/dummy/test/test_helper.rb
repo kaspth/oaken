@@ -8,8 +8,7 @@ class ActiveSupport::TestCase
   # Run tests in parallel with specified workers
   parallelize workers: :number_of_processors
 
-  Oaken.preseed
-  include Oaken::Seeds
+  include Oaken.seeds
 
   # Override Minitest::Test#run to wrap each test in a transaction.
   def run

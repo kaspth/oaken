@@ -14,6 +14,10 @@ class OakenTest < ActiveSupport::TestCase
     assert_equal [users.kasper, users.coworker], accounts.kaspers_donuts.users
   end
 
+  test "accessing fixture from test env" do
+    assert plans.test_premium
+  end
+
   test "source attribution" do
     donuts_location, kasper_location = [accounts.method(:kaspers_donuts), users.method(:kasper)].map(&:source_location)
     assert_match "db/seeds/accounts/kaspers_donuts.rb", donuts_location.first

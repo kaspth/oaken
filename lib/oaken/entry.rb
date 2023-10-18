@@ -8,8 +8,9 @@ class Oaken::Entry < DelegateClass(PStore)
   store_accessor :checksum
   store_accessor :readers
 
-  def self.within(directory)
-    Pathname.glob("#{directory}{,/**/*}.rb").sort.map { new _1 }
+  def self.within(directory, exclude:)
+    exclude = /#{directory}\/#{Regexp.union(exclude)}/
+    Pathname.glob("#{directory}/**/*.rb").sort.reject { exclude.match? _1.to_s }.map { new _1 }
   end
 
   def initialize(pathname)

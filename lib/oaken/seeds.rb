@@ -1,9 +1,17 @@
 module Oaken::Seeds
   extend self
 
-  def self.preregister(names)
-    names.each do |name|
-      type = Oaken.inflector.classify(name).safe_constantize and register type, name
+  def self.respond_to_missing?(name, ...)
+    Oaken.inflector.classify(name).safe_constantize || super
+  end
+
+  def self.method_missing(name, ...)
+    name = name.to_s
+    if type = Oaken.inflector.classify(name).safe_constantize
+      register type, name
+      public_send(name, ...)
+    else
+      super
     end
   end
 
@@ -11,18 +19,4 @@ module Oaken::Seeds
     stored = provider.new(type, key) and define_method(key) { stored }
   end
   def self.provider = Oaken::Stored::ActiveRecord
-
-  singleton_class.attr_reader :loader
-  delegate :entry, to: :loader
-
-  def self.load_from(*paths)
-    paths.each do |path|
-      load_one path
-    end
-  end
-
-  def self.load_one(path)
-    @loader = Oaken::Loader.new(path)
-    @loader.load_onto(self)
-  end
 end

@@ -44,12 +44,15 @@ module Oaken
     end
   end
 
-  def self.preseed(*paths, env: Rails.env, connections: [])
-    [ActiveRecord::Base.connection, *connections].each do |conn|
-      Seeds.preregister conn.tables.grep_v(/^ar_/)
-    end
+  singleton_class.attr_reader :loader
+  delegate :entry, to: :loader
 
-    Seeds.load_from *paths.presence || "db/seeds"
+  def self.preseed(*paths, env: Rails.env)
+    paths = ["db/seeds"] unless paths.any?
+    paths.each do |path|
+      @loader = Loader.new(path)
+      @loader.load_onto Seeds
+    end
   end
 end
 

@@ -5,8 +5,8 @@ module Oaken::Seeds
     Oaken.inflector.classify(name).safe_constantize || super
   end
 
-  def self.method_missing(name, ...)
-    name = name.to_s
+  def self.method_missing(meth, ...)
+    name = meth.to_s
     if type = Oaken.inflector.classify(name).safe_constantize
       register type, name
       public_send(name, ...)

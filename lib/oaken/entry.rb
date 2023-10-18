@@ -24,8 +24,8 @@ class Oaken::Entry < DelegateClass(PStore)
     transaction do
       if replay?
         puts "Replaying #{@file}…"
-        readers.each do |key, name, id, lineno|
-          seeds.send(key).instance_eval "def #{name}; find #{id}; end", @file, lineno
+        readers.each do |key, *args|
+          define_reader(seeds.send(key), *args)
         end
       else
         reset
@@ -43,13 +43,8 @@ class Oaken::Entry < DelegateClass(PStore)
     self.readers  = Set.new
   end
 
-  def define_reader(stored, name, id)
-    lineno = self.lineno
+  def define_reader(stored, name, id, lineno)
     stored.instance_eval "def #{name}; find #{id}; end", @file, lineno
     readers << [stored.key, name, id, lineno]
-  end
-
-  def lineno
-    caller_locations(3, 10).find { _1.path == @file }.lineno
   end
 end

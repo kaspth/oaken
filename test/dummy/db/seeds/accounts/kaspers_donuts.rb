@@ -6,7 +6,6 @@ administratorships.create account: donuts, user: kasper
 coworker = users.create :coworker, name: "Coworker"
 administratorships.create account: donuts, user: coworker
 
-register Menu::Item
 menu = menus.create account: donuts
 plain_donut = menu_items.create menu: menu, name: "Plain", price_cents: 10_00
 sprinkled_donut = menu_items.create menu: menu, name: "Sprinkled", price_cents: 10_10

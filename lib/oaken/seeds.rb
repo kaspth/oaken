@@ -23,12 +23,19 @@ module Oaken::Seeds
   singleton_class.attr_reader :loader
   delegate :entry, to: :loader
 
-  def self.load(directory = "db/seeds", include_env:)
-    @loader = Oaken::Loader.new directory, exclude: environments - [include_env]
-    @loader.load_onto self
+  module Loading
+    def seed(*directories)
+      Oaken.lookup_paths.each do |path|
+        directories.each do |directory|
+          @loader = Oaken::Loader.new Pathname(path).join(directory.to_s)
+          @loader.load_onto Oaken::Seeds
+        end
+      end
+    end
   end
+  extend Loading
 
-  def self.environments
-    Pathname("config/environments").children.map { _1.basename(_1.extname).to_s }
+  def self.included(klass)
+    klass.extend Loading
   end
 end

@@ -45,6 +45,8 @@ module Oaken
   end
 
   def self.seeds(&block)
+    store_path.rmtree if ENV["OAKEN_RESET"]
+
     if block_given?
       Seeds.instance_eval(&block)
     else

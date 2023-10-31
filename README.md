@@ -1,10 +1,114 @@
 # Oaken
 
-The gem we're building in the Open Source Retreat https://kaspthrb.gumroad.com/l/open-source-retreat-summer-2023
+Oaken is an alternative to fixtures and/or factories to manage your development, test and some production data using data scripts.
+
+## Setup
+
+### Starting in development
+
+You can set it up in `db/seeds.rb`, like this:
+
+```ruby
+Oaken.seeds do
+  seed :accounts, :data
+end
+```
+
+This will look for deeply nested files to load in `db/seeds` and `db/seeds/#{Rails.env}` within the `accounts` and `data` directories.
+
+Here's what they could look like.
+
+```ruby
+# db/seeds/accounts/kaspers_donuts.rb
+donuts = accounts.create :kaspers_donuts, name: "Kasper's Donuts"
+
+kasper = users.create :kasper, name: "Kasper"
+administratorships.create account: donuts, user: kasper
+
+coworker = users.create :coworker, name: "Coworker"
+administratorships.create account: donuts, user: coworker
+
+menu = menus.create account: donuts
+plain_donut = menu_items.create menu: menu, name: "Plain", price_cents: 10_00
+sprinkled_donut = menu_items.create menu: menu, name: "Sprinkled", price_cents: 10_10
+
+supporter = users.create name: "Super Supporter"
+10.times do
+  orders.create user: supporter, item: plain_donut
+end
+
+10.times do |n|
+  customer = users.create name: "Customer #{n}"
+  orders.create user: customer, item: menu.items.sample
+end
+```
+
+```ruby
+# db/seeds/data/plans.rb
+plans.insert :basic, title: "Basic", price_cents: 10_00
+```
+
+Seed files will generally use `create` and/or `insert`. Passing a symbol to name the record is useful when reusing the data in tests.
+
+Now you can run `bin/rails db:seed` — plus Oaken skips executing a seed file if it knows the file hasn't been changed since the last seeding. Speedy!
+
+### Interlude: Directory Naming Conventions
+
+Oaken has some chosen directory conventions to help strengthen your understanding of your object graph:
+
+- Have a directory for your top-level model, like `Account`, `Team`, `Organization`, that's why we have `db/seeds/accounts` above.
+- `db/seeds/data` for any data tables, like the plans a SaaS app has.
+- `db/seeds/tests/cases` for any specific cases that are only used in some tests, like `pagination.rb`.
+
+### Reusing data in tests
+
+With the setup above, Oaken can reuse the same data in tests like so:
+
+```ruby
+# test/test_helper.rb
+class ActiveSupport::TestCase
+  include Oaken.seeds
+
+  # Override Minitest::Test#run to wrap each test in a transaction.
+  def run
+    result = nil
+    ActiveRecord::Base.transaction(requires_new: true) do
+      result = super
+      raise ActiveRecord::Rollback
+    end
+    result
+  end
+end
+```
+
+Now tests have access to `accounts.kaspers_donuts` and `users.kasper` etc. that were setup in the data scripts.
+
+You can also load a specific seed, like this:
+
+```ruby
+class PaginationTest < ActionDispatch::IntegrationTest
+  seed "cases/pagination"
+end
+```
+
+### Resetting cache
+
+Oaken is still early days, so you may need to reset the cache that skips seed files. Pass `OAKEN_RESET` to clear it:
+
+```sh
+OAKEN_RESET=1 bin/rails db:seed
+OAKEN_RESET=1 bin/rails test
+```
+
+### Fixtures Converter
+
+You can convert your Rails fixtures to Oaken's seeds by running:
+
+    $ bin/rails generate oaken:convert:fixtures
+
+This will convert anything in test/fixtures to db/seeds. E.g. `test/fixtures/users.yml` becomes `db/seeds/users.rb`.
 
 ## Installation
-
-TODO: Replace with private package install instructions.
 
 Install the gem and add to the application's Gemfile by executing:
 
@@ -13,16 +117,6 @@ Install the gem and add to the application's Gemfile by executing:
 If bundler is not being used to manage dependencies, install the gem by executing:
 
     $ gem install oaken
-
-## Features
-
-### Fixture to Seed Converter
-
-You can convert your Rails fixtures to Oaken's seeds via the following command:
-
-    $ bin/rails generate oaken:convert:fixtures
-
-This will convert anything in test/fixtures to test/seeds. E.g. `test/fixtures/users.yml` becomes `test/seeds/users.rb`.
 
 ## Development
 

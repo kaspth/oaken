@@ -33,14 +33,10 @@ plain_donut = menu_items.create menu: menu, name: "Plain", price_cents: 10_00
 sprinkled_donut = menu_items.create menu: menu, name: "Sprinkled", price_cents: 10_10
 
 supporter = users.create name: "Super Supporter"
-10.times do
-  orders.create user: supporter, item: plain_donut
-end
+orders.insert_all [user_id: supporter.id, item_id: plain_donut.id] * 10
 
-10.times do |n|
-  customer = users.create name: "Customer #{n}"
-  orders.create user: customer, item: menu.items.sample
-end
+orders.insert_all \
+  10.times.map { { user_id: users.create(name: "Customer #{_1}").id, item_id: menu.items.sample.id } }
 ```
 
 ```ruby

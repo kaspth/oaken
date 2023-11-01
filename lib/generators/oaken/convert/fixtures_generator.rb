@@ -32,8 +32,8 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
       results = fixtures.flat_map do |path, hash|
         hash.map do |inner_name, attributes|
           if name == attributes[@root_model.collection] || attributes[@root_model.singular]
-            @model_paths << model_path = path.sub("test/fixtures/", "").chomp(".yml")
-            convert_one(model_path, inner_name => attributes)
+            @model_paths << path
+            convert_one(path, inner_name => attributes)
           end
         end
       end

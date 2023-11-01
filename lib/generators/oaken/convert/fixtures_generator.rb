@@ -21,15 +21,32 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
   end
 
   def convert_all
-    Pathname.glob("test/fixtures/**/*.{yml,yaml}") do |file|
-      yaml = YAML.load_file(file)
+    fixtures = Pathname.glob("test/fixtures/**/*.yml").to_h { [_1.to_s, YAML.load_file(_1)] }
+    roots = fixtures.delete("test/fixtures/#{@root_model.collection}.yml")
 
-      @model_paths << model_path = file.relative_path_from("test/fixtures").sub_ext("").to_s
-      output_file = file.sub("test/fixtures", "db/seeds/test/#{@root_model.collection}").sub_ext(".rb")
-      create_file output_file, convert_one(model_path, yaml) || ""
-    rescue Psych::SyntaxError
-      say "Skipped #{fixture_file} due to ERB content or other YAML parsing issues.", :yellow
+    roots.each do |name, data|
+      results = fixtures.flat_map do |path, hash|
+        hash.map do |inner_name, attributes|
+          if name == attributes[@root_model.collection] || attributes[@root_model.singular]
+            model_path = path.sub("test/fixtures/", "").chomp(".yml")
+            convert_one(model_path, inner_name => attributes)
+          end
+        end
+      end
+
+      model_path = @root_model.collection
+      create_file "db/seeds/test/#{model_path}/#{name}.rb", ["#{name} = #{convert_one(model_path, name => data)}", *results].compact.join("\n")
     end
+
+    # fixtures.each do |file|
+    #   yaml = YAML.load_file(file)
+
+    #   @model_paths << model_path = file.relative_path_from("test/fixtures").sub_ext("").to_s
+    #   output_file = file.sub("test/fixtures", "db/seeds/test/#{@root_model.collection}").sub_ext(".rb")
+    #   create_file output_file, convert_one(model_path, yaml) || ""
+    # rescue Psych::SyntaxError
+    #   say "Skipped #{fixture_file} due to ERB content or other YAML parsing issues.", :yellow
+    # end
   end
 
   def prepend_setup_to_seeds
@@ -57,17 +74,17 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
       end
     end
 
-    def recursive_convert(input)
+    def recursive_convert(input, key: nil)
       case input
       when Hash  then "{ #{convert_hash(input)} }"
       when Array then input.map { recursive_convert _1 }.join(", ")
       else
-        "\"#{input}\""
+        [@root_model.collection, @root_model.singular].include?(key) ? input : "\"#{input}\""
       end
     end
 
     def convert_hash(hash)
-      hash.map { |k, v| "#{k}: #{recursive_convert(v)}" }.join(", ")
+      hash.map { |k, v| "#{k}: #{recursive_convert(v, key: k)}" }.join(", ")
     end
 
     def empty_directory_with_keep_file(name)

@@ -47,15 +47,17 @@ module Oaken
     end
   end
 
-  def self.seeds(&block)
+  def self.prepare(&block)
     store_path.rmtree if ENV["OAKEN_RESET"]
+    Seeds.instance_eval(&block)
+    Seeds
+  end
 
-    if block_given?
-      Seeds.instance_eval(&block)
-    else
+  def self.seeds
+    unless defined?(@loaded)
+      @loaded = true
       Rails.application.load_seed
     end
-
     Seeds
   end
 end

@@ -44,6 +44,8 @@ module Oaken
         @entry = entry
         @entry.load_onto seeds
       end
+
+      @entry = nil
     end
   end
 

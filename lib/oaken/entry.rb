@@ -20,6 +20,10 @@ class Oaken::Entry < DelegateClass(PStore)
     super PStore.new(prepared_store_path)
   end
 
+  def remove
+    path.unlink if path.exist?
+  end
+
   def load_onto(seeds)
     transaction do
       if replay?

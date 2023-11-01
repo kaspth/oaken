@@ -1,13 +1,10 @@
 donuts = accounts.create :kaspers_donuts, name: "Kasper's Donuts"
 
-kasper = users.create :kasper, name: "Kasper"
-administratorships.create account: donuts, user: kasper
-
-coworker = users.create :coworker, name: "Coworker"
-administratorships.create account: donuts, user: coworker
+kasper   = users.create :kasper,   name: "Kasper",   accounts: [donuts]
+coworker = users.create :coworker, name: "Coworker", accounts: [donuts]
 
 menu = menus.create account: donuts
-plain_donut = menu_items.create menu: menu, name: "Plain", price_cents: 10_00
+plain_donut     = menu_items.create menu: menu, name: "Plain",     price_cents: 10_00
 sprinkled_donut = menu_items.create menu: menu, name: "Sprinkled", price_cents: 10_10
 
 supporter = users.create name: "Super Supporter"

@@ -1,0 +1,10 @@
+kasper:
+  name: Kasper
+  accounts: kaspers_donuts
+
+coworker:
+  name: Coworker
+  accounts: kaspers_donuts
+
+super_supporter:
+  name: Super Supporter

@@ -21,37 +21,31 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
   end
 
   def convert_all
-    fixtures = Pathname.glob("test/fixtures/**/*.yml").to_h { [_1.to_s, YAML.load_file(_1)] }
+    fixtures = Pathname.glob("test/fixtures/**/*.yml").to_h do
+      [_1.to_s, YAML.load_file(_1)]
+    rescue Psych::SyntaxError
+      say "Skipped #{fixture_file} due to ERB content or other YAML parsing issues.", :yellow
+    end.compact_blank
     roots = fixtures.delete("test/fixtures/#{@root_model.collection}.yml")
 
     roots.each do |name, data|
       results = fixtures.flat_map do |path, hash|
         hash.map do |inner_name, attributes|
           if name == attributes[@root_model.collection] || attributes[@root_model.singular]
-            model_path = path.sub("test/fixtures/", "").chomp(".yml")
+            @model_paths << model_path = path.sub("test/fixtures/", "").chomp(".yml")
             convert_one(model_path, inner_name => attributes)
           end
         end
       end
 
-      model_path = @root_model.collection
+      @model_paths << model_path = @root_model.collection
       create_file "db/seeds/test/#{model_path}/#{name}.rb", ["#{name} = #{convert_one(model_path, name => data)}", *results].compact.join("\n")
     end
-
-    # fixtures.each do |file|
-    #   yaml = YAML.load_file(file)
-
-    #   @model_paths << model_path = file.relative_path_from("test/fixtures").sub_ext("").to_s
-    #   output_file = file.sub("test/fixtures", "db/seeds/test/#{@root_model.collection}").sub_ext(".rb")
-    #   create_file output_file, convert_one(model_path, yaml) || ""
-    # rescue Psych::SyntaxError
-    #   say "Skipped #{fixture_file} due to ERB content or other YAML parsing issues.", :yellow
-    # end
   end
 
   def prepend_setup_to_seeds
-    registers = @model_paths.uniq.sort.join(", ").presence
-    registers = "\nregister #{registers}\n\n" if registers
+    registers = @model_paths.uniq.sort.filter_map { _1.classify if _1.include?("/") }.join(", ").presence
+    registers = "register #{registers}\n\n" if registers
 
     inject_into_file "db/seeds.rb", <<~RUBY, before: /\A/
       Oaken.prepare do
@@ -63,15 +57,11 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
 
   private
     def convert_one(model_path, contents)
-      if contents
-        model_name = model_path.tr("/", "_")
+      model_name = model_path.tr("/", "_")
 
-        contents.map do |key, attributes|
-          "#{model_name}.create :#{key}, #{convert_hash(attributes)}"
-        end.join("\n").tap do
-          _1.prepend "register #{model_path.classify}\n" if model_path.include?("/")
-        end
-      end
+      contents.map do |key, attributes|
+        "#{model_name}.create :#{key}, #{convert_hash(attributes)}"
+      end.join("\n")
     end
 
     def recursive_convert(input, key: nil)

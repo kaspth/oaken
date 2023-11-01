@@ -9,7 +9,7 @@ class Oaken::Entry < DelegateClass(PStore)
   store_accessor :readers
 
   def self.within(directory)
-    Pathname.glob("#{directory}{,/**/*}.rb").sort.map { new _1 }
+    Pathname.glob("#{directory}{,/**/*}.{rb,sql}").sort.map { new _1 }
   end
 
   def initialize(pathname)
@@ -29,7 +29,11 @@ class Oaken::Entry < DelegateClass(PStore)
         end
       else
         reset
-        seeds.class_eval @pathname.read, @file
+
+        case @pathname.extname
+        in ".rb"  then seeds.class_eval @pathname.read, @file
+        in ".sql" then ActiveRecord::Base.connection.execute @pathname.read
+        end
       end
     end
   end

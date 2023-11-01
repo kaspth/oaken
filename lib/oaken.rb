@@ -32,8 +32,6 @@ module Oaken
   singleton_class.attr_accessor :store_path
   @store_path = Pathname.new "tmp/oaken/store"
 
-  singleton_class.attr_accessor :root_model
-
   class Loader
     attr_reader :entry
 

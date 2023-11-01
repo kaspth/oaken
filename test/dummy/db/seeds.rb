@@ -1,6 +1,4 @@
 Oaken.prepare do
-  self.root_model = Account
-
   register Menu::Item
 
   user_counter = 0

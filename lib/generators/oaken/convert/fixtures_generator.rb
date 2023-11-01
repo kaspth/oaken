@@ -20,36 +20,37 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
     empty_directory_with_keep_file "db/seeds/test/cases"
   end
 
-  def convert_all
-    fixtures = Pathname.glob("test/fixtures/**/*.yml").to_h do
+  def parse
+    @fixtures = Pathname.glob("test/fixtures/**/*.yml").to_h do
       [_1.to_s.delete_prefix("test/fixtures/").chomp(".yml"), YAML.load_file(_1)]
     rescue Psych::SyntaxError
       say "Skipped #{_1} due to ERB content or other YAML parsing issues.", :yellow
     end.tap(&:compact_blank!)
+  end
 
-    roots = fixtures.delete(@root_model.collection)
+  def convert_all
+    roots = @fixtures.delete(@root_model.collection)
     roots.each do |name, data|
-      results = fixtures.flat_map do |path, hash|
+      results = @fixtures.flat_map do |path, hash|
         hash.map do |inner_name, attributes|
           if name == attributes[@root_model.collection] || attributes[@root_model.singular]
-            @model_paths << path
             convert_one(path, inner_name => attributes)
           end
         end
       end
 
-      @model_paths << model_path = @root_model.collection
-      create_file "db/seeds/test/#{model_path}/#{name}.rb", ["#{name} = #{convert_one(model_path, name => data)}", *results].compact.join("\n")
+      create_file "db/seeds/test/#{@root_model.collection}/#{name}.rb",
+        ["#{name} = #{convert_one(@root_model.collection, name => data)}", *results].compact.join("\n")
     end
   end
 
   def prepend_setup_to_seeds
-    registers = @model_paths.uniq.sort.filter_map { _1.classify if _1.include?("/") }.join(", ").presence
-    registers = "register #{registers}\n\n" if registers
+    namespaced_models = @fixtures.keys.filter_map { _1.classify if _1.include?("/") }.uniq.sort
+    registers = "register #{namespaced_models.join(", ")}\n" if namespaced_models.any?
 
     inject_into_file "db/seeds.rb", <<~RUBY, before: /\A/
       Oaken.prepare do
-        self.root_model = #{@root_model.name}\n#{registers}
+        #{registers}
         load :#{@root_model.collection}, :data
       end
     RUBY

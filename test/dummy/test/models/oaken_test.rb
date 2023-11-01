@@ -18,6 +18,14 @@ class OakenTest < ActiveSupport::TestCase
     assert plans.test_premium
   end
 
+  test "default attributes" do
+    names = users.pluck(:name)
+
+    (1..10).each do
+      assert_includes names, "Customer #{_1}"
+    end
+  end
+
   test "source attribution" do
     donuts_location, kasper_location = [accounts.method(:kaspers_donuts), users.method(:kasper)].map(&:source_location)
     assert_match "db/seeds/accounts/kaspers_donuts.rb", donuts_location.first

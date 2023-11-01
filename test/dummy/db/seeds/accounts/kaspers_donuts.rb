@@ -11,4 +11,4 @@ supporter = users.create name: "Super Supporter"
 orders.insert_all [user_id: supporter.id, item_id: plain_donut.id] * 10
 
 orders.insert_all \
-  10.times.map { { user_id: users.create(name: "Customer #{_1}").id, item_id: menu.items.sample.id } }
+  10.times.map { { user_id: users.create.id, item_id: menu.items.sample.id } }

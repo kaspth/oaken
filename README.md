@@ -9,7 +9,7 @@ Oaken is an alternative to fixtures and/or factories to manage your development,
 You can set it up in `db/seeds.rb`, like this:
 
 ```ruby
-Oaken.seeds do
+Oaken.prepare do
   seed :accounts, :data
 end
 ```

@@ -8,10 +8,16 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
   desc "Converts fixtures to Oaken seeds in db/seeds/test"
   source_root File.expand_path("templates", __dir__)
 
-  argument :root_model, default: "Account", required: true
+  class_option :root_model, required: true
+  class_option :keeps, type: :boolean, default: true
 
   def prepare
     @model_paths = []
+    @root_model = ActiveModel::Name.new(options[:root_model].constantize)
+
+    empty_directory_with_keep_file "db/seeds/#{@root_model.collection}"
+    empty_directory_with_keep_file "db/seeds/data"
+    empty_directory_with_keep_file "db/seeds/test/cases"
   end
 
   def convert_all
@@ -19,7 +25,7 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
       yaml = YAML.load_file(file)
 
       @model_paths << model_path = file.relative_path_from("test/fixtures").sub_ext("").to_s
-      output_file = file.sub("test/fixtures", "db/seeds/test").sub_ext(".rb")
+      output_file = file.sub("test/fixtures", "db/seeds/test/#{@root_model.collection}").sub_ext(".rb")
       create_file output_file, convert_one(model_path, yaml) || ""
     rescue Psych::SyntaxError
       say "Skipped #{fixture_file} due to ERB content or other YAML parsing issues.", :yellow
@@ -27,14 +33,13 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
   end
 
   def prepend_setup_to_seeds
-    seeds = Pathname("db/seeds.rb")
-    seeds.write <<~RUBY + seeds.read
-      Oaken.setup do
-        self.root_model = #{root_model}
+    registers = @model_paths.uniq.sort.join(", ").presence
+    registers = "\nregister #{registers}\n\n" if registers
 
-        register #{@model_paths.uniq.sort.join(", ")}
-
-        load :#{root_model.underscore.pluralize}, :data
+    inject_into_file "db/seeds.rb", <<~RUBY, before: /\A/
+      Oaken.prepare do
+        self.root_model = #{@root_model.name}\n#{registers}
+        load :#{@root_model.collection}, :data
       end
     RUBY
   end
@@ -63,5 +68,10 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
 
     def convert_hash(hash)
       hash.map { |k, v| "#{k}: #{recursive_convert(v)}" }.join(", ")
+    end
+
+    def empty_directory_with_keep_file(name)
+      empty_directory name
+      create_file "#{name}/.keep" if options[:keeps]
     end
 end

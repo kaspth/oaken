@@ -22,11 +22,11 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
 
   def convert_all
     fixtures = Pathname.glob("test/fixtures/**/*.yml").to_h do
-      [_1.to_s, YAML.load_file(_1)]
+      [_1.to_s.delete_prefix("test/fixtures/").chomp(".yml"), YAML.load_file(_1)]
     rescue Psych::SyntaxError
       say "Skipped #{fixture_file} due to ERB content or other YAML parsing issues.", :yellow
     end.compact_blank
-    roots = fixtures.delete("test/fixtures/#{@root_model.collection}.yml")
+    roots = fixtures.delete(@root_model.collection)
 
     roots.each do |name, data|
       results = fixtures.flat_map do |path, hash|

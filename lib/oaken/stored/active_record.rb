@@ -2,6 +2,7 @@ class Oaken::Stored::ActiveRecord < Struct.new(:type, :key)
   def initialize(type, key = nil)
     super(type, key || Oaken.inflector.tableize(type.name))
   end
+  delegate :transaction, to: :type # For multi-db setups to help open a transaction on secondary connections.
   delegate :find, :insert_all, to: :type
 
   def create(reader = nil, **attributes)

@@ -34,6 +34,12 @@ class Oaken::Entry < DelegateClass(PStore)
     end
   end
 
+  def transaction(&block)
+    super do
+      Oaken.transaction(&block)
+    end
+  end
+
   def replay?
     checksum == @computed_checksum
   end

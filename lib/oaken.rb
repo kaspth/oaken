@@ -47,6 +47,10 @@ module Oaken
     end
   end
 
+  def self.transaction(&block)
+    ActiveRecord::Base.transaction(&block)
+  end
+
   def self.prepare(&block)
     store_path.rmtree if ENV["OAKEN_RESET"]
     Seeds.instance_eval(&block)

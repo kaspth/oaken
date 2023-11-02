@@ -37,12 +37,8 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
         descendants << [model_name, descendant_rows] if descendant_rows.any?
       end
 
-      results = descendants.map do |model_name, rows|
-        rows.map { convert_one(model_name, _1, _2) }.join("\n")
-      end.join("\n")
-
       create_file "db/seeds/test/#{@root_model.plural}/#{root_name}.rb",
-        ["#{root_name} = #{convert_one(@root_model.plural, root_name, data)}\n", results].join("\n")
+        Fixture.new(@root_model.plural, root_name, data, descendants).render
     end
   end
 
@@ -59,21 +55,38 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
   end
 
   private
-    def convert_one(model_name, name, attributes)
-      "#{model_name}.create :#{name}, #{convert_hash(attributes)}"
-    end
-
-    def recursive_convert(input, key: nil)
-      case input
-      when Hash  then "{ #{convert_hash(input)} }"
-      when Array then input.map { recursive_convert _1 }.join(", ")
-      else
-        [@root_model.plural, @root_model.singular].include?(key) ? input : "\"#{input}\""
+    class Fixture < Struct.new(:model_name, :name, :attributes, :raw_descendants)
+      def render
+        [render_self, *descendants.map(&:render)].join("\n")
       end
-    end
 
-    def convert_hash(hash)
-      hash.map { |k, v| "#{k}: #{recursive_convert(v, key: k)}" }.join(", ")
+      private
+        def render_self
+          "#{model_name}.create :#{name}, #{convert_hash(attributes)}".tap do
+            _1.prepend "#{name} = " if descendants.any?
+          end
+        end
+
+        def descendants
+          raw_descendants.flat_map do |model_name, data|
+            data.map do
+              self.class.new(model_name, _1, _2, [])
+            end
+          end
+        end
+
+        def convert_hash(hash)
+          hash.map { |k, v| "#{k}: #{recursive_convert(v, key: k)}" }.join(", ")
+        end
+
+        def recursive_convert(input, key: nil)
+          case input
+          when Hash  then "{ #{convert_hash(input)} }"
+          when Array then input.map { recursive_convert _1 }.join(", ")
+          else
+            ["accounts", "account"].include?(key) ? input : "\"#{input}\""
+          end
+        end
     end
 
     def empty_directory_with_keep_file(name)

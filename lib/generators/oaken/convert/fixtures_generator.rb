@@ -47,8 +47,8 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
     class Fixture
       attr_reader :model_name, :name
 
-      def initialize(model_name, name, attributes, descendants = [])
-        @model_name, @name, @attributes, @descendants = model_name.tr("/", "_"), name, attributes, descendants
+      def initialize(model_name, name, attributes)
+        @model_name, @name, @attributes = model_name.tr("/", "_"), name, attributes
         @plural = @model_name
         @singular = @model_name.singularize
       end
@@ -67,9 +67,8 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
       end
 
       def extract_descendants(fixtures)
-        referenced = fixtures.select { _1.reference(plural, singular) == name }
-        descendants.concat referenced
-        fixtures.replace fixtures - referenced
+        @descendants = fixtures.select { _1.reference(plural, singular) == name }
+        fixtures.replace fixtures - descendants
 
         descendants.each { _1.extract_descendants fixtures }
       end

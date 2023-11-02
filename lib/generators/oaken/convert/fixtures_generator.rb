@@ -27,17 +27,22 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
 
   def convert_all
     roots = @fixtures.delete(@root_model.collection)
-    roots.each do |name, data|
-      results = @fixtures.flat_map do |path, hash|
-        hash.map do |inner_name, attributes|
-          if name == attributes[@root_model.plural] || attributes[@root_model.singular]
-            convert_one(path.tr("/", "_"), inner_name, attributes)
-          end
+    roots.each do |root_name, data|
+      descendants = []
+      @fixtures.each do |model_name, rows|
+        descendant_rows = rows.select do |name, attributes|
+          root_name == (attributes[@root_model.plural] || attributes[@root_model.singular])
         end
+        descendant_rows.each_key { rows.delete _1 }
+        descendants << [model_name, descendant_rows] if descendant_rows.any?
       end
 
-      create_file "db/seeds/test/#{@root_model.plural}/#{name}.rb",
-        ["#{name} = #{convert_one(@root_model.plural, name, data)}", *results].compact.join("\n")
+      results = descendants.map do |model_name, rows|
+        rows.map { convert_one(model_name, _1, _2) }.join("\n")
+      end.join("\n")
+
+      create_file "db/seeds/test/#{@root_model.plural}/#{root_name}.rb",
+        ["#{root_name} = #{convert_one(@root_model.plural, root_name, data)}\n", results].join("\n")
     end
   end
 

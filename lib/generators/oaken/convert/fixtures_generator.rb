@@ -75,7 +75,7 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
       say "Skipped #{_1} due to ERB content or other YAML parsing issues.", :yellow
     end.tap(&:compact_blank!)
 
-    @namespaced_models = @fixtures.keys.filter_map { _1.classify if _1.include?("/") }.uniq.sort
+    @fixture_names = @fixtures.keys
   end
 
   def convert_all
@@ -97,14 +97,14 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
   end
 
   def prepend_setup_to_seeds
-    registers = "register #{@namespaced_models.join(", ")}\n" if @namespaced_models.any?
+    namespaces = @fixture_names.filter_map { _1.classify if _1.include?("/") }.uniq.sort
 
-    inject_into_file "db/seeds.rb", <<~RUBY, before: /\A/
-      Oaken.prepare do
-        #{registers}
-        load :#{@root_model.plural}, :data
-      end
-    RUBY
+    code  = +"Oaken.prepare do\n"
+    code << "  register #{namespaces.join(", ")}\n\n" if namespaces.any?
+    code << "  load :#{@root_model.plural}, :data\n"
+    code << "end\n"
+
+    inject_into_file "db/seeds.rb", code, before: /\A/
   end
 
   private

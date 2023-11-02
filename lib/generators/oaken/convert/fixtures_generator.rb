@@ -79,8 +79,17 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
     rescue Psych::SyntaxError
       say "Skipped #{path} due to ERB content or other YAML parsing issues.", :yellow
     end.tap(&:compact_blank!)
+  end
 
-    @fixture_names = @fixtures.keys
+  def prepend_prepare_to_seeds
+    namespaces = @fixtures.keys.filter_map { _1.classify if _1.include?("/") }.uniq.sort
+
+    code  = +"Oaken.prepare do\n"
+    code << "  register #{namespaces.join(", ")}\n\n" if namespaces.any?
+    code << "  load :#{@root_model.plural}, :data\n"
+    code << "end\n"
+
+    inject_into_file "db/seeds.rb", code, before: /\A/
   end
 
   def convert_all
@@ -95,17 +104,6 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
     @fixtures.group_by(&:model_name).each do |model_name, fixtures|
       create_file "db/seeds/test/data/#{model_name}.rb", fixtures.map(&:render).join.chomp
     end
-  end
-
-  def prepend_setup_to_seeds
-    namespaces = @fixture_names.filter_map { _1.classify if _1.include?("/") }.uniq.sort
-
-    code  = +"Oaken.prepare do\n"
-    code << "  register #{namespaces.join(", ")}\n\n" if namespaces.any?
-    code << "  load :#{@root_model.plural}, :data\n"
-    code << "end\n"
-
-    inject_into_file "db/seeds.rb", code, before: /\A/
   end
 
   private

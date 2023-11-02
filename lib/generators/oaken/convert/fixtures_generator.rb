@@ -62,15 +62,15 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
         fixtures = fixtures.values.flatten
 
         roots.each do |fixture|
-          fixture.extract_descendants fixtures
+          fixture.extract_dependents fixtures
         end
       end
 
-      def extract_descendants(fixtures)
-        @descendants = fixtures.select { _1.reference(plural, singular) == name }
-        fixtures.replace fixtures - descendants
+      def extract_dependents(fixtures)
+        @dependents = fixtures.select { _1.reference(plural, singular) == name }
+        fixtures.replace fixtures - dependents
 
-        descendants.each { _1.extract_descendants fixtures }
+        dependents.each { _1.extract_dependents fixtures }
       end
 
       def reference(plural, singular)
@@ -80,16 +80,16 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
       end
 
       def render(delimiter: "\n")
-        [render_self, descendants.map { _1.render delimiter: nil }].join(delimiter)
+        [render_self, dependents.map { _1.render delimiter: nil }].join(delimiter)
       end
 
       private
-        attr_reader :attributes, :descendants
+        attr_reader :attributes, :dependents
         attr_reader :plural, :singular
 
         def render_self
           "#{model_name}.create :#{name}, #{convert_hash(attributes)}\n".tap do
-            _1.prepend "#{name} = " if descendants.any?
+            _1.prepend "#{name} = " if dependents.any?
           end
         end
 

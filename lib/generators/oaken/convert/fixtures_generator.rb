@@ -58,17 +58,20 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
           [model_name, rows.map { Fixture.new(model_name, _1, _2) }]
         end
 
-        fixtures.delete(root_model_name).each do |fixture|
-          fixtures.each_value do |rows|
-            fixture.extract_descendants rows
-          end
+        roots = fixtures.delete(root_model_name)
+        fixtures = fixtures.values.flatten
+
+        roots.each do |fixture|
+          fixture.extract_descendants fixtures
         end
       end
 
-      def extract_descendants(rows)
-        referenced = rows.select { _1.reference(plural, singular) == name }
+      def extract_descendants(fixtures)
+        referenced = fixtures.select { _1.reference(plural, singular) == name }
         descendants.concat referenced
-        rows.replace rows - referenced
+        fixtures.replace fixtures - referenced
+
+        descendants.each { _1.extract_descendants fixtures }
       end
 
       def reference(plural, singular)

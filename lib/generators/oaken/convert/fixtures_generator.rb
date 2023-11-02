@@ -21,9 +21,9 @@ class Oaken::Convert::Fixture
   end
 
   def reference(plural, singular)
-    @referenced = plural   if attributes[plural]
-    @referenced = singular if attributes[singular]
-    attributes[@referenced]
+    @referenced = [plural, :plural]     if attributes[plural]
+    @referenced = [singular, :singular] if attributes[singular]
+    attributes[@referenced&.first]
   end
 
   def render(delimiter: "\n")
@@ -50,7 +50,11 @@ class Oaken::Convert::Fixture
       when Array then input.map { recursive_convert _1 }.join(", ")
       when Integer then input
       else
-        key == @referenced ? input : "\"#{input}\""
+        if key == @referenced&.first
+          @referenced.last == :plural ? "[#{input}]" : input
+        else
+          "\"#{input}\""
+        end
       end
     end
 end

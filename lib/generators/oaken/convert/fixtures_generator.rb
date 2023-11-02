@@ -13,19 +13,6 @@ class Oaken::Convert::Fixture
     @singular = @model_name.singularize
   end
 
-  def self.traverse(fixtures, root_model_name)
-    fixtures = fixtures.to_h do |model_name, rows|
-      [model_name, rows.map { new(model_name, _1, _2) }]
-    end
-
-    roots = fixtures.delete(root_model_name)
-    fixtures = fixtures.values.flatten
-
-    roots.each do |fixture|
-      fixture.extract_dependents fixtures
-    end
-  end
-
   def extract_dependents(fixtures)
     @dependents = fixtures.select { _1.reference(plural, singular) == name }
     fixtures.replace fixtures - dependents
@@ -40,7 +27,7 @@ class Oaken::Convert::Fixture
   end
 
   def render(delimiter: "\n")
-    [render_self, dependents.map { _1.render delimiter: nil }].join(delimiter)
+    [render_self, dependents&.map { _1.render delimiter: nil }].join(delimiter)
   end
 
   private
@@ -49,7 +36,7 @@ class Oaken::Convert::Fixture
 
     def render_self
       "#{model_name}.create :#{name}, #{convert_hash(attributes)}\n".tap do
-        _1.prepend "#{name} = " if dependents.any?
+        _1.prepend "#{name} = " if dependents&.any?
       end
     end
 
@@ -87,17 +74,30 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
     rescue Psych::SyntaxError
       say "Skipped #{_1} due to ERB content or other YAML parsing issues.", :yellow
     end.tap(&:compact_blank!)
+
+    @namespaced_models = @fixtures.keys.filter_map { _1.classify if _1.include?("/") }.uniq.sort
   end
 
   def convert_all
-    Oaken::Convert::Fixture.traverse(@fixtures, @root_model.collection).each do |fixture|
-      create_file "db/seeds/test/#{@root_model.plural}/#{fixture.name}.rb", fixture.render
+    @fixtures = @fixtures.to_h do |model_name, rows|
+      [model_name, rows.map { Oaken::Convert::Fixture.new(model_name, _1, _2) }]
+    end
+
+    roots = @fixtures.delete(@root_model.collection)
+    @fixtures = @fixtures.values.flatten
+
+    roots.each do |fixture|
+      fixture.extract_dependents @fixtures
+      create_file "db/seeds/test/#{@root_model.plural}/#{fixture.name}.rb", fixture.render.chomp
+    end
+
+    @fixtures.group_by(&:model_name).each do |model_name, fixtures|
+      create_file "db/seeds/test/data/#{model_name}.rb", fixtures.map(&:render).join.chomp
     end
   end
 
   def prepend_setup_to_seeds
-    namespaced_models = @fixtures.keys.filter_map { _1.classify if _1.include?("/") }.uniq.sort
-    registers = "register #{namespaced_models.join(", ")}\n" if namespaced_models.any?
+    registers = "register #{@namespaced_models.join(", ")}\n" if @namespaced_models.any?
 
     inject_into_file "db/seeds.rb", <<~RUBY, before: /\A/
       Oaken.prepare do

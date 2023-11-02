@@ -1,0 +1,9 @@
+plain_donut:
+  menu: donuts
+  name: Plain
+  price_cents: 10_00
+
+sprinkled_donut:
+  menu: donuts
+  name: Sprinkled
+  price_cents: 10_10

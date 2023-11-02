@@ -69,20 +69,17 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
   end
 
   def parse
-    @fixtures = Pathname.glob("test/fixtures/**/*.yml").to_h do
-      [_1.to_s.delete_prefix("test/fixtures/").chomp(".yml"), YAML.load_file(_1)]
+    @fixtures = Dir.glob("test/fixtures/**/*.yml").to_h do |path|
+      model_name = path.delete_prefix("test/fixtures/").chomp(".yml")
+      [model_name, YAML.load_file(path)&.map { Oaken::Convert::Fixture.new(model_name, _1, _2) }]
     rescue Psych::SyntaxError
-      say "Skipped #{_1} due to ERB content or other YAML parsing issues.", :yellow
+      say "Skipped #{path} due to ERB content or other YAML parsing issues.", :yellow
     end.tap(&:compact_blank!)
 
     @fixture_names = @fixtures.keys
   end
 
   def convert_all
-    @fixtures = @fixtures.to_h do |model_name, rows|
-      [model_name, rows.map { Oaken::Convert::Fixture.new(model_name, _1, _2) }]
-    end
-
     roots = @fixtures.delete(@root_model.collection)
     @fixtures = @fixtures.values.flatten
 

@@ -79,8 +79,8 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
         attributes[@referenced]
       end
 
-      def render
-        [render_self, *descendants.map(&:render)].join("\n")
+      def render(delimiter: "\n")
+        [render_self, descendants.map { _1.render delimiter: nil }].join(delimiter)
       end
 
       private
@@ -88,7 +88,7 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
         attr_reader :plural, :singular
 
         def render_self
-          "#{model_name}.create :#{name}, #{convert_hash(attributes)}".tap do
+          "#{model_name}.create :#{name}, #{convert_hash(attributes)}\n".tap do
             _1.prepend "#{name} = " if descendants.any?
           end
         end

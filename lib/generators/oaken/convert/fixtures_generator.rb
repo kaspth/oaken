@@ -45,11 +45,12 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
 
   private
     class Fixture
-      attr_reader :model_name, :name, :attributes, :descendants
-      delegate :[], to: :attributes
+      attr_reader :model_name, :name
 
       def initialize(model_name, name, attributes, descendants = [])
         @model_name, @name, @attributes, @descendants = model_name.tr("/", "_"), name, attributes, descendants
+        @plural = @model_name
+        @singular = @model_name.singularize
       end
 
       def self.traverse(fixtures, root_model_name)
@@ -65,9 +66,15 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
       end
 
       def extract_descendants(rows)
-        mentioned = rows.select { mentioned? _1 }
-        descendants.concat mentioned
-        rows.replace rows - mentioned
+        referenced = rows.select { _1.reference(plural, singular) == name }
+        descendants.concat referenced
+        rows.replace rows - referenced
+      end
+
+      def reference(plural, singular)
+        @referenced = plural   if attributes[plural]
+        @referenced = singular if attributes[singular]
+        attributes[@referenced]
       end
 
       def render
@@ -75,9 +82,8 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
       end
 
       private
-        def mentioned?(other)
-          name == (other[model_name] || other[model_name.singularize])
-        end
+        attr_reader :attributes, :descendants
+        attr_reader :plural, :singular
 
         def render_self
           "#{model_name}.create :#{name}, #{convert_hash(attributes)}".tap do
@@ -95,7 +101,7 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
           when Array then input.map { recursive_convert _1 }.join(", ")
           when Integer then input
           else
-            ["accounts", "account"].include?(key) ? input : "\"#{input}\""
+            key == @referenced ? input : "\"#{input}\""
           end
         end
     end

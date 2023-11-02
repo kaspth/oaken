@@ -26,19 +26,8 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
   end
 
   def convert_all
-    roots = @fixtures.delete(@root_model.collection)
-    roots.each do |root_name, data|
-      descendants = []
-      @fixtures.each do |model_name, rows|
-        descendant_rows = rows.select do |name, attributes|
-          root_name == (attributes[@root_model.plural] || attributes[@root_model.singular])
-        end
-        descendant_rows.each_key { rows.delete _1 }
-        descendants << [model_name, descendant_rows] if descendant_rows.any?
-      end
-
-      create_file "db/seeds/test/#{@root_model.plural}/#{root_name}.rb",
-        Fixture.new(@root_model.plural, root_name, data, descendants).render
+    Fixture.traverse(@fixtures, @root_model.collection).each do |fixture|
+      create_file "db/seeds/test/#{@root_model.plural}/#{fixture.name}.rb", fixture.render
     end
   end
 
@@ -55,23 +44,44 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
   end
 
   private
-    class Fixture < Struct.new(:model_name, :name, :attributes, :raw_descendants)
+    class Fixture
+      attr_reader :model_name, :name, :attributes, :descendants
+      delegate :[], to: :attributes
+
+      def initialize(model_name, name, attributes, descendants = [])
+        @model_name, @name, @attributes, @descendants = model_name.tr("/", "_"), name, attributes, descendants
+      end
+
+      def self.traverse(fixtures, root_model_name)
+        fixtures = fixtures.to_h do |model_name, rows|
+          [model_name, rows.map { Fixture.new(model_name, _1, _2) }]
+        end
+
+        fixtures.delete(root_model_name).each do |fixture|
+          fixtures.each_value do |rows|
+            fixture.extract_descendants rows
+          end
+        end
+      end
+
+      def extract_descendants(rows)
+        mentioned = rows.select { mentioned? _1 }
+        descendants.concat mentioned
+        rows.replace rows - mentioned
+      end
+
       def render
         [render_self, *descendants.map(&:render)].join("\n")
       end
 
       private
+        def mentioned?(other)
+          name == (other[model_name] || other[model_name.singularize])
+        end
+
         def render_self
           "#{model_name}.create :#{name}, #{convert_hash(attributes)}".tap do
             _1.prepend "#{name} = " if descendants.any?
-          end
-        end
-
-        def descendants
-          raw_descendants.flat_map do |model_name, data|
-            data.map do
-              self.class.new(model_name, _1, _2, [])
-            end
           end
         end
 
@@ -83,6 +93,7 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
           case input
           when Hash  then "{ #{convert_hash(input)} }"
           when Array then input.map { recursive_convert _1 }.join(", ")
+          when Integer then input
           else
             ["accounts", "account"].include?(key) ? input : "\"#{input}\""
           end

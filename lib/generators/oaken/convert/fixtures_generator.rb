@@ -75,7 +75,7 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
   def parse
     @fixtures = Dir.glob("test/fixtures/**/*.yml").to_h do |path|
       model_name = path.delete_prefix("test/fixtures/").chomp(".yml")
-      [model_name, YAML.load_file(path)&.map { Oaken::Convert::Fixture.new(model_name, _1, _2) }]
+      [model_name, YAML.load_file(path).presence&.map { Oaken::Convert::Fixture.new(model_name, _1, _2) }]
     rescue Psych::SyntaxError
       say "Skipped #{path} due to ERB content or other YAML parsing issues.", :yellow
     end.tap(&:compact_blank!)

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    oaken (0.2.0)
+    oaken (0.5.0)
 
 GEM
   remote: https://rubygems.org/

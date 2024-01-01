@@ -20,22 +20,23 @@ module Oaken::Seeds
   end
   def self.provider = Oaken::Stored::ActiveRecord
 
-  singleton_class.attr_reader :loader
-  delegate :entry, to: :loader
+  class << self
+    # Expose a class `seed` method for individual test classes to use.
+    # TODO: support parallelization somehow.
+    def included(klass) = klass.singleton_class.delegate(:seed, to: Oaken::Seeds)
 
-  module Loading
     def seed(*directories)
-      Oaken.lookup_paths.each do |path|
-        directories.each do |directory|
-          @loader = Oaken::Loader.new Pathname(path).join(directory.to_s)
-          @loader.load_onto Oaken::Seeds
-        end
+      Oaken.lookup_paths.product(directories).each do |path, directory|
+        load_from Pathname(path).join(directory.to_s)
       end
     end
-  end
-  extend Loading
 
-  def self.included(klass)
-    klass.extend Loading
+    private def load_from(path)
+      @loader = Oaken::Loader.new path
+      @loader.load_onto self
+    ensure
+      @loader = nil
+    end
+    def entry = @loader.entry
   end
 end

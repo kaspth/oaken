@@ -25,6 +25,22 @@ module Oaken::Seeds
     # TODO: support parallelization somehow.
     def included(klass) = klass.singleton_class.delegate(:seed, to: Oaken::Seeds)
 
+    # Set up a general seed rule or perform a one-off seed for a test file.
+    #
+    # You can set up a general seed rule in `db/seeds.rb` like this:
+    #
+    #   Oaken.prepare do
+    #     seed :accounts # Seeds from `db/seeds/accounts/**/*.rb` and `db/seeds/<Rails.env>/accounts/**/*.rb`
+    #   end
+    #
+    # Then if you need a test specific scenario, we recommend putting them in `db/seeds/test/cases`.
+    #
+    # Say you have `db/seeds/test/cases/pagination.rb`, you can load it like this:
+    #
+    #   # test/integration/pagination_test.rb
+    #   class PaginationTest < ActionDispatch::TestCase
+    #     seed "cases/pagination"
+    #   end
     def seed(*directories)
       Oaken.lookup_paths.product(directories).each do |path, directory|
         load_from Pathname(path).join(directory.to_s)

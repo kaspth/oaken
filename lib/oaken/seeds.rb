@@ -59,5 +59,8 @@ module Oaken::Seeds
   #       seed "cases/pagination" # Loads `db/seeds/{,test}/cases/pagination{,**/*}.rb`
   #     end
   #   end
-  delegate :seed, to: Oaken::Seeds
+  def seed(...)
+    Oaken.store_path.rmtree # TODO: Remove after we yank the store stuff.
+    Oaken::Seeds.seed(...)
+  end
 end

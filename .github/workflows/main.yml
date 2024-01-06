@@ -28,5 +28,3 @@ jobs:
     - name: Uncached tests
       run: bin/rails test
       working-directory: test/dummy
-      env:
-        OAKEN_RESET: "1"

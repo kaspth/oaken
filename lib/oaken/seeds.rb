@@ -21,10 +21,6 @@ module Oaken::Seeds
   def self.provider = Oaken::Stored::ActiveRecord
 
   class << self
-    # Expose a class `seed` method for individual test classes to use.
-    # TODO: support parallelization somehow.
-    def included(klass) = klass.singleton_class.delegate(:seed, to: Oaken::Seeds)
-
     # Set up a general seed rule or perform a one-off seed for a test file.
     #
     # You can set up a general seed rule in `db/seeds.rb` like this:
@@ -55,4 +51,13 @@ module Oaken::Seeds
     end
     def entry = @loader.entry
   end
+
+  # Call `seed` in tests to load individual case files:
+  #
+  #   class PaginationTest < ActionDispatch::IntegrationTest
+  #     setup do
+  #       seed "cases/pagination" # Loads `db/seeds/{,test}/cases/pagination{,**/*}.rb`
+  #     end
+  #   end
+  delegate :seed, to: Oaken::Seeds
 end

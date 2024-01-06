@@ -34,8 +34,8 @@ module Oaken::Seeds
     # Say you have `db/seeds/test/cases/pagination.rb`, you can load it like this:
     #
     #   # test/integration/pagination_test.rb
-    #   class PaginationTest < ActionDispatch::TestCase
-    #     seed "cases/pagination"
+    #   class PaginationTest < ActionDispatch::IntegrationTest
+    #     setup { seed "cases/pagination" }
     #   end
     def seed(*directories)
       Oaken.lookup_paths.product(directories).each do |path, directory|

@@ -28,7 +28,3 @@ jobs:
     - name: Uncached tests
       run: bin/rails test
       working-directory: test/dummy
-
-    - name: Cached tests
-      run: bin/rails test
-      working-directory: test/dummy

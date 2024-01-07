@@ -22,18 +22,11 @@ class Oaken::Entry < DelegateClass(PStore)
 
   def load_onto(seeds)
     transaction do
-      if replay?
-        puts "Replaying #{@file}…"
-        readers.each do |key, *args|
-          define_reader(seeds.send(key), *args)
-        end
-      else
-        reset
+      reset
 
-        case @pathname.extname
-        in ".rb"  then seeds.class_eval @pathname.read, @file
-        in ".sql" then ActiveRecord::Base.connection.execute @pathname.read
-        end
+      case @pathname.extname
+      in ".rb"  then seeds.class_eval @pathname.read, @file
+      in ".sql" then ActiveRecord::Base.connection.execute @pathname.read
       end
     end
   end

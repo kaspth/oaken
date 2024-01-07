@@ -6,7 +6,8 @@ require "pathname"
 module Oaken
   class Error < StandardError; end
 
-  autoload :Seeds, "oaken/seeds"
+  autoload :Seeds,     "oaken/seeds"
+  autoload :TestSetup, "oaken/test_setup"
 
   module Stored
     autoload :ActiveRecord, "oaken/stored/active_record"

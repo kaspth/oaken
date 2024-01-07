@@ -86,7 +86,7 @@ class Oaken::Convert::FixturesGenerator < Rails::Generators::Base
 
     code  = +"Oaken.prepare do\n"
     code << "  register #{namespaces.join(", ")}\n\n" if namespaces.any?
-    code << "  load :#{@root_model.plural}, :data\n"
+    code << "  seed :#{@root_model.plural}, :data\n"
     code << "end\n"
 
     inject_into_file "db/seeds.rb", code, before: /\A/

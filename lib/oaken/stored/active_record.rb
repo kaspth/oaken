@@ -35,6 +35,6 @@ class Oaken::Stored::ActiveRecord < Struct.new(:type, :key)
   end
 
   private def define_reader(name, id, location)
-    instance_eval "def #{name}; find #{id}; end", location.path, location.lineno
+    class_eval "def #{name} = find(#{id})", location.path, location.lineno
   end
 end

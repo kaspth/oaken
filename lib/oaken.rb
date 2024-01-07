@@ -33,16 +33,13 @@ module Oaken
   @store_path = Pathname.new "tmp/oaken/store"
 
   class Loader
-    attr_reader :entry
-
     def initialize(path)
-      @entries, @entry = Entry.within(path), nil
+      @entries = Entry.within(path)
     end
 
     def load_onto(seeds)
       @entries.each do |entry|
-        @entry = entry
-        @entry.load_onto seeds
+        entry.load_onto seeds
       end
     end
   end

@@ -49,7 +49,6 @@ module Oaken::Seeds
     ensure
       @loader = nil
     end
-    def entry = @loader.entry
   end
 
   # Call `seed` in tests to load individual case files:

@@ -15,8 +15,4 @@ class Oaken::Entry
       end
     end
   end
-
-  def define_reader(stored, name, id, lineno)
-    stored.instance_eval "def #{name}; find #{id}; end", @file, lineno
-  end
 end

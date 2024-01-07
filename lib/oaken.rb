@@ -53,7 +53,6 @@ module Oaken
   end
 
   def self.prepare(&block)
-    store_path.rmtree if ENV["OAKEN_RESET"]
     Seeds.instance_eval(&block)
     Seeds
   end

@@ -1,12 +1,16 @@
+section :accounts
 donuts = accounts.create :kaspers_donuts, name: "Kasper's Donuts"
 
+section :users
 kasper   = users.create :kasper,   name: "Kasper",   accounts: [donuts]
 coworker = users.create :coworker, name: "Coworker", accounts: [donuts]
 
+section :menus, :with_items
 menu = menus.create account: donuts
 plain_donut     = menu_items.create menu: menu, name: "Plain",     price_cents: 10_00
 sprinkled_donut = menu_items.create menu: menu, name: "Sprinkled", price_cents: 10_10
 
+section :orders
 supporter = users.create name: "Super Supporter"
 orders.insert_all [user_id: supporter.id, item_id: plain_donut.id] * 10
 

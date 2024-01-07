@@ -28,9 +28,6 @@ module Oaken
   singleton_class.attr_reader :lookup_paths
   @lookup_paths = ["db/seeds"]
 
-  singleton_class.attr_accessor :store_path
-  @store_path = Pathname.new "tmp/oaken/store"
-
   class Loader
     def initialize(path)
       @entries = Pathname.glob("#{path}{,/**/*}.{rb,sql}").sort

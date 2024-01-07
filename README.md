@@ -60,7 +60,7 @@ With the setup above, Oaken can reuse the same data in tests like this:
 ```ruby
 # test/test_helper.rb
 class ActiveSupport::TestCase
-  prepend Oaken::TestSetup
+  include Oaken::TestSetup
 end
 ```
 

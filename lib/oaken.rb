@@ -50,11 +50,7 @@ module Oaken
     ActiveRecord::Base.transaction(&block)
   end
 
-  def self.prepare(&block)
-    Seeds.instance_eval(&block)
-    Seeds
-  end
-
+  def self.prepare(&block) = Seeds.instance_eval(&block)
   def self.load_seed = Rails.application.load_seed
 end
 

@@ -18,7 +18,7 @@ class Oaken::Railtie < Rails::Railtie
     task "db:purge"     => ["oaken:reset", "oaken:reset:include_test"]
     task "db:purge:all" => ["oaken:reset:all"]
 
-    # db:seed:replant runs trunacte_all, after trial-and-error we need to hook into that and not the replant task.
+    # db:seed:replant runs truncate_all, after trial-and-error we need to hook into that and not the replant task.
     task "db:truncate_all" => "oaken:purge"
   end
 end

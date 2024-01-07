@@ -55,22 +55,12 @@ Oaken has some chosen directory conventions to help strengthen your understandin
 
 ### Reusing data in tests
 
-With the setup above, Oaken can reuse the same data in tests like so:
+With the setup above, Oaken can reuse the same data in tests like this:
 
 ```ruby
 # test/test_helper.rb
 class ActiveSupport::TestCase
-  include Oaken.seeds
-
-  # Override Minitest::Test#run to wrap each test in a transaction.
-  def run
-    result = nil
-    ActiveRecord::Base.transaction(requires_new: true) do
-      result = super
-      raise ActiveRecord::Rollback
-    end
-    result
-  end
+  prepend Oaken::TestSetup
 end
 ```
 

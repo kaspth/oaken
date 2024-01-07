@@ -55,13 +55,7 @@ module Oaken
     Seeds
   end
 
-  def self.seeds
-    unless defined?(@loaded)
-      @loaded = true
-      Rails.application.load_seed
-    end
-    Seeds
-  end
+  def self.load_seed = Rails.application.load_seed
 end
 
 require_relative "oaken/railtie" if defined?(Rails::Railtie)

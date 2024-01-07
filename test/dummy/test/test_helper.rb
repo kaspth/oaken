@@ -8,6 +8,4 @@ class ActiveSupport::TestCase
   parallelize workers: :number_of_processors, threshold: 5
 
   prepend Oaken::TestSetup
-  include Oaken.seeds
-  fixtures :all
 end

@@ -29,7 +29,7 @@ jobs:
       run: bin/rails test
       working-directory: test/dummy
 
-    - name: Singel Process Tests
+    - name: Single Process Tests
       run: bin/rails test
       working-directory: test/dummy
       env:

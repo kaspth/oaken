@@ -7,7 +7,6 @@ module Oaken
   class Error < StandardError; end
 
   autoload :Seeds, "oaken/seeds"
-  autoload :Entry, "oaken/entry"
 
   module Stored
     autoload :ActiveRecord, "oaken/stored/active_record"
@@ -34,12 +33,17 @@ module Oaken
 
   class Loader
     def initialize(path)
-      @entries = Entry.within(path)
+      @entries = Pathname.glob("#{path}{,/**/*}.{rb,sql}").sort
     end
 
     def load_onto(seeds)
-      @entries.each do |entry|
-        entry.load_onto seeds
+      @entries.each do |path|
+        Oaken.transaction do
+          case path.extname
+          when ".rb"  then seeds.class_eval path.read, path.to_s
+          when ".sql" then ActiveRecord::Base.connection.execute path.read
+          end
+        end
       end
     end
   end

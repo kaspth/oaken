@@ -36,7 +36,7 @@ module Oaken
 
     def load_onto(seeds)
       @entries.each do |path|
-        Oaken.transaction do
+        ActiveRecord::Base.transaction do
           case path.extname
           when ".rb"  then seeds.class_eval path.read, path.to_s
           when ".sql" then ActiveRecord::Base.connection.execute path.read
@@ -44,10 +44,6 @@ module Oaken
         end
       end
     end
-  end
-
-  def self.transaction(&block)
-    ActiveRecord::Base.transaction(&block)
   end
 
   def self.prepare(&block) = Seeds.instance_eval(&block)

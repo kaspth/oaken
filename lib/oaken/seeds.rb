@@ -49,6 +49,29 @@ module Oaken::Seeds
     ensure
       @loader = nil
     end
+
+    # `section` is purely for decorative purposes to carve up `Oaken.prepare` and seed files.
+    #
+    #   Oaken.prepare do
+    #     section :roots # Just the very few top-level models like Accounts and Users.
+    #     users.defaults email_address: -> { Faker::Internet.email }, webauthn_id: -> { SecureRandom.hex }
+    #
+    #     section :stems # Models building on the roots.
+    #
+    #     section :leafs # Remaining models, bulk of them, hanging off root and stem models.
+    #
+    #     section do
+    #       seed :accounts, :data
+    #     end
+    #   end
+    #
+    # Since `section` is defined as `def section(*, **) = yield if block_given?`, you can use
+    # all of Ruby's method signature flexibility to help communicate structure better.
+    #
+    # Use positional and keyword arguments, or use blocks to indent them, or combine them all.
+    def section(*, **)
+      yield if block_given?
+    end
   end
 
   # Call `seed` in tests to load individual case files:

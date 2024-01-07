@@ -11,30 +11,27 @@ class Oaken::Stored::ActiveRecord < Struct.new(:type, :key)
     @attributes
   end
 
-  def create(reader = nil, **attributes)
-    lineno = caller_locations(1, 1).first.lineno
-
+  def create(label = nil, **attributes)
     attributes = @attributes.merge(attributes)
     attributes.transform_values! { _1.respond_to?(:call) ? _1.call : _1 }
 
-    type.create!(**attributes).tap do |record|
-      define_reader reader, record.id, lineno if reader
-    end
+    record = type.create!(**attributes)
+    define_label_method label, record.id if label
+    record
   end
 
-  def insert(reader = nil, **attributes)
-    lineno = caller_locations(1, 1).first.lineno
-
+  def insert(label = nil, **attributes)
     attributes = @attributes.merge(attributes)
     attributes.transform_values! { _1.respond_to?(:call) ? _1.call : _1 }
 
     type.new(attributes).validate!
-    type.insert(attributes).tap do
-      define_reader reader, type.where(attributes).pick(:id), lineno if reader
-    end
+    record = type.insert(attributes)
+    define_label_method label, type.where(attributes).pick(:id) if label
+    record
   end
 
-  def define_reader(...)
-    Oaken::Seeds.entry.define_reader(self, ...)
+  private def define_label_method(name, id)
+    location = caller_locations(2, 1).first
+    class_eval "def #{name} = find(#{id})", location.path, location.lineno
   end
 end

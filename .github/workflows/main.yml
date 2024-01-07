@@ -25,6 +25,6 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
 
-    - name: Uncached tests
+    - name: Tests
       run: bin/rails test
       working-directory: test/dummy

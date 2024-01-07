@@ -49,7 +49,6 @@ module Oaken::Seeds
     ensure
       @loader = nil
     end
-    def entry = @loader.entry
   end
 
   # Call `seed` in tests to load individual case files:
@@ -59,8 +58,5 @@ module Oaken::Seeds
   #       seed "cases/pagination" # Loads `db/seeds/{,test}/cases/pagination{,**/*}.rb`
   #     end
   #   end
-  def seed(...)
-    Oaken.store_path.rmtree # TODO: Remove after we yank the store stuff.
-    Oaken::Seeds.seed(...)
-  end
+  delegate :seed, to: Oaken::Seeds
 end

@@ -16,7 +16,7 @@ end
 
 This will look for deeply nested files to load in `db/seeds` and `db/seeds/#{Rails.env}` within the `accounts` and `data` directories.
 
-Here's what they could look like.
+Here's what they could look like:
 
 ```ruby
 # db/seeds/accounts/kaspers_donuts.rb
@@ -43,7 +43,7 @@ plans.insert :basic, title: "Basic", price_cents: 10_00
 
 Seed files will generally use `create` and/or `insert`. Passing a symbol to name the record is useful when reusing the data in tests.
 
-Now you can run `bin/rails db:seed` — plus Oaken skips executing a seed file if it knows the file hasn't been changed since the last seeding. Speedy!
+Now you can run `bin/rails db:seed` and `bin/rails db:seed:replant`.
 
 ### Interlude: Directory Naming Conventions
 
@@ -70,17 +70,8 @@ You can also load a specific seed, like this:
 
 ```ruby
 class PaginationTest < ActionDispatch::IntegrationTest
-  seed "cases/pagination"
+  setup { seed "cases/pagination" }
 end
-```
-
-### Resetting cache
-
-Oaken is still early days, so you may need to reset the cache that skips seed files. Pass `OAKEN_RESET` to clear it:
-
-```sh
-OAKEN_RESET=1 bin/rails db:seed
-OAKEN_RESET=1 bin/rails test
 ```
 
 ### Fixtures Converter

@@ -74,7 +74,7 @@ class PaginationTest < ActionDispatch::IntegrationTest
 end
 ```
 
-> [!INFO]
+> [!NOTE]
 > We're recommending having one-off seeds on an individual unit of work to help reinforce test isolation. Having some seed files be isolated also helps:
 >
 > - Reduce amount of junk data generated for unrelated tests

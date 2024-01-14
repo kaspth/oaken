@@ -31,7 +31,8 @@ class Oaken::Stored::ActiveRecord < Struct.new(:type, :key)
   end
 
   def label(**labels)
-    location = caller_locations(2, 1).first
+    # TODO: Fix hardcoding of db/seeds instead of using Oaken.lookup_paths
+    location = caller_locations(1, 6).find { _1.path.match? /db\/seeds\// }
 
     labels.each do |label, record|
       class_eval "def #{label} = find(#{record.id})", location.path, location.lineno

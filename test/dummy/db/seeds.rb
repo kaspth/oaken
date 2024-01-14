@@ -5,6 +5,7 @@ Oaken.prepare do
   section :roots
   user_counter = 0
   users.defaults name: -> { "Customer #{user_counter += 1}" }
+  def users.create_labelled(label, **) = create(label, **)
 
   section :stems
   section :leafs

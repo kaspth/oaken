@@ -34,10 +34,13 @@ class OakenTest < ActiveSupport::TestCase
     donuts_location, kasper_location = [accounts.method(:kaspers_donuts), users.method(:kasper)].map(&:source_location)
     assert_match "db/seeds/accounts/kaspers_donuts.rb", donuts_location.first
     assert_match "db/seeds/accounts/kaspers_donuts.rb", kasper_location.first
-
     assert_operator donuts_location.second, :<, kasper_location.second
 
-    assert_match "db/seeds/data/plans.rb", plans.method(:basic).source_location.first
+    assert_match "db/seeds/accounts/kaspers_donuts.rb", menus.method(:basic).source_location.first
+
+    assert_match "db/seeds/data/plans.rb",      plans.method(:basic).source_location.first
+    assert_match "db/seeds/test/data/plans.rb", plans.method(:test_premium).source_location.first
+    assert_match "db/seeds/test/data/users.rb", users.method(:test_user).source_location.first
   end
 
   test "updating fixture" do

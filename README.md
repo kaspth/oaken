@@ -1,6 +1,17 @@
 # Oaken
 
-Oaken is an alternative to fixtures and/or factories to manage your development, test and some production data using data scripts.
+Oaken is a new take on development and test data management that blends the stability and storytelling from Fixtures with the dynamicness of FactoryBot/Fabricator.
+
+Fixtures are stable & help you build a story of how your app and its object graph exists along with edge cases, but the UX is unfortunately a nightmare.
+To trace N associations, you have to open and read N different files — there's no way to group by scenario.
+
+FactoryBot is spray & pray. You basically say “screw it, just give me the bare minimum I need to run this test”, which slows everything down because there’s no cohesion; and the Factories are always suspect in terms of completeness. Sure, I got the test to pass by wiring these 5 Factories together but did I miss something?
+
+Oaken instead upgrades seeds in `db/seeds.rb`, so that you can put together scenarios & also reuse the development data in tests. That way the data you see in your development browser, is the same data you work with in tests to tie it more together — especially for people who are new to your codebase.
+
+So you get the stability of named keys, a cohesive dataset, and a story like Fixtures. But the dynamics of FactoryBot as well. And unlike FactoryBot, you’re not making tons of one-off records to handle each case.
+
+While Fixtures and FactoryBot both load data & truncate in tests, the end result is you end up writing less data back & forth to the database because you aren’t cobbling stuff together.
 
 ## Setup
 

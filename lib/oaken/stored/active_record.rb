@@ -25,8 +25,8 @@ class Oaken::Stored::ActiveRecord < Struct.new(:type, :key)
     attributes.transform_values! { _1.respond_to?(:call) ? _1.call : _1 }
 
     type.new(attributes).validate!
-    record = type.insert(attributes)
-    define_label_method label, type.where(attributes).pick(:id) if label
+    record = type.new(id: type.insert(attributes, returning: :id).rows.first.first)
+    define_label_method label, record.id if label
     record
   end
 

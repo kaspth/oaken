@@ -16,7 +16,7 @@ class Oaken::Stored::ActiveRecord < Struct.new(:type, :key)
     attributes.transform_values! { _1.respond_to?(:call) ? _1.call : _1 }
 
     record = type.create!(**attributes)
-    label label, record if label
+    label label => record if label
     record
   end
 
@@ -26,12 +26,15 @@ class Oaken::Stored::ActiveRecord < Struct.new(:type, :key)
 
     type.new(attributes).validate!
     record = type.new(id: type.insert(attributes, returning: :id).rows.first.first)
-    label label, record if label
+    label label => record if label
     record
   end
 
-  def label(label, record)
+  def label(**labels)
     location = caller_locations(2, 1).first
-    class_eval "def #{label} = find(#{record.id})", location.path, location.lineno
+
+    labels.each do |label, record|
+      class_eval "def #{label} = find(#{record.id})", location.path, location.lineno
+    end
   end
 end

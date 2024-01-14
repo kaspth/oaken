@@ -38,7 +38,7 @@ orders.insert_all \
 
 ```ruby
 # db/seeds/data/plans.rb
-plans.insert :basic, title: "Basic", price_cents: 10_00
+plans.upsert :basic, title: "Basic", price_cents: 10_00
 ```
 
 Seed files will generally use `create` and/or `insert`. Passing a symbol to name the record is useful when reusing the data in tests.

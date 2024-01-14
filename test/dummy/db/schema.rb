@@ -56,6 +56,7 @@ ActiveRecord::Schema[7.1].define(version: 2023_10_17_160024) do
     t.integer "price_cents", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["title"], name: "uniqueness", unique: true
   end
 
   create_table "users", force: :cascade do |t|

@@ -9,6 +9,7 @@ Oaken.prepare do
 
   section :stems
   section :leafs
+  def plans.upsert(*, unique_by: :title, **) = super
 
   section do
     seed :accounts, :data

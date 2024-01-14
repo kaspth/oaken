@@ -5,6 +5,8 @@ class CreatePlans < ActiveRecord::Migration[7.0]
       t.integer :price_cents, null: false
 
       t.timestamps
+
+      t.index :title, unique: true, name: "uniqueness"
     end
   end
 end

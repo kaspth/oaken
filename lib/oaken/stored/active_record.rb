@@ -20,12 +20,12 @@ class Oaken::Stored::ActiveRecord < Struct.new(:type, :key)
     record
   end
 
-  def upsert(label = nil, **attributes)
+  def upsert(label = nil, unique_by: nil, **attributes)
     attributes = @attributes.merge(attributes)
     attributes.transform_values! { _1.respond_to?(:call) ? _1.call : _1 }
 
     type.new(attributes).validate!
-    record = type.new(id: type.upsert(attributes, returning: :id).rows.first.first)
+    record = type.new(id: type.upsert(attributes, unique_by: unique_by, returning: :id).rows.first.first)
     label label => record if label
     record
   end

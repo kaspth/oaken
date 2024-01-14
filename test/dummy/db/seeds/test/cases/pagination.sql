@@ -1,1 +1,1 @@
-INSERT INTO users (name, created_at, updated_at) VALUES ('pagination.sql', TIME('NOW'), TIME('NOW'))
+INSERT INTO users (name, email_address, created_at, updated_at) VALUES ('pagination.sql', 'pagination@example.com', TIME('NOW'), TIME('NOW'))

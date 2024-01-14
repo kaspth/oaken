@@ -3,8 +3,10 @@ Oaken.prepare do
   register Menu::Item
 
   section :roots
-  user_counter = 0
-  users.defaults name: -> { "Customer #{user_counter += 1}" }
+  user_counter, email_address_counter = 0, 0
+  users.defaults name: -> { "Customer #{user_counter += 1}" },
+    email_address: -> { "email_address#{email_address_counter += 1}@example.com" }
+  def users.create(*, unique_by: :email_address, **) = super
   def users.create_labelled(label, **) = create(label, **)
 
   section :stems

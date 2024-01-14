@@ -11,11 +11,14 @@ class Oaken::Stored::ActiveRecord < Struct.new(:type, :key)
     @attributes
   end
 
-  def create(label = nil, **attributes)
+  def create(label = nil, unique_by: nil, **attributes)
     attributes = @attributes.merge(attributes)
     attributes.transform_values! { _1.respond_to?(:call) ? _1.call : _1 }
 
-    record = type.create!(**attributes)
+    finders  = attributes.slice(*unique_by)
+    record   = type.find_by(finders)&.tap { _1.update!(**attributes) } if finders.any?
+    record ||= type.create!(**attributes)
+
     label label => record if label
     record
   end

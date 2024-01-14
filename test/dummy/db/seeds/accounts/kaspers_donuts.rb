@@ -2,8 +2,8 @@ section :accounts
 donuts = accounts.create :kaspers_donuts, name: "Kasper's Donuts"
 
 section :users
-kasper   = users.create :kasper,   name: "Kasper",   accounts: [donuts]
-coworker = users.create :coworker, name: "Coworker", accounts: [donuts]
+kasper   = users.create :kasper,   name: "Kasper",   email_address: "kasper@example.com",   accounts: [donuts]
+coworker = users.create :coworker, name: "Coworker", email_address: "coworker@example.com", accounts: [donuts]
 
 section :menus, :with_items
 menu = menus.create account: donuts

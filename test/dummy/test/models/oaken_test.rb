@@ -18,6 +18,10 @@ class OakenTest < ActiveSupport::TestCase
     assert plans.test_premium
   end
 
+  test "accessing fixture defined directly from label" do
+    assert menus.basic
+  end
+
   test "default attributes" do
     names = users.pluck(:name)
 

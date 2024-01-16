@@ -7,7 +7,7 @@ Oaken.prepare do
   users.defaults name: -> { "Customer #{user_counter += 1}" },
     email_address: -> { "email_address#{email_address_counter += 1}@example.com" }
   def users.create(*, unique_by: :email_address, **o) = super
-  def users.create_labelled(label, **o) = create(label, **o)
+  def users.create_labeled(label, **o) = create(label, **o)
 
   section :stems
   section :leafs

@@ -1,1 +1,1 @@
-users.create_labelled(:test_user)
+users.create_labeled(:test_user)

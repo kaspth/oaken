@@ -1,10 +1,6 @@
 module Oaken::Seeds
   extend self
 
-  def self.respond_to_missing?(name, ...)
-    name.to_s.classify.safe_constantize || super
-  end
-
   def self.method_missing(meth, ...)
     name = meth.to_s
     if type = name.classify.safe_constantize
@@ -14,6 +10,7 @@ module Oaken::Seeds
       super
     end
   end
+  def self.respond_to_missing?(name, ...) = name.to_s.classify.safe_constantize || super
 
   def self.register(type, key = nil)
     stored = provider.new(type, key) and define_method(stored.key) { stored }

@@ -56,4 +56,11 @@ class OakenTest < ActiveSupport::TestCase
     end
     assert_equal "after_save", error.message
   end
+
+  test "respond_to_missing?" do
+    mod = Oaken::Seeds.dup
+    mod.undef_method :users # Remove built method
+    assert mod.respond_to?(:users) # Now respond_to_missing? hits.
+    refute mod.respond_to?(:hmhm)
+  end
 end

@@ -13,19 +13,6 @@ module Oaken
     autoload :ActiveRecord, "oaken/stored/active_record"
   end
 
-  class Inflector
-    def tableize(string)
-      string.gsub(/(?<=[a-z])(?=[A-Z])/, "_").gsub("::", "_").tap(&:downcase!) << "s"
-    end
-
-    def classify(string)
-      string.chomp("s").gsub(/_([a-z])/) { $1.upcase }.sub(/^\w/, &:upcase)
-    end
-  end
-
-  singleton_class.attr_accessor :inflector
-  @inflector = Inflector.new
-
   singleton_class.attr_reader :lookup_paths
   @lookup_paths = ["db/seeds"]
 

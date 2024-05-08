@@ -2,12 +2,12 @@ module Oaken::Seeds
   extend self
 
   def self.respond_to_missing?(name, ...)
-    Oaken.inflector.classify(name).safe_constantize || super
+    name.classify.safe_constantize || super
   end
 
   def self.method_missing(meth, ...)
     name = meth.to_s
-    if type = Oaken.inflector.classify(name).safe_constantize
+    if type = name.classify.safe_constantize
       register type, name
       public_send(name, ...)
     else

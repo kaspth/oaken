@@ -8,15 +8,15 @@ module Oaken::Seeds
   def self.method_missing(meth, ...)
     name = meth.to_s
     if type = name.classify.safe_constantize
-      register type, name
+      register type
       public_send(name, ...)
     else
       super
     end
   end
 
-  def self.register(type, key = nil)
-    stored = provider.new(type, key) and define_method(stored.key) { stored }
+  def self.register(type)
+    stored = provider.new(type) and define_method(stored.key) { stored }
   end
   def self.provider = Oaken::Stored::ActiveRecord
 

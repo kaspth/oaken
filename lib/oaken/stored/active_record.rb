@@ -1,6 +1,6 @@
 class Oaken::Stored::ActiveRecord < Struct.new(:type, :key)
-  def initialize(type, key = nil)
-    super(type, key || type.table_name)
+  def initialize(type)
+    super(type, type.table_name)
     @attributes = {}
   end
   delegate :transaction, to: :type # For multi-db setups to help open a transaction on secondary connections.

@@ -2,7 +2,7 @@ module Oaken::Seeds
   extend self
 
   def self.respond_to_missing?(name, ...)
-    name.classify.safe_constantize || super
+    name.to_s.classify.safe_constantize || super
   end
 
   def self.method_missing(meth, ...)

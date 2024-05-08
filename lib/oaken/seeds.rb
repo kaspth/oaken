@@ -1,9 +1,8 @@
 module Oaken::Seeds
   extend self
 
-  def self.method_missing(meth, ...)
-    name = meth.to_s
-    if type = name.classify.safe_constantize
+  def self.method_missing(name, ...)
+    if type = name.to_s.classify.safe_constantize
       register type
       public_send(name, ...)
     else

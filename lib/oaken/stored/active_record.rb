@@ -1,8 +1,9 @@
-class Oaken::Stored::ActiveRecord < Struct.new(:type, :key)
+class Oaken::Stored::ActiveRecord
   def initialize(type)
-    super(type, type.table_name)
+    @type, @key = type, type.table_name
     @attributes = {}
   end
+  attr_reader :type, :key
   delegate :transaction, to: :type # For multi-db setups to help open a transaction on secondary connections.
   delegate :find, :insert_all, :pluck, to: :type
 

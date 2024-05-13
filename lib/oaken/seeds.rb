@@ -11,8 +11,10 @@ module Oaken::Seeds
   end
   def self.respond_to_missing?(name, ...) = name.to_s.classify.safe_constantize || super
 
-  def self.register(type)
-    stored = provider.new(type) and define_method(stored.key) { stored }
+  def self.register(*types)
+    types.each do |type|
+      stored = provider.new(type) and define_method(stored.key) { stored }
+    end
   end
   def self.provider = Oaken::Stored::ActiveRecord
 

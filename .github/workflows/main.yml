@@ -29,18 +29,14 @@ jobs:
 
     - name: Parallel Tests
       run: bin/rails test
-      working-directory: test/dummy
 
     - name: Single Process Tests
       run: bin/rails test
-      working-directory: test/dummy
       env:
         PARALLEL_TEST_THRESHOLD: "10000"
 
     - name: Run seeds
       run: bin/rails db:seed:replant
-      working-directory: test/dummy
 
     - name: Rerun seeds
       run: bin/rails db:seed
-      working-directory: test/dummy

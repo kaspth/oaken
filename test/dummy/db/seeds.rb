@@ -1,9 +1,6 @@
 Oaken.prepare do
   defaults name: -> { "Shouldn't be used for users.name" }, title: -> { "Global Default Title" }
 
-  section :registrations
-  register Menu::Item
-
   section :roots
   user_counter, email_address_counter = 0, 0
   users.defaults name: -> { "Customer #{user_counter += 1}" },

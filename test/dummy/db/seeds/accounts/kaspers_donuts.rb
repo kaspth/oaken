@@ -11,6 +11,8 @@ plain_donut     = menu_items.create menu: menu, name: "Plain",     price_cents: 
 sprinkled_donut = menu_items.create menu: menu, name: "Sprinkled", price_cents: 10_10
 menus.label basic: menu
 
+menu_item_details.create :plain, menu_item: plain_donut, description: "Plain, but mighty."
+
 section :orders
 supporter = users.create name: "Super Supporter"
 orders.insert_all [user_id: supporter.id, item_id: plain_donut.id] * 10

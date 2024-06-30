@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_10_17_160024) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_30_172609) do
   create_table "accounts", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -24,6 +24,14 @@ ActiveRecord::Schema[7.1].define(version: 2023_10_17_160024) do
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_administratorships_on_account_id"
     t.index ["user_id"], name: "index_administratorships_on_user_id"
+  end
+
+  create_table "menu_item_details", force: :cascade do |t|
+    t.integer "menu_item_id", null: false
+    t.text "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["menu_item_id"], name: "index_menu_item_details_on_menu_item_id"
   end
 
   create_table "menu_items", force: :cascade do |t|
@@ -69,6 +77,7 @@ ActiveRecord::Schema[7.1].define(version: 2023_10_17_160024) do
 
   add_foreign_key "administratorships", "accounts"
   add_foreign_key "administratorships", "users"
+  add_foreign_key "menu_item_details", "menu_items"
   add_foreign_key "menu_items", "menus"
   add_foreign_key "menus", "accounts"
   add_foreign_key "orders", "menu_items", column: "item_id"

@@ -2,7 +2,7 @@ module Oaken::Seeds
   extend self
 
   # Allow assigning defaults across different types.
-  def self.defaults(**) = attributes.merge!(**)
+  def self.defaults(**defaults) = attributes.merge!(**defaults)
   def self.defaults_for(*keys) = attributes.slice(*keys)
   def self.attributes = @attributes ||= {}.with_indifferent_access
 

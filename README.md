@@ -78,7 +78,8 @@ Oaken.prepare do
 end
 ```
 
-[!TIP] `defaults` are particularly well suited for assigning generated data with [Faker](https://github.com/faker-ruby/faker).
+> [!TIP]
+> `defaults` are particularly well suited for assigning generated data with [Faker](https://github.com/faker-ruby/faker).
 
 ### Reusing data in tests
 
@@ -93,7 +94,8 @@ end
 
 Now tests have access to `accounts.kaspers_donuts` and `users.kasper` etc. that were setup in the data scripts.
 
-> [!NOTE] For RSpec, you can put this in `spec/rails_helper.rb`:
+> [!NOTE]
+> For RSpec, you can put this in `spec/rails_helper.rb`:
 > ```ruby
 > require "oaken/rspec_setup"
 > ```

@@ -1,4 +1,6 @@
 Oaken.prepare do
+  defaults name: -> { "Shouldn't be used for users.name" }, title: -> { "Global Default Title" }
+
   section :registrations
   register Menu::Item
 

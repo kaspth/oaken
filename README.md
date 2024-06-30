@@ -64,6 +64,22 @@ Oaken has some chosen directory conventions to help strengthen your understandin
 - `db/seeds/data` for any data tables, like the plans a SaaS app has.
 - `db/seeds/tests/cases` for any specific cases that are only used in some tests, like `pagination.rb`.
 
+### Using default attributes
+
+You can set up default attributes that's applied to created/inserted records at different levels, like this:
+
+```ruby
+Oaken.prepare do
+  # Assign broad global defaults for every type.
+  defaults name: -> { Faker::Name.name }, public_key: -> { SecureRandom.hex }
+
+  # Assign a more specific default on one type, which overrides the global default above.
+  accounts.defaults name: -> { Faker::Business.name }
+end
+```
+
+[!TIP] `defaults` are particularly well suited for assigning generated data with [Faker](https://github.com/faker-ruby/faker).
+
 ### Reusing data in tests
 
 With the setup above, Oaken can reuse the same data in tests like this:

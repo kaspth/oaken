@@ -18,17 +18,12 @@ module Oaken
 
   class Loader
     def initialize(path)
-      @entries = Pathname.glob("#{path}{,/**/*}.{rb,sql}").sort
+      @entries = Pathname.glob("#{path}{,/**/*}.rb").sort
     end
 
-    def load_onto(seeds)
-      @entries.each do |path|
-        ActiveRecord::Base.transaction do
-          case path.extname
-          when ".rb"  then seeds.class_eval path.read, path.to_s
-          when ".sql" then ActiveRecord::Base.connection.execute path.read
-          end
-        end
+    def load_onto(seeds) = @entries.each do |path|
+      ActiveRecord::Base.transaction do
+        seeds.class_eval path.read, path.to_s
       end
     end
   end

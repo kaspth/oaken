@@ -93,6 +93,11 @@ end
 
 Now tests have access to `accounts.kaspers_donuts` and `users.kasper` etc. that were setup in the data scripts.
 
+> [!NOTE] For RSpec, you can put this in `spec/rails_helper.rb`:
+> ```ruby
+> require "oaken/rspec_setup"
+> ```
+
 You can also load a specific seed, like this:
 
 ```ruby

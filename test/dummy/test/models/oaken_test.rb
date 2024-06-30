@@ -22,7 +22,13 @@ class OakenTest < ActiveSupport::TestCase
     assert menus.basic
   end
 
-  test "default attributes" do
+  test "global attributes" do
+    plan = plans.upsert price_cents: 10_00
+
+    assert_equal "Global Default Title", plan.reload.title
+  end
+
+  test "per-type default attributes" do
     names = users.pluck(:name)
 
     (1..10).each do

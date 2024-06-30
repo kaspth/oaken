@@ -1,6 +1,11 @@
 module Oaken::Seeds
   extend self
 
+  # Allow assigning defaults across different types.
+  def self.defaults(**defaults) = attributes.merge!(**defaults)
+  def self.defaults_for(*keys) = attributes.slice(*keys)
+  def self.attributes = @attributes ||= {}.with_indifferent_access
+
   def self.method_missing(name, ...)
     if type = name.to_s.classify.safe_constantize
       register type

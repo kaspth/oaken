@@ -22,6 +22,17 @@ class OakenTest < ActiveSupport::TestCase
     assert menus.basic
   end
 
+  test "auto-registering" do
+    assert_respond_to self, :menu_items
+    assert_respond_to self, :menu_item_details
+
+    menu_item_details.plain.tap do |detail|
+      assert_equal "Plain", detail.menu_item.name
+      assert_equal "Plain, but mighty.", detail.description
+      assert_kind_of Menu::Item::Detail, detail
+    end
+  end
+
   test "global attributes" do
     plan = plans.upsert price_cents: 10_00
 

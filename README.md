@@ -2,6 +2,10 @@
 
 Oaken is a new take on development and test data management for your Rails app. It blends the stability and storytelling from Fixtures with the dynamicness of FactoryBot/Fabricator.
 
+> But seriously; Oaken is one of the single greatest tools I've added to my belt in the past year
+> It's made cross-environment shared data, data prepping for demos, edge-case tests, and overall development much more reliable & shareable across a team
+> - [@tcannonfodder](https://github.com/tcannonfodder)
+
 Fixtures are stable & help you build a story of how your app and its object graph exists along with edge cases, but the UX is unfortunately a nightmare.
 To trace N associations, you have to open and read N different files — there's no way to group by scenario.
 

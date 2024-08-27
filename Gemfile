@@ -13,5 +13,4 @@ gem "rails"
 gem "activerecord"
 gem "sqlite3", "~> 1.7"
 
-gem "net-pop"
-gem "net-protocol"
+gem "net-pop", github: "ruby/net-pop"

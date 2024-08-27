@@ -12,3 +12,5 @@ gem "minitest", "~> 5.0"
 gem "rails"
 gem "activerecord"
 gem "sqlite3", "~> 1.7"
+
+gem "net-protocol", "~> 0.2.2"

@@ -185,6 +185,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   minitest (~> 5.0)
+  net-protocol (~> 0.2.2)
   oaken!
   rails
   rake (~> 13.0)

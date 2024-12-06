@@ -39,7 +39,7 @@ class Oaken::Stored::ActiveRecord
     location = caller_locations(1, 6).find { _1.path.match? /db\/seeds\// }
 
     labels.each do |label, record|
-      class_eval "def #{label} = find(#{record.id})", location.path, location.lineno
+      class_eval "def #{label} = find(#{record.id.inspect})", location.path, location.lineno
     end
   end
 end

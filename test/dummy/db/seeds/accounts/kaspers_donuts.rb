@@ -19,3 +19,7 @@ orders.insert_all [user_id: supporter.id, item_id: plain_donut.id] * 10
 
 orders.insert_all \
   10.times.map { { user_id: users.create.id, item_id: menu.items.sample.id } }
+
+section :bills
+order = Order.last
+bills.create :donut_bill, user: order.user, total: 100_00, order: order

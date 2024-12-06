@@ -89,4 +89,8 @@ class OakenTest < ActiveSupport::TestCase
     assert mod.respond_to?(:users) # Now respond_to_missing? hits.
     refute mod.respond_to?(:hmhm)
   end
+
+  test "composite primary keys" do
+    assert bills.donut_bill
+  end
 end

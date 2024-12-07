@@ -50,7 +50,7 @@ class Oaken::Convert::Fixture
       when Array then input.map { recursive_convert _1 }.join(", ")
       when Integer then input
       else
-        if key == @referenced&.first
+        if key && key == @referenced&.first
           @referenced.last == :plural ? "[#{input}]" : input
         else
           "\"#{input}\""

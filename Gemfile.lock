@@ -193,11 +193,10 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  activerecord
   minitest (~> 5.0)
   net-pop!
   oaken!
-  rails
+  rails (~> 8.0.0)
   rake (~> 13.0)
   sqlite-ulid
   sqlite3

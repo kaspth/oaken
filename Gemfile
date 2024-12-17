@@ -9,8 +9,16 @@ gem "rake", "~> 13.0"
 
 gem "minitest", "~> 5.0"
 
-gem "rails"
-gem "activerecord"
+rails_version = ENV.fetch("RAILS_VERSION", "8.0")
+
+rails_constraint = if rails_version == "main"
+  {github: "rails/rails"}
+else
+  "~> #{rails_version}.0"
+end
+
+gem "rails", rails_constraint
+
 gem "sqlite3"
 gem "sqlite-ulid", require: "sqlite_ulid"
 

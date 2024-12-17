@@ -1,4 +1,4 @@
-name: Ruby
+name: CI
 
 on:
   push:
@@ -22,11 +22,13 @@ jobs:
         include:
           - rails: "7.1"
             ruby: "3.0"
+          - rails: "7.2"
+            ruby: "3.1"
     env:
       RAILS_ENV: test
       RAILS_VERSION: ${{ matrix.rails }}
 
-    name: ${{ format('Tests rails@{0} ruby@{1}', matrix.rails, matrix.ruby) }}
+    name: ${{ format('rails-{0} ruby-{1}', matrix.rails, matrix.ruby) }}
 
     steps:
     - uses: actions/checkout@v4

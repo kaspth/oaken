@@ -27,12 +27,14 @@ jobs:
     env:
       RAILS_ENV: test
       RAILS_VERSION: ${{ matrix.rails }}
-      BUNDLE_GEMFILE: ""
 
     name: ${{ format('Tests rails@{0} ruby@{1}', matrix.rails, matrix.ruby) }}
 
     steps:
     - uses: actions/checkout@v4
+
+    - run: rm Gemfile.lock
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:

@@ -10,30 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_06_200253) do
+ActiveRecord::Schema[7.2].define(version: 2024_06_30_172609) do
   create_table "accounts", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "administratorships", force: :cascade do |t|
+  create_table "administratorships", primary_key: ["account_id", "user_id"], force: :cascade do |t|
     t.integer "account_id", null: false
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_administratorships_on_account_id"
     t.index ["user_id"], name: "index_administratorships_on_user_id"
-  end
-
-  create_table "bills", primary_key: ["order_id", "user_id"], force: :cascade do |t|
-    t.integer "order_id", null: false
-    t.integer "user_id", null: false
-    t.integer "total"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["order_id"], name: "index_bills_on_order_id"
-    t.index ["user_id"], name: "index_bills_on_user_id"
   end
 
   create_table "menu_item_details", force: :cascade do |t|
@@ -87,8 +77,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_06_200253) do
 
   add_foreign_key "administratorships", "accounts"
   add_foreign_key "administratorships", "users"
-  add_foreign_key "bills", "orders"
-  add_foreign_key "bills", "users"
   add_foreign_key "menu_item_details", "menu_items"
   add_foreign_key "menu_items", "menus"
   add_foreign_key "menus", "accounts"

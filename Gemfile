@@ -11,6 +11,7 @@ gem "minitest", "~> 5.0"
 
 gem "rails"
 gem "activerecord"
-gem "sqlite3", "~> 1.7"
+gem "sqlite3"
+gem "sqlite-ulid", require: "sqlite_ulid"
 
 gem "net-pop", github: "ruby/net-pop"

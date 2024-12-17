@@ -22,6 +22,10 @@ class OakenTest < ActiveSupport::TestCase
     assert menus.basic
   end
 
+  test "accessing fixture defined directly from label with composite primary keys" do
+    assert administratorships.kasper_administratorship
+  end
+
   test "auto-registering with full namespaces" do
     assert_respond_to self, :menu_items
     assert_respond_to self, :menu_item_details

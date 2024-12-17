@@ -5,6 +5,8 @@ section :users
 kasper   = users.create :kasper,   name: "Kasper",   email_address: "kasper@example.com",   accounts: [donuts]
 coworker = users.create :coworker, name: "Coworker", email_address: "coworker@example.com", accounts: [donuts]
 
+administratorships.label kasper_administratorship: kasper.administratorships.first
+
 section :menus, :with_items
 menu = menus.create account: donuts
 plain_donut     = menu_items.create menu: menu, name: "Plain",     price_cents: 10_00

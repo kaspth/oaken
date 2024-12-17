@@ -8,6 +8,8 @@ default: &default
   adapter: sqlite3
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
+  extensions:
+    - <%= SqliteUlid.ulid_loadable_path %>
 
 development:
   <<: *default

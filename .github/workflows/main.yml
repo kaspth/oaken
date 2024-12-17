@@ -20,8 +20,6 @@ jobs:
           - "3.3"
           - "3.4"
         include:
-          - rails: "7.1"
-            ruby: "3.0"
           - rails: "7.2"
             ruby: "3.1"
     env:

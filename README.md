@@ -137,6 +137,7 @@ so you can disable generating them in `config/application.rb` like this:
 ```ruby
 module YourApp
   class Application < Rails::Application
+    # We prefer Oaken to fixtures, so we disable them here.
     config.app_generators { _1.test_framework _1.test_framework, fixture: false }
   end
 end

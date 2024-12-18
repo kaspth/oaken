@@ -3,7 +3,7 @@
 Oaken is a new take on development and test data management for your Rails app. It blends the stability and storytelling from Fixtures with the dynamicness of FactoryBot/Fabricator.
 
 > But seriously; Oaken is one of the single greatest tools I've added to my belt in the past year
-> 
+>
 > It's made cross-environment shared data, data prepping for demos, edge-case tests, and overall development much more reliable & shareable across a team
 > [@tcannonfodder](https://github.com/tcannonfodder)
 
@@ -128,6 +128,24 @@ You can convert your Rails fixtures to Oaken's seeds by running:
     $ bin/rails generate oaken:convert:fixtures
 
 This will convert anything in test/fixtures to db/seeds. E.g. `test/fixtures/users.yml` becomes `db/seeds/users.rb`.
+
+### Disable fixtures
+
+IF you've fully converted to Oaken you may no longer want fixtures when running Rails' generators,
+so you can disable generating them in `config/application.rb` like this:
+
+```ruby
+module YourApp
+  class Application < Rails::Application
+    config.app_generators { _1.test_framework _1.test_framework, fixture: false }
+  end
+end
+```
+
+The `test_framework` repeating is to preserve `:test_unit` or `:rspec` respectively.
+
+> [!NOTE]
+> If you're using `FactoryBot` as well, you don't need to do this since it already replaces fixtures for you.
 
 ## Installation
 

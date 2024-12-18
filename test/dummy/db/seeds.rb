@@ -1,3 +1,5 @@
+ActiveRecord::Base.logger = Logger.new(STDOUT) if ENV["VERBOSE"] || ENV["CI"]
+
 Oaken.prepare do
   defaults name: -> { "Shouldn't be used for users.name" }, title: -> { "Global Default Title" }
 

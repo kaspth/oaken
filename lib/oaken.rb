@@ -43,7 +43,7 @@ module Oaken
     def self.definition_location
       # Trickery abounds! Due to Ruby's `caller_locations` + our `load_onto`'s `class_eval` above
       # we can use this format to detect the location in the seed file where the call came from.
-      caller_locations(2, 8).find { _1.label.match? /block .*?in load_onto/ }
+      caller_locations(2, 8).find { _1.label.match? /block .*?load_onto/ }
     end
   end
 

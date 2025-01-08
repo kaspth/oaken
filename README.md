@@ -113,6 +113,14 @@ class PaginationTest < ActionDispatch::IntegrationTest
 end
 ```
 
+And in RSpec:
+
+```ruby
+RSpec.describe "Pagination", type: :feature do
+  before { seed "cases/pagination" }
+end
+```
+
 > [!NOTE]
 > We're recommending having one-off seeds on an individual unit of work to help reinforce test isolation. Having some seed files be isolated also helps:
 >

@@ -67,7 +67,7 @@ Oaken has some chosen directory conventions to help strengthen your understandin
 
 - Have a directory for your top-level model, like `Account`, `Team`, `Organization`, that's why we have `db/seeds/accounts` above.
 - `db/seeds/data` for any data tables, like the plans a SaaS app has.
-- `db/seeds/tests/cases` for any specific cases that are only used in some tests, like `pagination.rb`.
+- `db/seeds/test/cases` for any specific cases that are only used in some tests, like `pagination.rb`.
 
 ### Using default attributes
 

@@ -34,6 +34,20 @@ class Oaken::Stored::ActiveRecord
     record
   end
 
+  # Expose a record instance that's setup outside of using `create`/`upsert`. Like this:
+  #
+  #   users.label someone: User.create!(name: "Someone")
+  #   users.label someone: FactoryBot.create(:user, name: "Someone")
+  #
+  # Now `users.someone` returns the record instance.
+  #
+  # Ruby's Hash argument forwarding also works:
+  #
+  #   someone = users.create(name: "Someone")
+  #   someone_else = users.create(name: "Someone Else")
+  #   users.label someone:, someone_else:
+  #
+  # Note: `users.method(:someone).source_location` also points back to the file and line of the `label` call.
   def label(**labels)
     # TODO: Fix hardcoding of db/seeds instead of using Oaken.lookup_paths
     location = caller_locations(1, 6).find { _1.path.match? /db\/seeds\// }

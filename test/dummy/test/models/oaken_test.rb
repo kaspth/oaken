@@ -66,7 +66,10 @@ class OakenTest < ActiveSupport::TestCase
     assert_match "db/seeds/accounts/kaspers_donuts.rb", kasper_location.first
     assert_operator donuts_location.second, :<, kasper_location.second
 
-    assert_match "db/seeds/accounts/kaspers_donuts.rb", menus.method(:basic).source_location.first
+    administratorship_location, basic_location = [administratorships.method(:kasper_administratorship), menus.method(:basic)].map(&:source_location)
+    assert_match "db/seeds/accounts/kaspers_donuts.rb", administratorship_location.first
+    assert_match "db/seeds/accounts/kaspers_donuts.rb", basic_location.first
+    assert_operator administratorship_location.second, :<, basic_location.second
 
     assert_match "db/seeds/data/plans.rb",      plans.method(:basic).source_location.first
     assert_match "db/seeds/test/data/plans.rb", plans.method(:test_premium).source_location.first

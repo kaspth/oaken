@@ -49,11 +49,13 @@ class Oaken::Stored::ActiveRecord
   #
   # Note: `users.method(:someone).source_location` also points back to the file and line of the `label` call.
   def label(**labels)
-    # TODO: Fix hardcoding of db/seeds instead of using Oaken.lookup_paths
-    location = caller_locations(1, 6).find { _1.path.match? /db\/seeds\// }
+    labels.each { |label, record| _label label, record.id }
+  end
 
-    labels.each do |label, record|
-      class_eval "def #{label} = find(#{record.id.inspect})", location.path, location.lineno
-    end
+  private def _label(name, id)
+    raise ArgumentError, "you can only define labelled records outside of tests" \
+      unless location = Oaken::Loader.definition_location
+
+    class_eval "def #{name} = find(#{id.inspect})", location.path, location.lineno
   end
 end

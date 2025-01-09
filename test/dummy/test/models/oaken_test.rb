@@ -76,6 +76,12 @@ class OakenTest < ActiveSupport::TestCase
     assert_match "db/seeds/test/data/users.rb", users.method(:test_user).source_location.first
   end
 
+  test "can't use labels within tests" do
+    assert_raise ArgumentError do
+      users.label kasper_2: users.kasper
+    end
+  end
+
   test "updating fixture" do
     users.kasper.update name: "Kasper2"
     assert_equal "Kasper2", users.kasper.name

@@ -17,7 +17,7 @@ module Oaken
   @lookup_paths = ["db/seeds"]
 
   def self.glob(identifier)
-    patterns = lookup_paths.map { File.join(_1, "#{identifier}{,/**/*}.rb") }
+    patterns = lookup_paths.map { File.join _1, "#{identifier}{,/**/*}.rb" }
 
     Pathname.glob(patterns).tap do |found|
       raise NoSeedsFoundError, "found no seed files for #{identifier.inspect}" if found.none?

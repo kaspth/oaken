@@ -16,40 +16,28 @@ module Oaken
   singleton_class.attr_reader :lookup_paths
   @lookup_paths = ["db/seeds"]
 
-  def self.lookups_from(paths)
-    lookup_paths.product(paths).map(&File.method(:join))
-  end
+  def self.glob(path)
+    patterns = lookup_paths.map { File.join(_1, "#{path}{,/**/*}.rb") }
 
-  class NoSeedsFoundError < ArgumentError; end
+    Pathname.glob(patterns).tap do |found|
+      raise NoSeedsFoundError, "found no seed files for #{path.inspect}" if found.none?
+    end
+  end
+  NoSeedsFoundError = Class.new ArgumentError
 
   class Loader
     def self.from(paths)
-      new Path.expand(paths).sort
+      new paths.flat_map { Oaken.glob _1 }
     end
 
-    def initialize(paths)
-      @paths = paths
+    def initialize(entries)
+      @entries = entries
     end
 
-    def load_onto(seeds) = @paths.each do |path|
+    def load_onto(seeds) = @entries.each do |path|
       ActiveRecord::Base.transaction do
         seeds.class_eval path.read, path.to_s
       end
-    end
-
-    class Path
-      def self.expand(paths)
-        patterns = Oaken.lookups_from(paths).map { new _1 }
-        patterns.flat_map(&:to_a).tap do |found|
-          raise Oaken::NoSeedsFoundError, "found no seed files for #{paths.map(&:inspect).join(", ")} when searching with #{patterns.join(", ")}" if found.none?
-        end
-      end
-
-      def initialize(path)
-        @pattern = "#{path}{,/**/*}.rb"
-      end
-      def to_s = @pattern
-      def to_a = Pathname.glob(@pattern)
     end
   end
 

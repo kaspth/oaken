@@ -49,7 +49,7 @@ class Oaken::Stored::ActiveRecord
   #
   # Note: `users.method(:someone).source_location` also points back to the file and line of the `label` call.
   def label(**labels)
-    labels.transform_values(&:id).each { _label _1, _2 }
+    labels.each { |label, record| _label label, record.id }
   end
 
   private def _label(name, id)

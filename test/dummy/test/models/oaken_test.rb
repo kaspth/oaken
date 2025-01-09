@@ -103,7 +103,7 @@ class OakenTest < ActiveSupport::TestCase
     end
 
     assert_raise(Oaken::NoSeedsFoundError) { seed :first_missing, :second_missing }.tap do |error|
-      assert_match /found no seed files for "first_missing"/, error.message
+      assert_match /found no seed files for :first_missing/, error.message
     end
   end
 end

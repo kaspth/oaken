@@ -63,7 +63,7 @@ module Oaken::Seeds
     #     setup { seed "cases/pagination" }
     #   end
     def seed(*paths)
-      Oaken::Loader.from(paths.map(&:to_s)).load_onto self
+      Oaken::Loader.from(paths).load_onto self
     end
 
     # `section` is purely for decorative purposes to carve up `Oaken.prepare` and seed files.

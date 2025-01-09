@@ -62,17 +62,8 @@ module Oaken::Seeds
     #   class PaginationTest < ActionDispatch::IntegrationTest
     #     setup { seed "cases/pagination" }
     #   end
-    def seed(*directories)
-      Oaken.lookup_paths.product(directories).each do |path, directory|
-        load_from Pathname(path).join(directory.to_s)
-      end
-    end
-
-    private def load_from(path)
-      @loader = Oaken::Loader.new path
-      @loader.load_onto self
-    ensure
-      @loader = nil
+    def seed(*paths)
+      Oaken::Loader.from(paths.map(&:to_s)).load_onto self
     end
 
     # `section` is purely for decorative purposes to carve up `Oaken.prepare` and seed files.

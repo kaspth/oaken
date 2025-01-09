@@ -62,8 +62,8 @@ module Oaken::Seeds
     #   class PaginationTest < ActionDispatch::IntegrationTest
     #     setup { seed "cases/pagination" }
     #   end
-    def seed(*paths)
-      Oaken::Loader.from(paths).load_onto self
+    def seed(*identifiers)
+      Oaken::Loader.from(identifiers).load_onto self
     end
 
     # `section` is purely for decorative purposes to carve up `Oaken.prepare` and seed files.

@@ -16,18 +16,18 @@ module Oaken
   singleton_class.attr_reader :lookup_paths
   @lookup_paths = ["db/seeds"]
 
-  def self.glob(path)
-    patterns = lookup_paths.map { File.join(_1, "#{path}{,/**/*}.rb") }
+  def self.glob(identifier)
+    patterns = lookup_paths.map { File.join(_1, "#{identifier}{,/**/*}.rb") }
 
     Pathname.glob(patterns).tap do |found|
-      raise NoSeedsFoundError, "found no seed files for #{path.inspect}" if found.none?
+      raise NoSeedsFoundError, "found no seed files for #{identifier.inspect}" if found.none?
     end
   end
   NoSeedsFoundError = Class.new ArgumentError
 
   class Loader
-    def self.from(paths)
-      new paths.flat_map { Oaken.glob _1 }
+    def self.from(identifiers)
+      new identifiers.flat_map { Oaken.glob _1 }
     end
 
     def initialize(entries)

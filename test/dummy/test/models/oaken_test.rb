@@ -96,4 +96,16 @@ class OakenTest < ActiveSupport::TestCase
     assert mod.respond_to?(:users) # Now respond_to_missing? hits.
     refute mod.respond_to?(:hmhm)
   end
+
+  test "raises when no files found to seed" do
+    assert_raise(Oaken::NoSeedsFoundError) { seed "missing" }.tap do |error|
+      assert_match "db/seeds/missing{", error.message
+      assert_match "db/seeds/test/missing{", error.message
+    end
+
+    assert_raise(Oaken::NoSeedsFoundError) { seed "test/cases/missing" }.tap do |error|
+      assert_match "db/seeds/test/cases/missing{", error.message
+      assert_match "db/seeds/test/test/cases/missing{", error.message
+    end
+  end
 end

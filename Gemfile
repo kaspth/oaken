@@ -5,9 +5,10 @@ source "https://rubygems.org"
 # Specify your gem's dependencies in oaken.gemspec
 gemspec
 
-gem "rake", "~> 13.0"
+gem "rake"
+gem "minitest"
 
-gem "minitest", "~> 5.0"
+gem "nokogiri", "1.17.2" # TODO: Lift this restriction after dropping Ruby 3.0 support.
 
 rails_version = ENV.fetch("RAILS_VERSION", "8.0")
 

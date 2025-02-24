@@ -13,6 +13,26 @@ module Oaken
     autoload :ActiveRecord, "oaken/stored/active_record"
   end
 
+  class Type < Data.define(:parts)
+    def self.for(name) = new(name.classify.split(/(?=[A-Z])/))
+
+    def locate
+      starting_type = Object
+      refine_from(starting_type:, &:const_get?).then.detect { _1 != starting_type }
+    end
+
+    private
+      using Module.new { refine(Module) { def const_get?(name); const_get(name) if const_defined?(name); end } }
+
+      def refine_from(starting_type:)
+        name = +""
+        parts.inject(starting_type) do |type, part|
+          name << part
+          yield(type, name)&.tap { name.clear } || type
+        end
+      end
+  end
+
   singleton_class.attr_reader :lookup_paths
   @lookup_paths = ["db/seeds"]
 

@@ -38,12 +38,12 @@ class OakenTest < ActiveSupport::TestCase
   end
 
   test "auto-registering with partial namespaces" do
-    Menu::HiddenDiscount = Class.new do
-      def self.table_name   = "menu_hidden_discounts"
-      def self.column_names = []
-    end
-
+    Menu::HiddenDiscount = Data.define(:column_names, :table_name).new([], "menu_hidden_discounts")
     assert_kind_of Oaken::Stored::ActiveRecord, Oaken::Seeds.menu_hidden_discounts
+
+    Menu::SuperSecret = Module.new
+    Menu::SuperSecret::Discount = Data.define(:column_names, :table_name).new([], "menu_super_secret_discounts")
+    assert_kind_of Oaken::Stored::ActiveRecord, Oaken::Seeds.menu_super_secret_discounts
   end
 
   test "global attributes" do

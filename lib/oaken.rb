@@ -18,12 +18,11 @@ module Oaken
 
     def locate
       starting_type = Object
-      refine_from(starting_type:, &:const_get?).then.detect { _1 != starting_type }
+      refine_from(starting_type:) { _1.const_get(_2) if _1.const_defined?(_2) }
+        .then.find { _1 != starting_type }
     end
 
     private
-      using Module.new { refine(Module) { def const_get?(name); const_get(name) if const_defined?(name); end } }
-
       def refine_from(starting_type:)
         name = +""
         parts.inject(starting_type) do |type, part|

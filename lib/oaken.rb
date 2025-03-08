@@ -13,21 +13,33 @@ module Oaken
     autoload :ActiveRecord, "oaken/stored/active_record"
   end
 
-  class Type < Data.define(:parts)
-    def self.for(name) = new(name.classify.split(/(?=[A-Z])/))
+  class Type
+    def self.for(name) = new(name.classify)
+    def initialize(name)
+      @name = name
+      @offsets = descending_offsets
+    end
 
     def locate
-      starting_type = Object
-      refine_from(starting_type:) { _1.const_get(_2) if _1.const_defined?(_2) }
-        .then.find { _1 != starting_type }
+      p @offsets
+      matrix.map do |gates|
+        p gates
+        @name.dup.tap do |name|
+          @offsets.each_with_index do |offset, index|
+            name.slice! offset, 2 if gates[index]
+          end
+        end
+      end
     end
 
     private
-      def refine_from(starting_type:)
-        name = +""
-        parts.inject(starting_type) do |type, part|
-          name << part
-          yield(type, name)&.tap { name.clear } || type
+      def matrix
+        @offsets.map { [false, true] }.then { |f, *r| f.product(*r) }
+      end
+
+      def descending_offsets
+        name.scan("::").reduce [] do |offsets, _|
+          offsets << name.rindex("::", offsets.last.to_i.succ)
         end
       end
   end

@@ -5,6 +5,21 @@ class OakenTest < ActiveSupport::TestCase
     refute_nil ::Oaken::VERSION
   end
 
+  test "derives types" do
+    names = Oaken::Type.for("Menu::Item::Detail::Segment").locate
+    p names
+
+    assert_equal \
+      ["Menu::Item::Detail::Segment",
+      "MenuItem::Detail::Segment",
+      "Menu::ItemDetail::Segment",
+      "MenuItemDetail::Segment",
+      "Menu::Item::DetailSegment",
+      "MenuItem::DetailSegment",
+      "Menu::ItemDetailSegment",
+      "MenuItemDetailSegment"], names
+  end
+
   test "accessing fixture" do
     assert_equal "Kasper", users.kasper.name
     assert_equal "Coworker", users.coworker.name

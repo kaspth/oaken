@@ -21,12 +21,12 @@ module Oaken
     end
 
     private
-      GROUPED_SEPARATORS = [["::", ""]]
-
       def possible_consts
-        separator_matrix.lazy.map { |parts| splice.with_index { parts[_2] } }
+        separator_matrix.map { |group| splice.with_index { |_, index| group[index] } }
       end
-      def separator_matrix = (GROUPED_SEPARATORS * splice.count.clamp(1..)).then { |it, *rest| it.product(*rest) }
+      def separator_matrix = Enumerator.product(*grouped_separators * splice.count).lazy
+
+      grouped_separators = [["::", ""]] and define_method(:grouped_separators) { grouped_separators }
   end
 
   singleton_class.attr_reader :lookup_paths

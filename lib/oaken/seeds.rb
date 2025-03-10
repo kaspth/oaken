@@ -26,7 +26,7 @@ module Oaken::Seeds
       super
     end
   end
-  def self.respond_to_missing?(name, ...) = Oaken::Type.for(name.to_s).locate || super
+  def self.respond_to_missing?(meth, ...) = Oaken::Type.for(meth.to_s).locate || super
 
   # Register a model class to be accessible as an instance method via `include Oaken::Seeds`.
   # Note: Oaken's auto-register via `method_missing` means it's less likely you need to call this manually.

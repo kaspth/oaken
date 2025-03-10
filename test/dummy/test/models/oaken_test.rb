@@ -4,7 +4,7 @@ class Oaken::TypeTest < ActiveSupport::TestCase
   test "with zero segments" do
     type = Oaken::Type.for("users")
 
-    assert_consts type, ["User", "User"]
+    assert_consts type, ["User"]
     assert_equal User, type.locate
   end
 

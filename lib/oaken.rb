@@ -13,35 +13,20 @@ module Oaken
     autoload :ActiveRecord, "oaken/stored/active_record"
   end
 
-  class Type
-    def self.for(name) = new(name.classify)
-    def initialize(name)
-      @name = name
-      @offsets = descending_offsets
-    end
+  class Type < Data.define(:splice)
+    def self.for(name) = new(name.classify.gsub(/(?<=[a-z])(?=[A-Z])/))
 
     def locate
-      p @offsets
-      matrix.map do |gates|
-        p gates
-        @name.dup.tap do |name|
-          @offsets.each_with_index do |offset, index|
-            name.slice! offset, 2 if gates[index]
-          end
-        end
-      end
+      possible_consts.filter_map(&:safe_constantize).first
     end
 
     private
-      def matrix
-        @offsets.map { [false, true] }.then { |f, *r| f.product(*r) }
-      end
+      GROUPED_SEPARATORS = [["::", ""]]
 
-      def descending_offsets
-        name.scan("::").reduce [] do |offsets, _|
-          offsets << name.rindex("::", offsets.last.to_i.succ)
-        end
+      def possible_consts
+        separator_matrix.lazy.map { |parts| splice.with_index { parts[_2] } }
       end
+      def separator_matrix = (GROUPED_SEPARATORS * splice.count.clamp(1..)).then { |it, *rest| it.product(*rest) }
   end
 
   singleton_class.attr_reader :lookup_paths

@@ -7,26 +7,11 @@ module Oaken
   class Error < StandardError; end
 
   autoload :Seeds,     "oaken/seeds"
+  autoload :Type,      "oaken/type"
   autoload :TestSetup, "oaken/test_setup"
 
   module Stored
     autoload :ActiveRecord, "oaken/stored/active_record"
-  end
-
-  class Type < Data.define(:splice)
-    def self.for(name) = new(name.classify.gsub(/(?<=[a-z])(?=[A-Z])/))
-
-    def locate
-      possible_consts.filter_map(&:safe_constantize).first
-    end
-
-    private
-      def possible_consts
-        separator_matrix.map { |group| splice.with_index { |_, index| group[index] } }
-      end
-      def separator_matrix = Enumerator.product(*grouped_separators * splice.count).lazy
-
-      grouped_separators = [["::", ""]] and define_method(:grouped_separators) { grouped_separators }
   end
 
   singleton_class.attr_reader :lookup_paths

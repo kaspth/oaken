@@ -47,6 +47,6 @@ class Oaken::TypeTest < ActiveSupport::TestCase
   end
 
   def assert_consts(type, expected)
-    assert_equal expected, type.send(:possible_consts).to_a
+    assert_equal expected, type.possible_consts.to_a
   end
 end

@@ -46,6 +46,13 @@ class Oaken::TypeTest < ActiveSupport::TestCase
     assert_nil type.locate
   end
 
+  test "with four segments" do
+    error = assert_raises ArgumentError do
+      Oaken::Type.for("this_has_four_segments_total").possible_consts.to_a
+    end
+    assert_match /can't resolve this_has_four_segments_total to an object/, error.message
+  end
+
   def assert_consts(type, expected)
     assert_equal expected, type.possible_consts.to_a
   end

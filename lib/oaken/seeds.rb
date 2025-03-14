@@ -11,25 +11,22 @@ module Oaken::Seeds
   # So when you first call e.g. `accounts.create`, we'll hit `method_missing` here
   # and automatically call `register Account`.
   #
-  # We'll also match partial and full nested namespaces like in this order:
+  # We'll also match partial and full nested namespaces:
   #
   #   accounts => Account
-  #   account_jobs => AccountJob | Account::Job
-  #   account_job_tasks => AccountJobTask | Account::JobTask | Account::Job::Task
+  #   account_jobs => Account::Job | AccountJob
+  #   account_job_tasks => Account::JobTask | Account::Job::Task | AccountJob::Task | AccountJobTask
   #
-  # If you have classes that don't follow this naming convention, you must call `register` manually.
+  # If you have classes that don't follow these naming conventions, you must call `register` manually.
   def self.method_missing(meth, ...)
-    name = meth.to_s.classify
-    name = name.sub!(/(?<=[a-z])(?=[A-Z])/, "::") until name.nil? or type = name.safe_constantize
-
-    if type
+    if type = Oaken::Type.for(meth.to_s).locate
       register type
       public_send(meth, ...)
     else
       super
     end
   end
-  def self.respond_to_missing?(name, ...) = name.to_s.classify.safe_constantize || super
+  def self.respond_to_missing?(meth, ...) = Oaken::Type.for(meth.to_s).locate || super
 
   # Register a model class to be accessible as an instance method via `include Oaken::Seeds`.
   # Note: Oaken's auto-register via `method_missing` means it's less likely you need to call this manually.

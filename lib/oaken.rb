@@ -7,6 +7,7 @@ module Oaken
   class Error < StandardError; end
 
   autoload :Seeds,     "oaken/seeds"
+  autoload :Type,      "oaken/type"
   autoload :TestSetup, "oaken/test_setup"
 
   module Stored

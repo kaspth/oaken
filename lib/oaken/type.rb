@@ -14,6 +14,13 @@ class Oaken::Type < Struct.new(:name, :gsub)
   end
 
   private
-    separator_matrixes = (0..3).to_h { |size| [size, Enumerator.product(*[["::", ""]].*(size)).lazy] }
+    # TODO: Remove after dropping Ruby 3.1 support
+    if Enumerator.respond_to?(:product)
+      def self.product(...) = Enumerator.product(...)
+    else
+      def self.product(first = nil, *rest) = first&.product(*rest) || [[]]
+    end
+
+    separator_matrixes = (0..3).to_h { |size| [size, product(*[["::", ""]].*(size)).lazy] }
     define_method(:separator_matrixes) { separator_matrixes }
 end

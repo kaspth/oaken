@@ -47,7 +47,7 @@ class OakenTest < ActiveSupport::TestCase
     assert_kind_of Oaken::Stored::ActiveRecord, Oaken::Seeds.menu_super_secret_discounts
   end
 
-  test "global attributes" do
+  test "global default attributes" do
     plan = plans.upsert price_cents: 10_00
 
     assert_equal "Global Default Title", plan.reload.title
@@ -58,6 +58,21 @@ class OakenTest < ActiveSupport::TestCase
 
     (1..10).each do
       assert_includes names, "Customer #{_1}"
+    end
+  end
+
+  test """attributes_for:
+    - uses global defaults with procs
+    - allows overriding global defaults
+  """ do
+    users.attributes_for(email_address: "user@example.com").tap do |attributes|
+      assert_match /Customer \d+/, attributes[:name]
+      assert_equal "user@example.com", attributes[:email_address]
+    end
+
+    plans.attributes_for(price_cents: 10_00).tap do |attributes|
+      assert_equal "Global Default Title", attributes[:title]
+      assert_equal 10_00, attributes[:price_cents]
     end
   end
 

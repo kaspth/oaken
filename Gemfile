@@ -7,6 +7,7 @@ gemspec
 
 gem "rake"
 gem "minitest"
+gem "debug"
 
 gem "nokogiri", "1.17.2" # TODO: Lift this restriction after dropping Ruby 3.0 support.
 

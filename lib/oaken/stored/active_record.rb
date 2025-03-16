@@ -7,14 +7,8 @@ class Oaken::Stored::ActiveRecord
   delegate :transaction, to: :type # For multi-db setups to help open a transaction on secondary connections.
   delegate :find, :insert_all, :pluck, to: :type
 
-  def defaults(**attributes)
-    @attributes = @attributes.merge(attributes)
-    @attributes
-  end
-
   def create(label = nil, unique_by: nil, **attributes)
-    attributes = @attributes.merge(attributes)
-    attributes.transform_values! { _1.respond_to?(:call) ? _1.call : _1 }
+    attributes = attributes_for(**attributes)
 
     finders  = attributes.slice(*unique_by)
     record   = type.find_by(finders)&.tap { _1.update!(**attributes) } if finders.any?
@@ -25,13 +19,41 @@ class Oaken::Stored::ActiveRecord
   end
 
   def upsert(label = nil, unique_by: nil, **attributes)
-    attributes = @attributes.merge(attributes)
-    attributes.transform_values! { _1.respond_to?(:call) ? _1.call : _1 }
+    attributes = attributes_for(**attributes)
 
     type.new(attributes).validate!
     record = type.new(id: type.upsert(attributes, unique_by: unique_by, returning: :id).rows.first.first)
     label label => record if label
     record
+  end
+
+  # Build attributes used for `create`/`upsert`, applying any global and per-type `defaults`.
+  #
+  #   # db/seeds.rb
+  #   Oaken.prepare do
+  #     defaults name: -> { "Global" }, email_address: -> { … }
+  #     users.defaults name: -> { Faker::Name.name } # This `name` takes precedence on users.
+  #   end
+  #
+  #   users.attributes_for(email_address: "user@example.com") # => { name: "Some Faker Name", email_address: "user@example.com" }
+  def attributes_for(**attributes)
+    @attributes.merge(attributes).transform_values! { _1.respond_to?(:call) ? _1.call : _1 }
+  end
+
+  # Set defaults for this type:
+  #
+  #   # db/seeds.rb
+  #   Oaken.prepare do
+  #     defaults name: -> { "Global" }, email_address: -> { … }
+  #     users.defaults name: -> { Faker::Name.name } # This `name` takes precedence on users.
+  #   end
+  #
+  # These defaults are used and evaluated in `create`/`upsert`/`attributes_for`.
+  #
+  #   users.create # => Uses the users' default `name` and the global `email_address`
+  def defaults(**attributes)
+    @attributes = @attributes.merge(attributes)
+    @attributes
   end
 
   # Expose a record instance that's setup outside of using `create`/`upsert`. Like this:

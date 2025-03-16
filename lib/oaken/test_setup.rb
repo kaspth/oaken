@@ -13,10 +13,7 @@ module Oaken::TestSetup
     # So we prepend into `before_setup` and later `super` to have fixtures wrap tests in transactions.
     def before_setup
       # `should_parallelize?` is only defined when Rails' test `parallelize` macro has been called.
-      unless Minitest.parallel_executor.then { _1.respond_to?(:should_parallelize?, true) && _1.send(:should_parallelize?) }
-        ActiveRecord::Tasks::DatabaseTasks.truncate_all # Mimic fixtures by truncating before inserting.
-        Oaken.load_seed
-      end
+      Oaken.replant_seed unless Minitest.parallel_executor.then { _1.respond_to?(:should_parallelize?, true) && _1.send(:should_parallelize?) }
 
       Oaken::TestSetup::BeforeSetup.remove_method :before_setup # Only run once, so remove before passing to fixtures in `super`.
       super

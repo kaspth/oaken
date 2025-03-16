@@ -48,7 +48,14 @@ module Oaken
     end
   end
 
-  def self.prepare(&block) = Seeds.instance_eval(&block)
+  def self.prepare(&block)
+    Seeds.instance_eval(&block)
+  end
+
+  def self.replant_seed
+    ActiveRecord::Tasks::DatabaseTasks.truncate_all
+    load_seed
+  end
   def self.load_seed = Rails.application.load_seed
 end
 

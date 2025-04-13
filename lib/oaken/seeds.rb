@@ -20,7 +20,7 @@ module Oaken::Seeds
   # If you have classes that don't follow these naming conventions, you must call `register` manually.
   def self.method_missing(meth, ...)
     if type = Oaken::Type.for(meth.to_s).locate
-      register type
+      register type, as: meth
       public_send(meth, ...)
     else
       super
@@ -33,11 +33,15 @@ module Oaken::Seeds
   #
   #   register Account, Account::Job, Account::Job::Task
   #
-  # Oaken uses the `table_name` of the passed classes for the method names, e.g. here they'd be
+  # Oaken uses `name.tableize.tr("/", "_")` on the passed classes for the method names, so they're
   # `accounts`, `account_jobs`, and `account_job_tasks`, respectively.
-  def self.register(*types)
+  #
+  # You can also pass an explicit `as:` option, if you'd like:
+  #
+  #   register User, as: :something_else
+  def self.register(*types, as: nil)
     types.each do |type|
-      stored = provider.new(type) and define_method(stored.key) { stored }
+      stored = provider.new(type) and define_method(as || type.name.tableize.tr("/", "_")) { stored }
     end
   end
   def self.provider = Oaken::Stored::ActiveRecord

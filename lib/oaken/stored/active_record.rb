@@ -1,9 +1,9 @@
 class Oaken::Stored::ActiveRecord
   def initialize(type)
-    @type, @key = type, type.table_name
+    @type = type
     @attributes = Oaken::Seeds.defaults_for(*type.column_names)
   end
-  attr_reader :type, :key
+  attr_reader :type
   delegate :transaction, to: :type # For multi-db setups to help open a transaction on secondary connections.
   delegate :find, :insert_all, :pluck, to: :type
 

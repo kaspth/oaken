@@ -1,10 +1,17 @@
 module Oaken::Seeds
   extend self
 
-  # Allow assigning defaults across different types.
-  def self.defaults(**defaults) = attributes.merge!(**defaults)
-  def self.defaults_for(*keys) = attributes.slice(*keys)
-  def self.attributes = @attributes ||= {}.with_indifferent_access
+  def self.loader = Oaken.loader
+  singleton_class.delegate :seed, to: :loader
+
+  # Call `seed` in tests to load individual case files:
+  #
+  #   class PaginationTest < ActionDispatch::IntegrationTest
+  #     setup do
+  #       seed "cases/pagination" # Loads `db/seeds/{,test}/cases/pagination{,**/*}.rb`
+  #     end
+  #   end
+  delegate :seed, to: self
 
   # Oaken's main auto-registering logic.
   #
@@ -19,14 +26,14 @@ module Oaken::Seeds
   #
   # If you have classes that don't follow these naming conventions, you must call `register` manually.
   def self.method_missing(meth, ...)
-    if type = Oaken::Type.for(meth.to_s).locate
+    if type = loader.locate(meth)
       register type, as: meth
       public_send(meth, ...)
     else
       super
     end
   end
-  def self.respond_to_missing?(meth, ...) = Oaken::Type.for(meth.to_s).locate || super
+  def self.respond_to_missing?(meth, ...) = loader.locate(meth) || super
 
   # Register a model class to be accessible as an instance method via `include Oaken::Seeds`.
   # Note: Oaken's auto-register via `method_missing` means it's less likely you need to call this manually.
@@ -41,62 +48,28 @@ module Oaken::Seeds
   #   register User, as: :something_else
   def self.register(*types, as: nil)
     types.each do |type|
-      stored = provider.new(type) and define_method(as || type.name.tableize.tr("/", "_")) { stored }
-    end
-  end
-  def self.provider = Oaken::Stored::ActiveRecord
-
-  class << self
-    # Set up a general seed rule or perform a one-off seed for a test file.
-    #
-    # You can set up a general seed rule in `db/seeds.rb` like this:
-    #
-    #   Oaken.prepare do
-    #     seed :accounts # Seeds from `db/seeds/accounts/**/*.rb` and `db/seeds/<Rails.env>/accounts/**/*.rb`
-    #   end
-    #
-    # Then if you need a test specific scenario, we recommend putting them in `db/seeds/test/cases`.
-    #
-    # Say you have `db/seeds/test/cases/pagination.rb`, you can load it like this:
-    #
-    #   # test/integration/pagination_test.rb
-    #   class PaginationTest < ActionDispatch::IntegrationTest
-    #     setup { seed "cases/pagination" }
-    #   end
-    def seed(*identifiers)
-      Oaken::Loader.from(identifiers).load_onto self
-    end
-
-    # `section` is purely for decorative purposes to carve up `Oaken.prepare` and seed files.
-    #
-    #   Oaken.prepare do
-    #     section :roots # Just the very few top-level models like Accounts and Users.
-    #     users.defaults email_address: -> { Faker::Internet.email }, webauthn_id: -> { SecureRandom.hex }
-    #
-    #     section :stems # Models building on the roots.
-    #
-    #     section :leafs # Remaining models, bulk of them, hanging off root and stem models.
-    #
-    #     section do
-    #       seed :accounts, :data
-    #     end
-    #   end
-    #
-    # Since `section` is defined as `def section(*, **) = yield if block_given?`, you can use
-    # all of Ruby's method signature flexibility to help communicate structure better.
-    #
-    # Use positional and keyword arguments, or use blocks to indent them, or combine them all.
-    def section(*, **)
-      yield if block_given?
+      stored = loader.provided(type) and define_method(as || type.name.tableize.tr("/", "_")) { stored }
     end
   end
 
-  # Call `seed` in tests to load individual case files:
+  # `section` is purely for decorative purposes to carve up `Oaken.prepare` and seed files.
   #
-  #   class PaginationTest < ActionDispatch::IntegrationTest
-  #     setup do
-  #       seed "cases/pagination" # Loads `db/seeds/{,test}/cases/pagination{,**/*}.rb`
+  #   Oaken.prepare do
+  #     section :roots # Just the very few top-level models like Accounts and Users.
+  #     users.defaults email_address: -> { Faker::Internet.email }, webauthn_id: -> { SecureRandom.hex }
+  #
+  #     section :stems # Models building on the roots.
+  #
+  #     section :leafs # Remaining models, bulk of them, hanging off root and stem models.
+  #
+  #     section do
+  #       seed :accounts, :data
   #     end
   #   end
-  delegate :seed, to: Oaken::Seeds
+  #
+  # Since `section` is defined as `def section(*, **) = block_given? && yield`, you can use
+  # all of Ruby's method signature flexibility to help communicate structure better.
+  #
+  # Use positional and keyword arguments, or use blocks to indent them, or combine them all.
+  def self.section(*, **) = block_given? && yield
 end

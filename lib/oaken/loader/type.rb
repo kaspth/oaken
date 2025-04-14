@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-class Oaken::Type < Struct.new(:name, :gsub)
+class Oaken::Loader::Type < Struct.new(:name, :gsub)
+  def self.locate(name) = self.for(name.to_s).locate
   def self.for(name) = new(name, name.classify.gsub(/(?<=[a-z])(?=[A-Z])/))
 
   def locate

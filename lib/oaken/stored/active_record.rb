@@ -1,7 +1,7 @@
 class Oaken::Stored::ActiveRecord
-  def initialize(type)
-    @type = type
-    @attributes = Oaken::Seeds.defaults_for(*type.column_names)
+  def initialize(loader, type)
+    @loader, @type = loader, type
+    @attributes = loader.defaults_for(*type.column_names)
   end
   attr_reader :type
   delegate :transaction, to: :type # For multi-db setups to help open a transaction on secondary connections.
@@ -76,7 +76,7 @@ class Oaken::Stored::ActiveRecord
 
   private def _label(name, id)
     raise ArgumentError, "you can only define labelled records outside of tests" \
-      unless location = Oaken::Loader.definition_location
+      unless location = @loader.definition_location
 
     class_eval "def #{name} = find(#{id.inspect})", location.path, location.lineno
   end

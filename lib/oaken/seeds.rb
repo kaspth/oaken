@@ -1,16 +1,6 @@
-module Oaken::Seeds
-  extend self
-
+module Oaken::Seeds extend self
   def self.loader = Oaken.loader
   singleton_class.delegate :seed, to: :loader
-
-  # Call `seed` in tests to load individual case files:
-  #
-  #   class PaginationTest < ActionDispatch::IntegrationTest
-  #     setup do
-  #       seed "cases/pagination" # Loads `db/seeds/{,test}/cases/pagination{,**/*}.rb`
-  #     end
-  #   end
   delegate :seed, to: self
 
   # Oaken's main auto-registering logic.

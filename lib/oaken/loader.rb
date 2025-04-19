@@ -58,7 +58,7 @@ class Oaken::Loader
   #   register User, as: :something_else
   def register(type, as: nil)
     stored = provider.new(self, type)
-    context.define_method(as || type.name.tableize.tr("/", "_")) { stored }
+    context.define_method(as || stored.method_name) { stored }
   end
 
   # Mirrors `bin/rails db:seed:replant`.

@@ -46,7 +46,9 @@ class Oaken::Loader
   # Register a model class via `Oaken.loader.context`.
   # Note: Oaken's auto-register means you don't need to call `register` often yourself.
   #
-  #   register Account, Account::Job, Account::Job::Task
+  #   register Account
+  #   register Account::Job
+  #   register Account::Job::Task
   #
   # Oaken uses `name.tableize.tr("/", "_")` for the method names, so they're
   # `accounts`, `account_jobs`, and `account_job_tasks`, respectively.
@@ -54,14 +56,9 @@ class Oaken::Loader
   # You can also pass an explicit `as:` option:
   #
   #   register User, as: :something_else
-  def register(*types, as: nil)
-    types.each do |type|
-      stored = provision(type) and context.define_method(as || type.name.tableize.tr("/", "_")) { stored }
-    end
-  end
-
-  def provision(type)
-    provider.new(self, type)
+  def register(type, as: nil)
+    stored = provider.new(self, type)
+    context.define_method(as || type.name.tableize.tr("/", "_")) { stored }
   end
 
   # Mirrors `bin/rails db:seed:replant`.

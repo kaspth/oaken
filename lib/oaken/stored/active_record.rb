@@ -47,10 +47,7 @@ class Oaken::Stored::ActiveRecord
   #
   #   users.defaults name: -> { Faker::Name.name } # This `name` takes precedence on `users`.
   #   users.create # => Uses the users' default `name` and the loader `email_address`
-  def defaults(**attributes)
-    @attributes = @attributes.merge(attributes)
-    @attributes
-  end
+  def defaults(**attributes) = @attributes = @attributes.merge(attributes)
 
   # Expose a record instance that's setup outside of using `create`/`upsert`. Like this:
   #
@@ -65,9 +62,7 @@ class Oaken::Stored::ActiveRecord
   #   users.label someone:, someone_else:
   #
   # Note: `users.method(:someone).source_location` also points back to the file and line of the `label` call.
-  def label(**labels)
-    labels.each { |label, record| _label label, record.id }
-  end
+  def label(**labels) = labels.each { |label, record| _label label, record.id }
 
   private def _label(name, id)
     raise ArgumentError, "you can only define labelled records outside of tests" \

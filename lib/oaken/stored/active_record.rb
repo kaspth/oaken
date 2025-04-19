@@ -7,6 +7,7 @@ class Oaken::Stored::ActiveRecord
   delegate :transaction, to: :type # For multi-db setups to help open a transaction on secondary connections.
   delegate :find, :insert_all, :pluck, to: :type
 
+  # Create a record in the database with the passed `attributes`.
   def create(label = nil, unique_by: nil, **attributes)
     attributes = attributes_for(**attributes)
 
@@ -18,6 +19,7 @@ class Oaken::Stored::ActiveRecord
     record
   end
 
+  # Upsert a record in the database with the passed `attributes`.
   def upsert(label = nil, unique_by: nil, **attributes)
     attributes = attributes_for(**attributes)
 
@@ -27,30 +29,24 @@ class Oaken::Stored::ActiveRecord
     record
   end
 
-  # Build attributes used for `create`/`upsert`, applying any global and per-type `defaults`.
+  # Build attributes used for `create`/`upsert`, applying loader and per-type `defaults`.
   #
-  #   # db/seeds.rb
-  #   Oaken.prepare do
-  #     defaults name: -> { "Global" }, email_address: -> { … }
-  #     users.defaults name: -> { Faker::Name.name } # This `name` takes precedence on users.
-  #   end
+  #   loader.defaults name: -> { "Global" }, email_address: -> { … }
+  #   users.defaults name: -> { Faker::Name.name } # This `name` takes precedence on users.
   #
   #   users.attributes_for(email_address: "user@example.com") # => { name: "Some Faker Name", email_address: "user@example.com" }
   def attributes_for(**attributes)
     @attributes.merge(attributes).transform_values! { _1.respond_to?(:call) ? _1.call : _1 }
   end
 
-  # Set defaults for this type:
+  # Set defaults for all types:
   #
-  #   # db/seeds.rb
-  #   Oaken.prepare do
-  #     defaults name: -> { "Global" }, email_address: -> { … }
-  #     users.defaults name: -> { Faker::Name.name } # This `name` takes precedence on users.
-  #   end
+  #   loader.defaults name: -> { "Global" }, email_address: -> { … }
   #
-  # These defaults are used and evaluated in `create`/`upsert`/`attributes_for`.
+  # These defaults are used and evaluated in `create`/`upsert`/`attributes_for`, but you can override on a per-type basis:
   #
-  #   users.create # => Uses the users' default `name` and the global `email_address`
+  #   users.defaults name: -> { Faker::Name.name } # This `name` takes precedence on `users`.
+  #   users.create # => Uses the users' default `name` and the loader `email_address`
   def defaults(**attributes)
     @attributes = @attributes.merge(attributes)
     @attributes
@@ -65,8 +61,7 @@ class Oaken::Stored::ActiveRecord
   #
   # Ruby's Hash argument forwarding also works:
   #
-  #   someone = users.create(name: "Someone")
-  #   someone_else = users.create(name: "Someone Else")
+  #   someone, someone_else = users.create(name: "Someone"), users.create(name: "Someone Else")
   #   users.label someone:, someone_else:
   #
   # Note: `users.method(:someone).source_location` also points back to the file and line of the `label` call.

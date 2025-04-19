@@ -1,12 +1,14 @@
-module Oaken::Seeds extend self
+module Oaken::Seeds
   def self.loader = Oaken.loader
-  singleton_class.delegate :seed, to: :loader
+  singleton_class.delegate :seed, :register, to: :loader
   delegate :seed, to: self
 
-  # Oaken's main auto-registering logic.
+  extend self
+
+  # Oaken's auto-registering logic.
   #
   # So when you first call e.g. `accounts.create`, we'll hit `method_missing` here
-  # and automatically call `register Account`.
+  # and automatically call `register Account, as: :accounts`.
   #
   # We'll also match partial and full nested namespaces:
   #
@@ -25,41 +27,25 @@ module Oaken::Seeds extend self
   end
   def self.respond_to_missing?(meth, ...) = loader.locate(meth) || super
 
-  # Register a model class to be accessible as an instance method via `include Oaken::Seeds`.
-  # Note: Oaken's auto-register via `method_missing` means it's less likely you need to call this manually.
+  # Purely for decorative purposes to carve up seed files.
   #
-  #   register Account, Account::Job, Account::Job::Task
-  #
-  # Oaken uses `name.tableize.tr("/", "_")` on the passed classes for the method names, so they're
-  # `accounts`, `account_jobs`, and `account_job_tasks`, respectively.
-  #
-  # You can also pass an explicit `as:` option, if you'd like:
-  #
-  #   register User, as: :something_else
-  def self.register(*types, as: nil)
-    types.each do |type|
-      stored = loader.provided(type) and define_method(as || type.name.tableize.tr("/", "_")) { stored }
-    end
-  end
-
-  # `section` is purely for decorative purposes to carve up `Oaken.prepare` and seed files.
-  #
-  #   Oaken.prepare do
-  #     section :roots # Just the very few top-level models like Accounts and Users.
-  #     users.defaults email_address: -> { Faker::Internet.email }, webauthn_id: -> { SecureRandom.hex }
-  #
-  #     section :stems # Models building on the roots.
-  #
-  #     section :leafs # Remaining models, bulk of them, hanging off root and stem models.
-  #
-  #     section do
-  #       seed :accounts, :data
-  #     end
-  #   end
-  #
-  # Since `section` is defined as `def section(*, **) = block_given? && yield`, you can use
+  # `section` is defined as `def section(*, **) = block_given? && yield`, so you can use
   # all of Ruby's method signature flexibility to help communicate structure better.
   #
-  # Use positional and keyword arguments, or use blocks to indent them, or combine them all.
+  # Use positional & keyword arguments, blocks at multiple levels, or a combination.
+  #
+  #   section :basic
+  #   users.create name: "Someone"
+  #
+  #   section :menus, quicksale: true
+  #
+  #   section do
+  #     # Leave name implicit and carve up visually with the indentation.
+  #     section something: :nested
+  #
+  #     section :another_level do
+  #       # We can keep going, but maybe we shouldn't.
+  #     end
+  #   end
   def self.section(*, **) = block_given? && yield
 end

@@ -7,10 +7,6 @@ class Oaken::Stored::ActiveRecord
   delegate :transaction, to: :type # For multi-db setups to help open a transaction on secondary connections.
   delegate :find, :insert_all, :pluck, to: :type
 
-  def method_name
-    type.name.tableize.tr("/", "_")
-  end
-
   def create(label = nil, unique_by: nil, **attributes)
     attributes = attributes_for(**attributes)
 

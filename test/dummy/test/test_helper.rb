@@ -7,5 +7,5 @@ ActiveRecord::Base.logger = Logger.new(STDOUT) if ENV["VERBOSE"] || ENV["CI"]
 class ActiveSupport::TestCase
   parallelize workers: :number_of_processors, threshold: ENV.fetch("PARALLEL_TEST_THRESHOLD", 5).to_i
 
-  prepend Oaken.test_setup
+  include Oaken.test_setup
 end

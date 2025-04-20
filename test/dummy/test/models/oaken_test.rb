@@ -98,7 +98,7 @@ class OakenTest < ActiveSupport::TestCase
   end
 
   test "can't use labels within tests" do
-    assert_raise ArgumentError do
+    assert_raise ArgumentError, match: /define labelled records outside of tests/ do
       users.label kasper_2: users.kasper
     end
   end

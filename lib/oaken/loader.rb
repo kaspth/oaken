@@ -92,9 +92,8 @@ class Oaken::Loader
   end
 
   def definition_location
-    # Trickery abounds! Due to Ruby's `caller_locations` + our `load_one`'s `class_eval` above
-    # we can use this format to detect the location in the seed file where the call came from.
-    caller_locations(2, 8).find { _1.label == LABEL }
+    # The first line referencing LABEL happens to be the line in the seed file.
+    caller_locations(3, 6).find { _1.base_label == LABEL }
   end
 
   private

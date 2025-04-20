@@ -15,7 +15,7 @@ class Oaken::Stored::ActiveRecord
     record   = type.find_by(finders)&.tap { _1.update!(**attributes) } if finders.any?
     record ||= type.create!(**attributes)
 
-    label label => record if label
+    _label label, record.id if label
     record
   end
 
@@ -25,7 +25,7 @@ class Oaken::Stored::ActiveRecord
 
     type.new(attributes).validate!
     record = type.new(id: type.upsert(attributes, unique_by: unique_by, returning: :id).rows.first.first)
-    label label => record if label
+    _label label, record.id if label
     record
   end
 
@@ -65,8 +65,8 @@ class Oaken::Stored::ActiveRecord
   def label(**labels) = labels.each { |label, record| _label label, record.id }
 
   private def _label(name, id)
-    raise ArgumentError, "you can only define labelled records outside of tests" \
-      unless location = @loader.definition_location
+    location = @loader.definition_location or
+      raise ArgumentError, "you can only define labelled records outside of tests"
 
     class_eval "def #{name} = find(#{id.inspect})", location.path, location.lineno
   end

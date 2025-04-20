@@ -167,29 +167,41 @@ Any directories and/or single-file matches are loaded in the order they're speci
 > [!IMPORTANT]
 > Understanding and making effective use of Oaken's directory loading will pay dividends for your usage. You generally want to have 1 top-level directive `seed` call to dictate how seeding happens in e.g. `db/seeds.rb` and then let individual seed files load in no specified order within that.
 
+#### Using the `setup` phase
+
+When you call `Oaken.loader.seed` we'll also call `seed :setup` behind the scenes, though we'll only call this once. It's meant for common setup, like `defaults` and helpers.
+
+> [!IMPORTANT]
+> We recommend you don't use `create`/`upsert` directly in setup. Add the `defaults` and/or helpers that would be useful in the later seed files.
+
+Here's some files you could add:
+
+- db/seeds/setup.rb — particularly useful as a starting point.
+- db/seeds/setup/defaults.rb — loader and type-specific defaults.
+- db/seeds/setup/defaults/*.rb — you could split out more specific files.
+- db/seeds/setup/users.rb — a type specific file for its defaults/helpers, doesn't have to just be users.
+
+- db/seeds/development/setup.rb — some defaults/helpers we only want in development.
+- db/seeds/test/setup.rb — some defaults/helpers we only want in test.
+
+> [!TIP]
+> Remember, since we're using `seed` internally you can nest as deeply as you want to structure however works best. There's tons of flexibility in the `**/*` glob pattern `seed` uses.
+
 #### Directory recommendations & file tips
 
 Oaken has some directory recommendations to help strengthen your understanding of your object graph:
 
-- Group scenarios around your top-level root model, like `Account`, `Team`, or `Organization` and have a `db/seeds/accounts` directory.
-- `db/seeds/setup` for `defaults` and helpers. See below.
 - `db/seeds/data` for any data tables, like the plans a SaaS app has.
+- Group scenarios around your top-level root model, like `Account`, `Team`, or `Organization` and have a `db/seeds/accounts` directory.
 - `db/seeds/cases` for any specific cases, like pagination.
 
 If you follow all these conventions you could do this:
 
 ```ruby
-Oaken.loader.seed :setup, :data, :accounts, :cases
+Oaken.loader.seed :data, :accounts, :cases
 ```
 
 And here's some potential file suggestions you could take advantage of:
-
-- db/seeds/setup.rb — particularly useful as a starting point. Due to the flexible loading, you can add a subdirectory or file later within and it'll be picked up.
-- db/seeds/setup/defaults.rb — loader and type-specific defaults.
-- db/seeds/setup/users.rb — user specific defaults/helpers.
-
-- db/seeds/development/setup.rb — some defaults/helpers we only want in development.
-- db/seeds/test/setup.rb — some defaults/helpers we only want in test.
 
 - db/seeds/data/plans.rb — put your SaaS plans in here.
 - db/seeds/test/data/plans.rb — some test specific plans, in case we need them.
@@ -198,7 +210,7 @@ And here's some potential file suggestions you could take advantage of:
 - db/seeds/test/cases/*.rb — any test specific cases.
 
 > [!TIP]
-> We're letting Oaken's loading do all the hard work here, we're just specifying the top-level order.
+> We're letting Oaken's loading do all the hard work here, we're just staging the loading phases by specifying the top-level order.
 
 ##### Loading specific cases in tests only
 

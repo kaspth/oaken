@@ -24,6 +24,7 @@ class Oaken::Loader
   delegate :locate, to: :locator
 
   def initialize(root:, subpaths: nil, locator: Type, provider: Oaken::Stored::ActiveRecord, context: Oaken::Seeds)
+    @setup = nil
     @pathset, @locator, @provider, @context = Pathset.new(root:, subpaths:), locator, provider, context
     @defaults = {}.with_indifferent_access
   end
@@ -87,6 +88,8 @@ class Oaken::Loader
   #     setup { seed "cases/pagination" }
   #   end
   def seed(*identifiers)
+    setup
+
     identifiers.flat_map { glob! _1 }.each { load_one _1 }
     self
   end
@@ -97,9 +100,12 @@ class Oaken::Loader
   end
 
   private
+    def setup = @setup ||= glob(:setup).each { load_one _1 }
+
     def glob!(identifier)
-      pathset.glob(identifier).then.find(&:any?) or raise NoSeedsFoundError, "found no seed files for #{identifier.inspect}"
+      glob(identifier).then.find(&:any?) or raise NoSeedsFoundError, "found no seed files for #{identifier.inspect}"
     end
+    delegate :glob, to: :pathset
 
     def load_one(path)
       context.class_eval path.read, path.to_s

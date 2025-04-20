@@ -3,29 +3,14 @@
 class Oaken::Loader
   class NoSeedsFoundError < ArgumentError; end
 
-  class Pathset
-    attr_reader :root, :subpaths
-    define_method(:root=) { @root = Pathname(_1) }
-    define_method(:subpaths=) { @subpaths = [".", *_1].uniq }
-
-    def initialize(root:, subpaths:)
-      self.root, self.subpaths = root, subpaths
-    end
-
-    def glob(identifier)
-      Pathname.glob subpaths.map { root.join _1, "#{identifier}{,/**/*}.rb" }
-    end
-  end
-
   autoload :Type, "oaken/loader/type"
 
-  attr_reader :pathset, :locator, :provider, :context
-  delegate *Pathset.public_instance_methods(false), to: :pathset
+  attr_reader :lookup_paths, :locator, :provider, :context
   delegate :locate, to: :locator
 
-  def initialize(root:, subpaths: nil, locator: Type, provider: Oaken::Stored::ActiveRecord, context: Oaken::Seeds)
+  def initialize(lookup_paths: nil, locator: Type, provider: Oaken::Stored::ActiveRecord, context: Oaken::Seeds)
     @setup = nil
-    @pathset, @locator, @provider, @context = Pathset.new(root:, subpaths:), locator, provider, context
+    @lookup_paths, @locator, @provider, @context = Array(lookup_paths).dup, locator, provider, context
     @defaults = {}.with_indifferent_access
   end
 
@@ -33,7 +18,7 @@ class Oaken::Loader
   #
   #   Oaken.loader.with(root: "test/fixtures") # `root` returns "test/fixtures" here
   def with(**overrides)
-    self.class.new(root:, subpaths:, locator:, provider:, context:, **overrides)
+    self.class.new(lookup_paths:, locator:, provider:, context:, **overrides)
   end
 
   # Allow assigning defaults across types.
@@ -92,6 +77,10 @@ class Oaken::Loader
 
     identifiers.flat_map { glob! _1 }.each { load_one _1 }
     self
+  end
+
+  def glob(identifier)
+    Pathname.glob lookup_paths.map { File.join _1, "#{identifier}{,/**/*}.rb" }
   end
 
   def definition_location

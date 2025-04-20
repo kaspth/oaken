@@ -16,7 +16,7 @@ module Oaken
 
   singleton_class.attr_accessor :loader
   singleton_class.delegate *Loader.public_instance_methods(false), to: :loader
-  @loader = Loader.new root: "db/seeds"
+  @loader = Loader.new lookup_paths: "db/seeds"
 end
 
 require_relative "oaken/railtie" if defined?(Rails::Railtie)

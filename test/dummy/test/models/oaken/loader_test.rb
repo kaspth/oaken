@@ -2,8 +2,7 @@ require "test_helper"
 
 class Oaken::LoaderTest < ActiveSupport::TestCase
   test "attr_readers" do
-    assert_equal Pathname("db/seeds"), Oaken.loader.root
-    assert_equal [".", "test"], Oaken.loader.subpaths
+    assert_equal ["db/seeds", "db/seeds/test"], Oaken.loader.lookup_paths
     assert_equal Oaken::Seeds, Oaken.loader.context
   end
 
@@ -13,16 +12,19 @@ class Oaken::LoaderTest < ActiveSupport::TestCase
     assert_includes paths, "db/seeds/accounts/kaspers_donuts.rb"
   end
 
-  test "with" do
-    context = Module.new
-    loader = Oaken.with(root: "test/seeds", subpaths: "cases", context:)
-    assert_equal Pathname("test/seeds"), loader.root
-    assert_equal [".", "cases"], loader.subpaths
-    assert_equal context, loader.context
+  test "with + lookup_paths" do
+    loader = Oaken.with(lookup_paths: "test/seeds")
+    assert_equal ["test/seeds"], loader.lookup_paths
+    assert_equal ["db/seeds", "db/seeds/test"], Oaken.loader.lookup_paths
 
-    # Ensure we don't clobber settings
-    assert_equal Pathname("db/seeds"), Oaken.loader.root
-    assert_equal [".", "test"], Oaken.loader.subpaths
+    loader.with.tap { _1.lookup_paths.clear }
+    assert_equal ["test/seeds"], loader.lookup_paths
+  end
+
+  test "with + context" do
+    context = Module.new
+    loader = Oaken.with(lookup_paths: "test/seeds", context:)
+    assert_equal context, loader.context
     assert_equal Oaken::Seeds, Oaken.loader.context
   end
 

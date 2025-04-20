@@ -6,8 +6,8 @@ class OakenTest < ActiveSupport::TestCase
   end
 
   test "replacing loader" do
-    old_loader, Oaken.loader = Oaken.loader, Oaken.with(root: name)
-    assert_equal name, Oaken.root.to_s
+    old_loader, Oaken.loader = Oaken.loader, Oaken.with(lookup_paths: name)
+    assert_equal [name], Oaken.lookup_paths
   ensure
     Oaken.loader = old_loader
   end

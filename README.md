@@ -259,19 +259,16 @@ You can customize the loading and loader as well:
 
 ```ruby
 # config/initializers/oaken.rb
-Oaken.loader.root = "test/seeds" # Useful to pull from another directory, when migrating.
-Oaken.loader.subpaths << Rails.env # Oaken passes Rails.env like this, but you can pass extra subpaths or clear them.
-
 # Call `with` to build a new loader. Here we're just passing the default internal options:
+loader = Oaken.loader.with(lookup_paths: "test/seeds") # Useful to pull from another directory, when migrating.
 loader = Oaken.loader.with(locator: Oaken::Loader::Type, provider: Oaken::Stored::ActiveRecord, context: Oaken::Seeds)
 
-# You can also replace Oaken's default loader.
-Oaken.loader = loader
+Oaken.loader = loader # You can also replace Oaken's default loader.
 ```
 
 > [!TIP]
 > `Oaken` delegates `Oaken::Loader`'s public instance methods to `loader`,
-> so `Oaken.seed` works and is really `Oaken.loader.seed`. Same goes for `Oaken.root`, `Oaken.subpaths`, `Oaken.with` and more.
+> so `Oaken.seed` works and is really `Oaken.loader.seed`. Same goes for `Oaken.lookup_paths`, `Oaken.with`, `Oaken.glob` and more.
 
 #### In db/seeds.rb
 

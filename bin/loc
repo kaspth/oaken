@@ -3,7 +3,12 @@
 # To setup dependencies run with: bin/loc --install
 if ARGV.delete("--install")
   system "brew install cloc"
-  system "gem install activerecord factory_bot test_data --no-doc"
+  system "gem install activerecord factory_bot fabrication test_data --no-doc"
+end
+
+def report(gem, dir: File.dirname(`gem which #{gem}`), paths: ".")
+  puts gem
+  Dir.chdir(dir) { cloc paths }
 end
 
 def cloc(paths)
@@ -11,16 +16,8 @@ def cloc(paths)
   system("cloc", *ARGV, "--quiet", *Array(paths))
 end
 
-puts "FIXTURES"
-Dir.chdir File.dirname(`gem which active_record`) do
-  cloc %w[test_fixtures.rb fixtures.rb fixture_set encryption/encrypted_fixtures.rb].map { "./active_record/#{_1}" }
-end
-
-puts "FACTORY BOT"
-Dir.chdir(File.dirname(`gem which factory_bot`)) { cloc "." }
-
-puts "TEST DATA"
-Dir.chdir(File.dirname(`gem which test_data`)) { cloc "." }
-
-puts "OAKEN"
-Dir.chdir("lib") { cloc "." }
+report "active_record", paths: %w[test_fixtures.rb fixtures.rb fixture_set encryption/encrypted_fixtures.rb].map { "./active_record/#{_1}" }
+report "factory_bot"
+report "fabrication"
+report "test_data"
+report "oaken", dir: "lib"

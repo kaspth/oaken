@@ -5,6 +5,13 @@ class OakenTest < ActiveSupport::TestCase
     refute_nil ::Oaken::VERSION
   end
 
+  test "replacing loader" do
+    old_loader, Oaken.loader = Oaken.loader, Oaken.with(lookup_paths: name)
+    assert_equal [name], Oaken.lookup_paths
+  ensure
+    Oaken.loader = old_loader
+  end
+
   test "accessing fixture" do
     assert_equal "Kasper", users.kasper.name
     assert_equal "Coworker", users.coworker.name
@@ -98,7 +105,7 @@ class OakenTest < ActiveSupport::TestCase
   end
 
   test "can't use labels within tests" do
-    assert_raise ArgumentError do
+    assert_raise ArgumentError, match: /define labelled records outside of tests/ do
       users.label kasper_2: users.kasper
     end
   end
@@ -125,11 +132,11 @@ class OakenTest < ActiveSupport::TestCase
   end
 
   test "raises when no files found to seed" do
-    assert_raise(Oaken::NoSeedsFoundError) { seed "test/cases/missing" }.tap do |error|
+    assert_raise(Oaken::Loader::NoSeedsFoundError) { seed "test/cases/missing" }.tap do |error|
       assert_match %r|found no seed files for "test/cases/missing"|, error.message
     end
 
-    assert_raise(Oaken::NoSeedsFoundError) { seed :first_missing, :second_missing }.tap do |error|
+    assert_raise(Oaken::Loader::NoSeedsFoundError) { seed :first_missing, :second_missing }.tap do |error|
       assert_match /found no seed files for :first_missing/, error.message
     end
   end

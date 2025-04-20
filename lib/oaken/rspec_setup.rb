@@ -1,8 +1,5 @@
 RSpec.configure do |config|
-  config.include Oaken::Seeds
+  config.include Oaken.loader.context
   config.use_transactional_fixtures = true
-
-  config.before :suite do
-    Oaken.replant_seed
-  end
+  config.before(:suite) { Oaken.loader.replant_seed }
 end

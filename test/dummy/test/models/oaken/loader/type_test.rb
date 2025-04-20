@@ -1,15 +1,15 @@
 require "test_helper"
 
-class Oaken::TypeTest < ActiveSupport::TestCase
+class Oaken::Loader::TypeTest < ActiveSupport::TestCase
   test "with zero segments" do
-    type = Oaken::Type.for("users")
+    type = Oaken::Loader::Type.for("users")
 
     assert_consts type, ["User"]
     assert_equal User, type.locate
   end
 
   test "with one segment" do
-    type = Oaken::Type.for("menu_items")
+    type = Oaken::Loader::Type.for("menu_items")
 
     assert_consts type, [
       "Menu::Item",
@@ -19,7 +19,7 @@ class Oaken::TypeTest < ActiveSupport::TestCase
   end
 
   test "with two segments" do
-    type = Oaken::Type.for("menu_item_details")
+    type = Oaken::Loader::Type.for("menu_item_details")
 
     assert_consts type, [
       "Menu::Item::Detail",
@@ -31,7 +31,7 @@ class Oaken::TypeTest < ActiveSupport::TestCase
   end
 
   test "with three segments" do
-    type = Oaken::Type.for("menu_item_detail_segments")
+    type = Oaken::Loader::Type.for("menu_item_detail_segments")
 
     assert_consts type, [
       "Menu::Item::Detail::Segment",
@@ -48,7 +48,7 @@ class Oaken::TypeTest < ActiveSupport::TestCase
 
   test "with four segments" do
     error = assert_raises ArgumentError do
-      Oaken::Type.for("this_has_four_segments_total").possible_consts.to_a
+      Oaken::Loader::Type.for("this_has_four_segments_total").possible_consts.to_a
     end
     assert_match /can't resolve this_has_four_segments_total to an object/, error.message
   end

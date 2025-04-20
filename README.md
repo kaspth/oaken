@@ -88,7 +88,7 @@ We rely on Rails' tests being wrapped in transactions so any changes are rolled 
 > [!NOTE]
 > It can be a good idea to structure your object graph so you won't need database records for your tests — reality can sometimes be far from that ideal state though. Oaken aims to make your present reality easier and something you can improve.
 
-### Oaken is unlike factories, focusing on shared datasets
+## Oaken is unlike factories, focusing on shared datasets
 
 Factories can let you start an app easier. It's just this one factory for now, ok, easy enough.
 
@@ -110,7 +110,7 @@ See the sections on defaults & helpers below.
 
 The aim for Oaken is to have most of the feature set of factories for a fraction of the implementation complexity.
 
-### Oaken gives db/seeds.rb superpowers
+## Oaken gives db/seeds.rb superpowers
 
 Oaken upgrades seeds in `db/seeds.rb`, so you can put together scenarios & reuse the development data in tests.
 
@@ -124,6 +124,24 @@ The end result is you end up writing less data back & forth to the database beca
 >
 > It's made cross-environment shared data, data prepping for demos, edge-case tests, and overall development much more reliable & shareable across a team
 > [@tcannonfodder](https://github.com/tcannonfodder)
+
+## Design goals
+
+### Consistent data & constrained Ruby
+
+We're using `accounts.create` and such instead of `Account.create!` to help enforce consistency & constrain your Ruby usage. This also allows for extra features like `defaults` and helpers that take way less to implement.
+
+### Pick up in 1 hour or less
+
+We don't want to be a costly DSL that takes ages to learn and relearn when you come back to it.
+
+We're aiming for a time-to-understand of less than an hour. Same goes for the internals, if you dive in, it should ideally take less than 1 hour to comprehend most of it.
+
+### Similar ideas to Pkl
+
+We share similar [sentiments to the Pkl configuration language](https://pkl-lang.org/main/current/introduction/comparison.html). You may find the ideas helpful before using Oaken.
+
+Oddly enough Oaken came out before Pkl, I just read the ideas here and went "yes, exactly!"
 
 ## Setup
 
@@ -287,11 +305,6 @@ We've got full support for Rails' test parallelization out of the box.
 ### Writing Seed Data Scripts
 
 Oaken's data scripts are composed of table name looking methods corresponding to Active Record classes, which you can enhance with `defaults` and helper methods, then eventually calling `create` or `upsert` on them.
-
-We're using `accounts.create` instead of `Account.create!` etc. to help enforce consistency & constrain your Ruby usage — Oaken tries not to be a costly DSL that takes long to learn.
-
-We also share similar [sentiments with the Pkl configuration language](https://pkl-lang.org/main/current/introduction/comparison.html). You may find the thinking helpful when using Oaken too.
-— Oddly enough Oaken came out before Pkl, I just read the ideas here and went "yes, exactly!"
 
 #### Automatic & manual registry
 

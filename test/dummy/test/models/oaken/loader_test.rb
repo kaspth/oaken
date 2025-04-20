@@ -7,6 +7,12 @@ class Oaken::LoaderTest < ActiveSupport::TestCase
     assert_equal Oaken::Seeds, Oaken.loader.context
   end
 
+  test "glob" do
+    paths = Oaken.glob(:accounts).map(&:to_s)
+    assert_includes paths, "db/seeds/accounts/demo.rb"
+    assert_includes paths, "db/seeds/accounts/kaspers_donuts.rb"
+  end
+
   test "with" do
     context = Module.new
     loader = Oaken.with(root: "test/seeds", subpaths: "cases", context:)

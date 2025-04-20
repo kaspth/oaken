@@ -160,6 +160,9 @@ So if you call `Oaken.loader.seed :accounts`, we'll look within `db/seeds/` and 
 - and so on.
 
 > [!TIP]
+> You can call `Oaken.loader.glob` with a single identifier to see what files we'll match. > Some samples: `Oaken.loader.glob :accounts`, `Oaken.loader.glob "cases/pagination"`.
+
+> [!TIP]
 > Putting a file in the top-level `db/seeds` versus `db/seeds/development` or `db/seeds/test` means it's shared in both environments. See below for more tips.
 
 Any directories and/or single-file matches are loaded in the order they're specified. So `loader.seed :setup, :accounts` would first load setup and then accounts.

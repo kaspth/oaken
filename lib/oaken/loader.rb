@@ -20,7 +20,7 @@ class Oaken::Loader
   autoload :Type, "oaken/loader/type"
 
   attr_reader :pathset, :locator, :provider, :context
-  delegate :root, :root=, :subpaths, :subpaths=, to: :pathset
+  delegate *Pathset.public_instance_methods(false), to: :pathset
   delegate :locate, to: :locator
 
   def initialize(root:, subpaths: nil, locator: Type, provider: Oaken::Stored::ActiveRecord, context: Oaken::Seeds)
@@ -105,7 +105,6 @@ class Oaken::Loader
     def glob!(identifier)
       glob(identifier).then.find(&:any?) or raise NoSeedsFoundError, "found no seed files for #{identifier.inspect}"
     end
-    delegate :glob, to: :pathset
 
     def load_one(path)
       context.class_eval path.read, path.to_s

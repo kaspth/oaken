@@ -229,9 +229,16 @@ You can customize the loading and loader as well:
 Oaken.loader.root = "test/seeds" # Useful to pull from another directory, when migrating.
 Oaken.loader.subpaths << Rails.env # Oaken passes Rails.env like this, but you can pass extra subpaths or clear them.
 
-# Call `with` to build a new loader. Here we're using the default classes/modules we're using:
+# Call `with` to build a new loader. Here we're just passing the default internal options:
 loader = Oaken.loader.with(locator: Oaken::Loader::Type, provider: Oaken::Stored::ActiveRecord, context: Oaken::Seeds)
+
+# You can also replace Oaken's default loader.
+Oaken.loader = loader
 ```
+
+> [!TIP]
+> `Oaken` delegates `Oaken::Loader`'s public instance methods to `loader`,
+> so `Oaken.seed` works and is really `Oaken.loader.seed`. Same goes for `Oaken.root`, `Oaken.subpaths`, `Oaken.with` and more.
 
 #### In db/seeds.rb
 
@@ -240,13 +247,27 @@ Call `loader.seed` and it'll follow the rules mentioned above:
 ```ruby
 # db/seeds.rb
 Oaken.loader.seed :setup, :accounts, :data
+Oaken.seed :setup, :accounts, :data # Or just this for short.
 ```
 
-Both `bin/rails db:seed` and `bin/rails db:seed:replant` will work as usual.
+Both `bin/rails db:seed` and `bin/rails db:seed:replant` work as usual.
 
-#### In tests
+#### In the console
 
-If you're using Rails' standard minitest-based tests call this:
+If you're in the `bin/rails console`, you can invoke the same `seed` method as in `db/seeds.rb`.
+
+```ruby
+Oaken.seed :setup, "cases/pagination"
+```
+
+This is useful if you're working on hammering out a single seed script.
+
+> [!TIP]
+> Oaken wraps each file load in an `ActiveRecord::Base.transaction` so any invalid data rolls back the whole file.
+
+#### In tests & specs
+
+If you're using Rails' default minitest-based tests call this:
 
 ```ruby
 # test/test_helper.rb

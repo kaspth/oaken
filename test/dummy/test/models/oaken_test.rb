@@ -5,6 +5,13 @@ class OakenTest < ActiveSupport::TestCase
     refute_nil ::Oaken::VERSION
   end
 
+  test "replacing loader" do
+    old_loader, Oaken.loader = Oaken.loader, Oaken.with(root: name)
+    assert_equal name, Oaken.root.to_s
+  ensure
+    Oaken.loader = old_loader
+  end
+
   test "accessing fixture" do
     assert_equal "Kasper", users.kasper.name
     assert_equal "Coworker", users.coworker.name

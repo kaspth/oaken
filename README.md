@@ -102,7 +102,7 @@ Oaken does away with this. See the sections on the fixtures comparisons above fo
 > Full Disclaimer: while I have worked on systems using factories, I overall don't get it and the fixtures approach makes more sense to me despite the UX issues. I'm trying to support a partial factories approach here in Oaken, see the below section for that, and I'm open to ideas here.
 
 > [!TIP]
-> Oaken is compatible with FactoryBot and Fabricator, and they should be able to work together. I consider it a bug if there's compatibility issues, so please open an issue here if you find something.
+> Oaken is compatible with FactoryBot and Fabrication, and they should be able to work together. I consider it a bug if there's compatibility issues, so please open an issue here if you find something.
 
 ### Oaken is like factories, with dynamic defaults & helper methods
 
@@ -116,7 +116,7 @@ Oaken upgrades seeds in `db/seeds.rb`, so you can put together scenarios & reuse
 
 This way, the data you see in your browser, is the same data you work with in tests to make your object graph easier to get — especially for people new to your codebase.
 
-So you get a cohesive & stable dataset with a story like fixtures & their fast loading. But you also get the dynamics of FactoryBot/Fabricator as well without making tons of one-off records to handle each case.
+So you get a cohesive & stable dataset with a story like fixtures & their fast loading. But you also get the dynamics of FactoryBot/Fabrication as well without making tons of one-off records to handle each case.
 
 The end result is you end up writing less data back & forth to the database because you aren’t cobbling stuff together.
 
@@ -454,7 +454,7 @@ The `test_framework` repeating is to preserve `:test_unit` or `:rspec` respectiv
 
 ### From factories
 
-If you've got a mostly working `FactoryBot` or `Fabricator` setup you may not want to muck with that too much.
+If you've got a mostly working FactoryBot or Fabrication setup you may not want to muck with that too much.
 
 However, you can grab some of the most shared records and shave off some significant runtime on your test suite.
 

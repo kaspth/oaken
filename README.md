@@ -1,111 +1,202 @@
 # Oaken
 
-Oaken is a new take on development and test data management for your Rails app. It blends the stability and storytelling from Fixtures with the dynamicness of FactoryBot/Fabricator.
+Oaken is fixtures + factories + seeds for your Rails development & test environments.
+
+## Oaken is like fixtures, without the nightmare UX
+
+Oaken takes inspiration from Rails' fixtures' approach of storytelling about your app's object graph, but replaces the nightmare YAML-based UX with Ruby-based data scripts. This makes data much easier to reason about & connect the dots.
+
+In Oaken, you start by creating a root-level model, typically an Account, Team, or Organization etc. to group everything on, in a scenario. From your root-level model, you then start building your object graph by mirroring how your app works.
+
+So what comes next in your account flow? Maybe it's creating Users on the account.
+
+You can go further if you need to. Is the Account about selling something, like donuts? Maybe you add a menu and some items.
+
+It'll look like this:
+
+```ruby
+account = accounts.create :kaspers_donuts, name: "Kasper's Donuts"
+
+kasper   = users.create :kasper,   name: "Kasper",   email_address: "kasper@example.com",   accounts: [account]
+coworker = users.create :coworker, name: "Coworker", email_address: "coworker@example.com", accounts: [account]
+
+menu = menus.create(account:)
+plain_donut     = menu_items.create menu:, name: "Plain",     price_cents: 10_00
+sprinkled_donut = menu_items.create menu:, name: "Sprinkled", price_cents: 10_10
+```
+
+> [!NOTE]
+> `create` takes an optional symbol label. This makes the record accessible in tests, e.g. `users.create :kasper` lets tests do `setup { @kasper = users.kasper }`.
+
+With fixtures, this would be 4 different files in `test/fixtures` for `accounts`, `users`, `menus`, and `menu_items`. It would be ~20 lines of YAML versus ~6 lines of Ruby for this data.
+
+Another issue in fixture files, is that objects from different scenarios are all mixed together making it hard to get a picture of what's going on — even in small apps.
+
+Fixtures also require you to label every record and make them unique throughout your dataset — you have to be careful not to create clashes. This gets difficult to manage quickly and requires diligence on a team that's trying to ship.
+
+However, often the fact that a record is associated onto another is enough. So in Oaken, we let you skip naming every record. Notice how the `menus.create` & `menu_items.create` calls don't pass symbol labels. You can still get at them in tests though if you really need to with `accounts.kaspers_donuts.menus.first.menu_items.first`.
+
+<details>
+  <summary>See the fixtures version</summary>
+
+```yaml
+# test/fixtures/accounts.yml
+kaspers_donuts:
+  name: Kasper's Donuts
+
+# test/fixtures/users.yml
+kasper:
+  name: "Kasper"
+  email_address: "kasper@example.com"
+  accounts: kaspers_donuts
+
+coworker:
+  name: "Coworker"
+  email_address: "coworker@example.com"
+  accounts: kaspers_donuts
+
+# test/fixtures/menus.yml
+basic:
+  account: kaspers_donuts
+
+# test/fixtures/menu/items.yml
+plain_donut:
+  menu: basic
+  name: Plain
+  price_cents: 10_00
+
+sprinkled_donut:
+  menu: basic
+  name: Sprinkled
+  price_cents: 10_10
+```
+
+</details>
+
+### Oaken is like fixtures, we seed data before tests run
+
+The reason you go through all the trouble of massaging your fixture files is to have a stable named dataset across test runs that's relatively quick to load — so the database call cost is amortized across tests.
+
+Oaken mirrors this approach giving you stability in your dataset and the relative quickness to insert the data.
+
+For instance, if you have 10 tests that each need the same 2 records, Oaken puts them in the database once before tests run, same as fixtures.
+
+The tradeoff is that if you run just 1 test we'll still seed those 2 same records, but we'll also seed any other record you've added to the shared dataset that might not be needed in those tests.
+
+We rely on Rails' tests being wrapped in transactions so any changes are rolled back after the test case run.
+
+> [!NOTE]
+> It can be a good idea to structure your object graph so you won't need database records for your tests — reality can sometimes be far from that ideal state though. Oaken aims to make your present reality easier and something you can improve.
+
+### Oaken is unlike factories, focusing on shared datasets
+
+Factories can let you start an app easier. It's just this one factory for now, ok, easy enough.
+
+Over time, however, many teams find their factory based test suite slows to a crawl. Suddenly one factory ends up pulling in the rest of the app.
+
+Factories end up requiring a lot of diligence and passing just the right things in just-so to make managable.
+
+Oaken does away with this. See the sections on the fixtures comparisons above for how.
+
+> [!WARNING]
+> Full Disclaimer: while I have worked on systems using factories, I overall don't get it and the fixtures approach makes more sense to me despite the UX issues. I'm trying to support a partial factories approach here in Oaken, see the below section for that, and I'm open to ideas here.
+
+> [!TIP]
+> Oaken is compatible with FactoryBot and Fabricator, and they should be able to work together. I consider it a bug if there's compatibility issues, so please open an issue here if you find something.
+
+### Oaken is like factories, with dynamic defaults & helper methods
+
+See the sections on defaults & helpers below.
+
+The aim for Oaken is to have most of the feature set of factories for a fraction of the implementation complexity.
+
+### Oaken gives db/seeds.rb superpowers
+
+Oaken upgrades seeds in `db/seeds.rb`, so you can put together scenarios & reuse the development data in tests.
+
+This way, the data you see in your browser, is the same data you work with in tests to make your object graph easier to get — especially for people new to your codebase.
+
+So you get a cohesive & stable dataset with a story like fixtures & their fast loading. But you also get the dynamics of FactoryBot/Fabricator as well without making tons of one-off records to handle each case.
+
+The end result is you end up writing less data back & forth to the database because you aren’t cobbling stuff together.
 
 > But seriously; Oaken is one of the single greatest tools I've added to my belt in the past year
 >
 > It's made cross-environment shared data, data prepping for demos, edge-case tests, and overall development much more reliable & shareable across a team
 > [@tcannonfodder](https://github.com/tcannonfodder)
 
-Fixtures are stable & help you build a story of how your app and its object graph exists along with edge cases, but the UX is unfortunately a nightmare.
-To trace N associations, you have to open and read N different files — there's no way to group by scenario.
-
-FactoryBot is spray & pray. You basically say “screw it, just give me the bare minimum I need to run this test”, which slows everything down because there’s no cohesion; and the Factories are always suspect in terms of completeness. Sure, I got the test to pass by wiring these 5 Factories together but did I miss something?
-
-Oaken instead upgrades seeds in `db/seeds.rb`, so that you can put together scenarios & also reuse the development data in tests. That way the data you see in your development browser, is the same data you work with in tests to tie it more together — especially for people who are new to your codebase.
-
-So you get the stability of named keys, a cohesive dataset, and a story like Fixtures. But the dynamics of FactoryBot as well. And unlike FactoryBot, you’re not making tons of one-off records to handle each case.
-
-While Fixtures and FactoryBot both load data & truncate in tests, the end result is you end up writing less data back & forth to the database because you aren’t cobbling stuff together.
-
 ## Setup
 
-### Starting in development
+### Loading directories/files
 
-You can set it up in `db/seeds.rb`, like this:
+By default, `Oaken.loader` returns an `Oaken::Loader` instance to handle loading seed files.
 
-```ruby
-Oaken.prepare do
-  seed :accounts, :data
-end
-```
+You can load a seed directory via `Oaken.loader.seed`. You can also load a file, it'll technically just be a match that happens to only hit one file.
 
-This will look for deeply nested files to load in `db/seeds` and `db/seeds/#{Rails.env}` within the `accounts` and `data` directories.
+So if you call `Oaken.loader.seed :accounts`, we'll look within `db/seeds/` and `db/seeds/#{Rails.env}/` and match `accounts{,**/*}.rb`. So these files would be found:
 
-Here's what they could look like:
-
-```ruby
-# db/seeds/accounts/kaspers_donuts.rb
-donuts = accounts.create :kaspers_donuts, name: "Kasper's Donuts"
-
-kasper   = users.create :kasper,   name: "Kasper",   accounts: [donuts]
-coworker = users.create :coworker, name: "Coworker", accounts: [donuts]
-
-menu = menus.create account: donuts
-plain_donut     = menu_items.create menu: menu, name: "Plain",     price_cents: 10_00
-sprinkled_donut = menu_items.create menu: menu, name: "Sprinkled", price_cents: 10_10
-
-supporter = users.create name: "Super Supporter"
-orders.insert_all [user_id: supporter.id, item_id: plain_donut.id] * 10
-
-orders.insert_all \
-  10.times.map { { user_id: users.create(name: "Customer #{_1}").id, item_id: menu.items.sample.id } }
-```
-
-```ruby
-# db/seeds/data/plans.rb
-plans.upsert :basic, title: "Basic", price_cents: 10_00
-```
-
-Seed files will generally use `create` and/or `insert`. Passing a symbol to name the record is useful when reusing the data in tests.
-
-Now you can run `bin/rails db:seed` and `bin/rails db:seed:replant`.
-
-### Interlude: Directory Naming Conventions
-
-Oaken has some chosen directory conventions to help strengthen your understanding of your object graph:
-
-- Have a directory for your top-level model, like `Account`, `Team`, `Organization`, that's why we have `db/seeds/accounts` above.
-- `db/seeds/data` for any data tables, like the plans a SaaS app has.
-- `db/seeds/test/cases` for any specific cases that are only used in some tests, like `pagination.rb`.
-
-### Using default attributes
-
-You can set up default attributes that's applied to created/inserted records at different levels, like this:
-
-```ruby
-Oaken.prepare do
-  # Assign broad global defaults for every type.
-  defaults name: -> { Faker::Name.name }, public_key: -> { SecureRandom.hex }
-
-  # Assign a more specific default on one type, which overrides the global default above.
-  accounts.defaults name: -> { Faker::Business.name }
-end
-```
+- accounts.rb
+- accounts/kaspers_donuts.rb
+- accounts/kaspers_donuts/deeply/nested/path.rb
+- accounts/demo.rb
+- and so on.
 
 > [!TIP]
-> `defaults` are particularly well suited for assigning generated data with [Faker](https://github.com/faker-ruby/faker).
+> Putting a file in the top-level `db/seeds` versus `db/seeds/development` or `db/seeds/test` means it's shared in both environments. See below for more tips.
 
-### Reusing data in tests
+Any directories and/or single-file matches are loaded in the order they're specified. So `loader.seed :setup, :accounts` would first load setup and then accounts.
 
-With the setup above, Oaken can reuse the same data in tests like this:
+> [!IMPORTANT]
+> Understanding and making effective use of Oaken's directory loading will pay dividends for your usage. You generally want to have 1 top-level directive `seed` call to dictate how seeding happens in e.g. `db/seeds.rb` and then let individual seed files load in no specified order within that.
+
+#### Directory recommendations & file tips
+
+Oaken has some directory recommendations to help strengthen your understanding of your object graph:
+
+- Group scenarios around your top-level root model, like `Account`, `Team`, or `Organization` and have a `db/seeds/accounts` directory.
+- `db/seeds/setup` for `defaults` and helpers. See below.
+- `db/seeds/data` for any data tables, like the plans a SaaS app has.
+- `db/seeds/cases` for any specific cases, like pagination.
+
+If you follow all these conventions you could do this:
 
 ```ruby
-# test/test_helper.rb
-class ActiveSupport::TestCase
-  include Oaken::TestSetup
-end
+Oaken.loader.seed :setup, :data, :accounts, :cases
 ```
 
-Now tests have access to `accounts.kaspers_donuts` and `users.kasper` etc. that were setup in the data scripts.
+And here's some potential file suggestions you could take advantage of:
 
-> [!NOTE]
-> For RSpec, you can put this in `spec/rails_helper.rb`:
-> ```ruby
-> require "oaken/rspec_setup"
-> ```
+- db/seeds/setup.rb — particularly useful as a starting point. Due to the flexible loading, you can add a subdirectory or file later within and it'll be picked up.
+- db/seeds/setup/defaults.rb — loader and type-specific defaults.
+- db/seeds/setup/users.rb — user specific defaults/helpers.
 
-You can also load a specific seed, like this:
+- db/seeds/development/setup.rb — some defaults/helpers we only want in development.
+- db/seeds/test/setup.rb — some defaults/helpers we only want in test.
+
+- db/seeds/data/plans.rb — put your SaaS plans in here.
+- db/seeds/test/data/plans.rb — some test specific plans, in case we need them.
+
+- db/seeds/cases/pagination.rb — group the seed code for generating pagination data here. NOTE: this could reference an account setup earlier.
+- db/seeds/test/cases/*.rb — any test specific cases.
+
+> [!TIP]
+> We're letting Oaken's loading do all the hard work here, we're just specifying the top-level order.
+
+##### Loading specific cases in tests only
+
+For the cases part, you may want to tweak it a bit more.
+
+You could add any definitely shared cases in `db/seeds/cases`. Say you have a `db/seeds/cases/pagination.rb` case that can be shared between development and test.
+
+If not, you can add environment specific ones in `db/seeds/development/cases/pagination.rb` and `db/seeds/test/cases/pagination.rb`.
+
+You could also avoid loading all the cases in the test environment like this:
+
+```ruby
+Oaken.loader.seed :cases if Rails.env.development?
+```
+
+Now you can load specific seeds in tests, like this:
 
 ```ruby
 class PaginationTest < ActionDispatch::IntegrationTest
@@ -129,15 +220,186 @@ end
 > - Reduce test flakiness
 > - Encourage writing seed files for specific edge-case scenarios
 
-### Fixtures Converter
+#### Configuring loaders
+
+You can customize the loading and loader as well:
+
+```ruby
+# config/initializers/oaken.rb
+Oaken.loader.root = "test/seeds" # Useful to pull from another directory, when migrating.
+Oaken.loader.subpaths << Rails.env # Oaken passes Rails.env like this, but you can pass extra subpaths or clear them.
+
+# Call `with` to build a new loader. Here we're using the default classes/modules we're using:
+loader = Oaken.loader.with(locator: Oaken::Loader::Type, provider: Oaken::Stored::ActiveRecord, context: Oaken::Seeds)
+```
+
+#### In db/seeds.rb
+
+Call `loader.seed` and it'll follow the rules mentioned above:
+
+```ruby
+# db/seeds.rb
+Oaken.loader.seed :setup, :accounts, :data
+```
+
+Both `bin/rails db:seed` and `bin/rails db:seed:replant` will work as usual.
+
+#### In tests
+
+If you're using Rails' standard minitest-based tests call this:
+
+```ruby
+# test/test_helper.rb
+class ActiveSupport::TestCase
+  include Oaken.loader.test_setup
+end
+```
+
+We've got full support for Rails' test parallelization out of the box.
+
+> [!NOTE]
+> For RSpec, you can put this in `spec/rails_helper.rb`:
+> ```ruby
+> require "oaken/rspec_setup"
+> ```
+
+### Writing Seed Data Scripts
+
+Oaken's data scripts are composed of table name looking methods corresponding to Active Record classes, which you can enhance with `defaults` and helper methods, then eventually calling `create` or `upsert` on them.
+
+We're using `accounts.create` instead of `Account.create!` etc. to help enforce consistency & constrain your Ruby usage — Oaken tries not to be a costly DSL that takes long to learn.
+
+We also share similar [sentiments with the Pkl configuration language](https://pkl-lang.org/main/current/introduction/comparison.html). You may find the thinking helpful when using Oaken too.
+— Oddly enough Oaken came out before Pkl, I just read the ideas here and went "yes, exactly!"
+
+#### Automatic & manual registry
+
+> [!IMPORTANT]
+> Ok, this bit is probably the most complex in Oaken. You can see the implementation in `Oaken::Seeds#method_missing` and then `Oaken::Loader::Type`.
+
+When you reference e.g. `accounts` we'll hit `Oaken::Seeds#method_missing` hook and:
+
+- locate a class using `loader.locate`, hitting `Oaken::Loader::Type.locate`.
+- If there's a match, call `loader.register Account, as: :accounts`.
+
+We'll respect namespaces up to 3 levels deep, so we'll try to match:
+
+- `menu_items` to `Menu::Item` or `MenuItem`.
+- `menu_item_details` to `Menu::Item::Detail`, `MenuItem::Detail`, `Menu::ItemDetail`, `MenuItemDetail`.
+- The third level which is going to be 2 separators ("::" or "") to the power of 3 levels, in other words 8 possible constants.
+
+You can skip this by calling `loader.register Menu::Item`, which we'll derive the method name via `name.tableize.tr("/", "_")` or you can call `register Menu::Item, as: :something_else` to have it however you want.
+
+#### `create`
+
+Internally, `create` calls `ActiveRecord::Base#create!` to fail early & prevent invalid records in your dataset. Runs create/save model callbacks.
+
+```ruby
+users.create name: "Someone"
+```
+
+Some records have uniqueness constraints, like a User's `email_address`, you can pass that via `unique_by`:
+
+```ruby
+users.create unique_by: :email_address, name: "First",  email_address: "someone@example.com"
+users.create unique_by: :email_address, name: "Second", email_address: "someone@example.com"
+```
+
+In the case of a uniqueness constraint clash, we'll `update!` the record, so here `name` is `"Second"`. Runs save/update model callbacks.
+
+> [!IMPORTANT]
+> We're trying to make `db:seed` rerunnable incrementally without needing to start from scratch. That's what the `update!` part is for. I'm still not entirely sure about it and I'm trying to figure out a better way to highlight what's going on to users.
+
+#### `upsert`
+
+Mirrors `ActiveRecord::Base#upsert`, allowing you to pass a `unique_by:` which must correspond to a unique database index. Does not run model callbacks.
+
+We'll instantiate and `validate!` the record to help prevent bad data hitting the database.
+
+Typically used for data tables, like so:
+
+```ruby
+# db/seeds/data/plans.rb
+plans.upsert :basic, unique_by: :title, title: "Basic", price_cents: 10_00
+```
+
+#### Using `defaults`
+
+You can set `defaults` that're applied on `create`/`upsert`, like this:
+
+```ruby
+# Assign loader-level defaults that's applied to every type.
+# Records only include defaults on attributes they have. So only records with a `public_key` attribute receive that and so on.
+loader.defaults name: -> { Faker::Name.name }, public_key: -> { SecureRandom.hex }
+
+# Assign specific defaults on one type, which overrides the loader `name` default from above.
+accounts.defaults name: -> { Faker::Business.name }, status: :active
+
+accounts.create # `name` comes from the `accounts.defaults` and `public_key` from `loader.defaults`.
+accounts.upsert # Same.
+
+users.create # `name` comes from `loader.defaults`.
+```
+
+> [!TIP]
+> It's best to be explicit in your dataset to tie things together with actual names, to make your object graph more cohesive. However, sometimes attributes can be filled in with [Faker](https://github.com/faker-ruby/faker) if they're not part of the "story".
+
+#### Defining helpers
+
+Oaken uses Ruby's [`singleton_methods`](https://rubyapi.org/3.4/o/object#method-i-singleton_methods) for helpers because it costs us 0 lines of code to write and maintain.
+
+In plain Ruby, they look like this:
+
+```ruby
+obj = Object.new
+def obj.hello = :yo
+obj.hello # => :yo
+obj.singleton_methods # => [:hello]
+```
+
+So you can do stuff like this on, say, a `users` instance:
+
+```ruby
+# Notice how we're using the `labeled_email` helper to compose `create_labeled` too:
+def users.create_labeled(label, email_address: labeled_email(label), **) = create(label, email_address:, **)
+def users.labeled_email(label) = "#{label}@example.com" # You don't have to use endless methods, they're fun though.
+```
+
+Now `create_labeled` & `labeled_email` are available everywhere the `users` instance is, in development and test!
+
+```ruby
+test "we definitely need this" do
+  assert_equal "person@example.com", users.labeled_email(:person)
+end
+```
+
+Here's how you can provide a default `unique_by:` on all `users`:
+
+```ruby
+# We override the built-in `create` to provide the default. Yes, `super` works on overriden methods!
+def users.create(label = nil, unique_by: :email_address, **) = super
+```
+
+You could use this to provide `FactoryBot`-like helpers. Maybe adding a `factory` method?
+
+> [!NOTE]
+> It's still early days for these kind of helpers, so I'm still finding out what's possible with them. I'd love to know how you're using them on the Discussions tab.
+
+## Migration
+
+### From fixtures
+
+#### Converter
 
 You can convert your Rails fixtures to Oaken's seeds by running:
 
-    $ bin/rails generate oaken:convert:fixtures
+```
+bin/rails generate oaken:convert:fixtures
+```
 
-This will convert anything in test/fixtures to db/seeds. E.g. `test/fixtures/users.yml` becomes `db/seeds/users.rb`.
+This will convert anything in test/fixtures to db/seeds. E.g. `test/fixtures/users.yml` becomes `db/seeds/users.rb` and so on.
 
-### Disable fixtures
+#### Disable fixtures
 
 IF you've fully converted to Oaken you may no longer want fixtures when running Rails' generators,
 so you can disable generating them in `config/application.rb` like this:
@@ -155,6 +417,44 @@ The `test_framework` repeating is to preserve `:test_unit` or `:rspec` respectiv
 
 > [!NOTE]
 > If you're using `FactoryBot` as well, you don't need to do this since it already replaces fixtures for you.
+
+### From factories
+
+If you've got a mostly working `FactoryBot` or `Fabricator` setup you may not want to muck with that too much.
+
+However, you can grab some of the most shared records and shave off some significant runtime on your test suite.
+
+<blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:ps3ygxhsn4khcrxeutdosdqk/app.bsky.feed.post/3lfb5zdb3p22z" data-bluesky-cid="bafyreiadxun7yqw4efafqzwzv3h4t4mbrex7onlnxobfejhbt6t44fojni" data-bluesky-embed-color-mode="system"><p lang="en">It&#x27;s @erikaxel.bsky.social&#x27;s team! They shaved 5.5 minutes off their test suite.
+
+And that&#x27;s just the first batch integrating Oaken!<br><br><a href="https://bsky.app/profile/did:plc:ps3ygxhsn4khcrxeutdosdqk/post/3lfb5zdb3p22z?ref_src=embed">[image or embed]</a></p>&mdash; Kasper Timm Hansen (<a href="https://bsky.app/profile/did:plc:ps3ygxhsn4khcrxeutdosdqk?ref_src=embed">@kaspth.bsky.social</a>) <a href="https://bsky.app/profile/did:plc:ps3ygxhsn4khcrxeutdosdqk/post/3lfb5zdb3p22z?ref_src=embed">January 8, 2025 at 11:00 PM</a></blockquote>
+
+Set Oaken up for your tests like the setup section mentions, and then only add a setup directory and scenarios around the root-level model like an Account. Like this:
+
+```ruby
+# db/seeds.rb
+if Rails.env.test?
+  Oaken.loader.seed :setup, :accounts
+  return
+end
+```
+
+Then define some very basic account setup like the very top of the README mentions.
+
+Or maybe like this:
+
+```ruby
+# db/seeds/test/accounts/basic.rb
+accounts.create :basic, **FactoryBot.attributes_for(:account)
+
+# Maybe some extra necessary records on the account here.
+```
+
+Now tests can pass `account: accounts.basic` to other factories.
+
+Do the very minimum and go slow. Pick records that you know are 100% safe to share.
+
+> [!NOTE]
+> I'd love to improve these migration notes. Please file an issue if something is confusing. I'd also love to hear your experience in general.
 
 ## Installation
 

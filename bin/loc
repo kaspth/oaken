@@ -1,13 +1,15 @@
 #!/usr/bin/env ruby
 
+require_relative "../lib/oaken/version"
+
 # To setup dependencies run with: bin/loc --install
 if ARGV.delete("--install")
   system "brew install cloc"
   system "gem install activerecord factory_bot fabrication test_data --no-doc"
 end
 
-def report(gem, dir: File.dirname(`gem which #{gem}`), paths: ".")
-  puts gem
+def report(gem, paths: ".")
+  puts dir = File.dirname(`gem which #{gem}`)
   Dir.chdir(dir) { cloc paths }
 end
 
@@ -20,4 +22,7 @@ report "active_record", paths: %w[test_fixtures.rb fixtures.rb fixture_set encry
 report "factory_bot"
 report "fabrication"
 report "test_data"
-report "oaken", dir: "lib"
+
+dir = File.expand_path("lib")
+puts dir.sub("oaken", "oaken-#{Oaken::VERSION}")
+Dir.chdir(dir) { cloc "." }

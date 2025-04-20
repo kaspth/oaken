@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+lines = `bin/loc --csv`.split("\n")
+lines.select! { _1.include?("SUM") || _1.match?(/[a-z]+$/) }
+
+rows = lines.each_slice(2).map do |path, row|
+  name_with_version = path.split("/")[-2]
+  files, *, code = row.split(",")
+  [name_with_version, files, code]
+end
+
+puts "gem | files | loc"
+puts " -- | ----- | -- "
+puts rows.map { "| " << _1.join(" | ") << " |" }

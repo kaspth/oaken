@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+require_relative "../lib/oaken/version"
+
+# To setup dependencies run with: bin/loc --install
+if ARGV.delete("--install")
+  system "brew install cloc"
+  system "gem install activerecord factory_bot fabrication test_data --no-doc"
+end
+
+def report(gem, paths: ".")
+  puts dir = File.dirname(`gem which #{gem}`)
+  Dir.chdir(dir) { cloc paths }
+end
+
+def cloc(paths)
+  # Run `cloc --help` to see all possible options. Try: bin/loc --by-file
+  system("cloc", *ARGV, "--quiet", *Array(paths))
+end
+
+report "active_record", paths: %w[test_fixtures.rb fixtures.rb fixture_set encryption/encrypted_fixtures.rb].map { "./active_record/#{_1}" }
+report "factory_bot"
+report "fabrication"
+report "test_data"
+
+dir = File.expand_path("lib")
+puts dir.sub("oaken", "oaken-#{Oaken::VERSION}")
+Dir.chdir(dir) { cloc "." }

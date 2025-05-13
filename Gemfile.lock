@@ -8,7 +8,7 @@ GIT
 PATH
   remote: .
   specs:
-    oaken (0.8.0)
+    oaken (0.9.0)
 
 GEM
   remote: https://rubygems.org/

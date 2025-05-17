@@ -120,10 +120,21 @@ So you get a cohesive & stable dataset with a story like fixtures & their fast l
 
 The end result is you end up writing less data back & forth to the database because you aren’t cobbling stuff together.
 
+## Praise from users
+
 > But seriously; Oaken is one of the single greatest tools I've added to my belt in the past year
 >
 > It's made cross-environment shared data, data prepping for demos, edge-case tests, and overall development much more reliable & shareable across a team
+>
 > [@tcannonfodder](https://github.com/tcannonfodder)
+
+> Thanks for this wonderful project! My head doesn't grok factories and I just want vanilla Rails testing with something better than fixtures, and this is so much better.
+>
+> The default YAML fixtures is somehow both too simple and too convoluted. It's hard to reference complex associations with it, and the fact that the data gets spread across many files makes it hard to read and harder to grasp.
+>
+> Oaken, on the other hand, is closer to using the console, which we already know, only in a repeatable and tidier way. The testing data/seeds setup process just feels more intentional this way.
+>
+> [@evenreven](https://github.com/evenreven)
 
 ## Design goals
 

@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Oaken::Loader
-  class NoSeedsFoundError < ArgumentError; end
-
   autoload :Type, "oaken/loader/type"
 
   attr_reader :lookup_paths, :locator, :provider, :context
@@ -75,7 +73,7 @@ class Oaken::Loader
   def seed(*identifiers)
     setup
 
-    identifiers.flat_map { glob! _1 }.each { load_one _1 }
+    identifiers.flat_map { glob _1 }.each { load_one _1 }
     self
   end
 
@@ -90,10 +88,6 @@ class Oaken::Loader
 
   private
     def setup = @setup ||= glob(:setup).each { load_one _1 }
-
-    def glob!(identifier)
-      glob(identifier).then.find(&:any?) or raise NoSeedsFoundError, "found no seed files for #{identifier.inspect}"
-    end
 
     def load_one(path)
       context.class_eval path.read, path.to_s

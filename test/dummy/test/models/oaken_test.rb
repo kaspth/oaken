@@ -104,6 +104,42 @@ class OakenTest < ActiveSupport::TestCase
     assert_match "db/seeds/test/data/users.rb", users.method(:test_user).source_location.first
   end
 
+  test "with - labeled via helper method" do
+    assert_respond_to users, :created_from_with
+    assert_equal "With User", users.created_from_with.name
+    assert_equal "with-user@example.com", users.created_from_with.email_address
+  end
+
+  test "with - yields" do
+    with_yielded = nil
+    users.with { with_yielded = _1 } => with
+
+    assert with
+    assert_equal with, with_yielded
+  end
+
+  test "with - inherits helper methods" do
+    assert_respond_to users.with, :create_labeled
+  end
+
+  test "with - defaults" do
+    emails = 1.step
+    with = users.with name: "with default 1", email_address: -> { "with#{emails.next}@example.com" }
+    refute_equal users.defaults, with.defaults
+
+    user = with.create
+    assert_equal "with default 1", user.name
+    assert_equal "with1@example.com", user.email_address
+
+    user = with.create name: "with overriden"
+    assert_equal "with overriden", user.name
+    assert_equal "with2@example.com", user.email_address
+
+    user = users.create # Check that we didn't pollute `users`.
+    assert_match /Customer/, user.name
+    assert_match /email_address\d+@example\.com/, user.email_address
+  end
+
   test "can't use labels within tests" do
     assert_raise ArgumentError, match: /define labelled records outside of tests/ do
       users.label kasper_2: users.kasper

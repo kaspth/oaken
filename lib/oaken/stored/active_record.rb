@@ -101,6 +101,33 @@ class Oaken::Stored::ActiveRecord
   #   users.create # => Uses the users' default `name` and the loader `email_address`
   def defaults(**attributes) = @attributes = @attributes.merge(attributes)
 
+  # `proxy` lets you wrap and delegate scopes from the underlying record.
+  #
+  # So if you have this Active Record:
+  #
+  #   class User < ApplicationRecord
+  #     enum :role, %w[admin mod plain].index_by(&:itself)
+  #     scope :cool, -> { where(cool: true) }
+  #   end
+  #
+  # You can then proxy the scopes and use them like this:
+  #
+  #   users.proxy :admin, :mod, :plain
+  #   users.proxy :cool
+  #
+  #   users.create       # Has `role: "plain"`, assuming it's the default role.
+  #   users.admin.create # Has `role: "admin"`
+  #   users.mod.create   # Has `role: "mod"`
+  #   users.cool.create  # Has `cool: true`
+  def proxy(*names) = names.each do |name|
+    define_singleton_method(name) { clone.rebind(type.public_send(name)) }
+  end
+
+  protected def rebind(type)
+    @type = type
+    self
+  end
+
   # Expose a record instance that's setup outside of using `create`/`upsert`. Like this:
   #
   #   users.label someone: User.create!(name: "Someone")

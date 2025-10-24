@@ -14,7 +14,11 @@ class OakenTest < ActiveSupport::TestCase
 
   test "accessing fixture" do
     assert_equal "Kasper", users.kasper.name
+    assert users.kasper.admin?
     assert_equal "Coworker", users.coworker.name
+    assert users.coworker.mod?
+
+    assert_equal users.named_coworker.type.first, users.coworker
 
     assert_equal [accounts.kaspers_donuts], users.kasper.accounts
     assert_equal [accounts.kaspers_donuts], users.coworker.accounts

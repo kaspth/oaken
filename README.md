@@ -406,6 +406,31 @@ users.create # `name` comes from `loader.defaults`.
 > [!TIP]
 > It's best to be explicit in your dataset to tie things together with actual names, to make your object graph more cohesive. However, sometimes attributes can be filled in with [Faker](https://github.com/faker-ruby/faker) if they're not part of the "story".
 
+#### Using `proxy`
+
+`proxy` lets you wrap and delegate scopes from the underlying record.
+
+So if you have this Active Record:
+
+```ruby
+class User < ApplicationRecord
+  enum :role, %w[admin mod plain].index_by(&:itself)
+  scope :cool, -> { where(cool: true) }
+end
+```
+
+You can then proxy the scopes and use them like this:
+
+```ruby
+users.proxy :admin, :mod, :plain
+users.proxy :cool
+
+users.create       # Has `role: "plain"`, assuming it's the default role.
+users.admin.create # Has `role: "admin"`
+users.mod.create   # Has `role: "mod"`
+users.cool.create  # Has `cool: true`
+```
+
 #### Defining helpers
 
 Oaken uses Ruby's [`singleton_methods`](https://rubyapi.org/3.4/o/object#method-i-singleton_methods) for helpers because it costs us 0 lines of code to write and maintain.

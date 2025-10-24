@@ -415,6 +415,7 @@ So if you have this Active Record:
 ```ruby
 class User < ApplicationRecord
   enum :role, %w[admin mod plain].index_by(&:itself)
+
   scope :cool, -> { where(cool: true) }
 end
 ```

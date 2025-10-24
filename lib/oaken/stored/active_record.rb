@@ -1,12 +1,15 @@
 class Oaken::Stored::ActiveRecord
+  attr_reader :loader, :type
+  delegate :context, to: :loader
+
+  delegate :transaction, to: :type # For multi-db setups to help open a transaction on secondary connections.
+  delegate :find, :insert_all, :pluck, to: :type
+
   def initialize(loader, type)
     @loader, @type = loader, type
     @original_label_target = self # Capture original self so labels made during `with` calls, retarget original.
     @attributes = loader.defaults_for(*type.column_names)
   end
-  attr_reader :type
-  delegate :transaction, to: :type # For multi-db setups to help open a transaction on secondary connections.
-  delegate :find, :insert_all, :pluck, to: :type
 
   # Create a record in the database with the passed `attributes`.
   def create(label = nil, unique_by: nil, **attributes)

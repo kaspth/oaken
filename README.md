@@ -329,15 +329,20 @@ We've got full support for Rails' test parallelization out of the box.
 
 Oaken's data scripts are composed of table name looking methods corresponding to Active Record classes, which you can enhance with `defaults` and helper methods, then eventually calling `create` or `upsert` on them.
 
+#### Loading within the `context` module
+
+Oaken loads every seed file within the context of its `context` module. You can see it with `Oaken.loader.context`, or `Oaken.context` for short.
+
 #### Automatic & manual registry
 
 > [!IMPORTANT]
-> Ok, this bit is probably the most complex in Oaken. You can see the implementation in `Oaken::Seeds#method_missing` and then `Oaken::Loader::Type`.
+> Ok, this bit is probably the most complex part in Oaken. You can see the implementation in `Oaken::Seeds#method_missing` and then `Oaken::Loader::Type`.
 
 When you reference e.g. `accounts` we'll hit `Oaken::Seeds#method_missing` hook and:
 
 - locate a class using `loader.locate`, hitting `Oaken::Loader::Type.locate`.
 - If there's a match, call `loader.register Account, as: :accounts`.
+- `loader.register` defines the `accounts` method on the `Oaken.loader.context` module, pointing to an instance of `Oaken::Stored::ActiveRecord`.
 
 We'll respect namespaces up to 3 levels deep, so we'll try to match:
 
@@ -405,6 +410,9 @@ users.create # `name` comes from `loader.defaults`.
 
 Oaken uses Ruby's [`singleton_methods`](https://rubyapi.org/3.4/o/object#method-i-singleton_methods) for helpers because it costs us 0 lines of code to write and maintain.
 
+> [!NOTE]
+> It's still early days for these kind of helpers, so I'm still finding out what's possible with them. I'd love to know how you're using them on the Discussions tab.
+
 In plain Ruby, they look like this:
 
 ```ruby
@@ -430,6 +438,8 @@ test "we definitely need this" do
 end
 ```
 
+##### Providing `unique_by` everywhere
+
 Here's how you can provide a default `unique_by:` on all `users`:
 
 ```ruby
@@ -439,8 +449,19 @@ def users.create(label = nil, unique_by: :email_address, **) = super
 
 You could use this to provide `FactoryBot`-like helpers. Maybe adding a `factory` method?
 
-> [!NOTE]
-> It's still early days for these kind of helpers, so I'm still finding out what's possible with them. I'd love to know how you're using them on the Discussions tab.
+##### Accessing other seeds via `context`
+
+You can access other seeds from within a helper by going through `Oaken.loader.context`/`Oaken.context`. We've got a shorthand so you can just write `context`, like this:
+
+```ruby
+users.create :kasper, name: "Kasper"
+def users.labeled_email(label) = "#{label}@example.com" # You don't have to use endless methods, they're fun though.
+
+def accounts.some_helper
+  context.users.kasper # Access the created named user.
+  context.users.labeled_email(:person) # You can also use helpers.
+end
+```
 
 #### Using `with` to group setup
 

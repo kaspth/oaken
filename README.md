@@ -442,6 +442,54 @@ You could use this to provide `FactoryBot`-like helpers. Maybe adding a `factory
 > [!NOTE]
 > It's still early days for these kind of helpers, so I'm still finding out what's possible with them. I'd love to know how you're using them on the Discussions tab.
 
+#### Using `with` to group setup
+
+`with` allows you to group similar `create`/`upsert` calls & apply scoped defaults.
+
+##### `with` during setup
+
+During seeding setup, use `with` in the block form to group `create`/`upsert` calls, typically by an association you want to highlight.
+
+In this example, we're grouping menu items by their menu. We could write out each menu item `create` one by one and pass the menus explicitly just fine.
+
+However, grouping by the menu gets us an extra level of indentation to help reveal our intent.
+
+```ruby
+menu_items.with menu: menus.basic do
+  it.create :plain_donut, name: "Plain Donut"
+  it.create name: "Another Basic Donut"
+  # More `create` calls, which automatically go on the basic menu.
+end
+
+menu_items.with menu: menus.premium do
+  it.create :premium_donut, name: "Premium Donut"
+  # Other premium menu items.
+end
+```
+
+##### `with` in tests
+
+In tests `with` is also useful in the non-block form to apply more explicit scoped defaults used throughout the tests:
+
+```ruby
+setup do
+  @menu_items = menu_items.with menu: accounts.kaspers_donuts.menus.first, description: "Indulgent & delicious."
+end
+
+test "something" do
+  @menu_items.create # The menu item is created with the defaults above.
+  @menu_items.create menu: menus.premium # You can still override defaults like usual.
+end
+```
+
+##### How `with` scoping works
+
+To make this easier to understand, we'll use a general `menu_items` object and then a scoped `basic_items = menu_items.with menu: menus.basic` object.
+
+- Labels: go to the general object, `basic_items.create :plain_donut` will be reachable via `menu_items.plain_donut`.
+- Defaults: only stay on the `with` object, so `menu_items.create` won't set `menu: menus.basic`, but `basic_items.create` will.
+- Helper methods: any helper methods defined on `menu_items` can be called on `basic_items`. We recommend only defining helper methods on the general `menu_items` object.
+
 ## Migration
 
 ### From fixtures

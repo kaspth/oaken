@@ -4,6 +4,10 @@ account = accounts.create :kaspers_donuts, name: "Kasper's Donuts"
 kasper   = users.create :kasper,   name: "Kasper",   email_address: "kasper@example.com",   accounts: [account]
 coworker = users.create :coworker, name: "Coworker", email_address: "coworker@example.com", accounts: [account]
 
+users.with name: "With User", email_address: "with-user@example.com" do
+  _1.create_labeled :created_from_with
+end
+
 administratorships.label kasper_administratorship: kasper.administratorships.first
 
 menu = menus.create(account:)

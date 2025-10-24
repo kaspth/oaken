@@ -1,6 +1,7 @@
 class Oaken::Stored::ActiveRecord
   def initialize(loader, type)
     @loader, @type = loader, type
+    @original_label_target = self # Capture original self so labels made during `with` calls, retarget original.
     @attributes = loader.defaults_for(*type.column_names)
   end
   attr_reader :type
@@ -39,6 +40,54 @@ class Oaken::Stored::ActiveRecord
     @attributes.merge(attributes).transform_values! { _1.respond_to?(:call) ? _1.call : _1 }
   end
 
+  # `with` allows you to group similar `create`/`upsert` calls & apply scoped defaults.
+  #
+  # ### `with` during setup
+  #
+  # During seeding setup, use `with` in the block form to group `create`/`upsert` calls, typically by an association you want to highlight.
+  #
+  # In this example, we're grouping menu items by their menu. We could write out each menu item `create` one by one and pass the menus explicitly just fine.
+  #
+  # However, grouping by the menu gets us an extra level of indentation to help reveal our intent.
+  #
+  #   menu_items.with menu: menus.basic do
+  #     it.create :plain_donut, name: "Plain Donut"
+  #     it.create name: "Another Basic Donut"
+  #     # More `create` calls, which automatically go on the basic menu.
+  #   end
+  #
+  #   menu_items.with menu: menus.premium do
+  #     it.create :premium_donut, name: "Premium Donut"
+  #     # Other premium menu items.
+  #   end
+  #
+  # ### `with` in tests
+  #
+  # In tests `with` is also useful in the non-block form to apply more explicit scoped defaults used throughout the tests:
+  #
+  #   setup do
+  #     @menu_items = menu_items.with menu: accounts.kaspers_donuts.menus.first, description: "Indulgent & delicious."
+  #   end
+  #
+  #   test "something" do
+  #     @menu_items.create # The menu item is created with the defaults above.
+  #     @menu_items.create menu: menus.premium # You can still override defaults like usual.
+  #   end
+  #
+  # ### How `with` scoping works
+  #
+  # To make this easier to understand we'll use a general `menu_items` object and then a scoped `basic_items = menu_items.with menu: menus.basic` object.
+  #
+  # - Labels: go to the general object, `basic_items.create :plain_donut` will be reachable via `menu_items.plain_donut`.
+  # - Defaults: only stay on the `with` object, so `menu_items.create` won't set `menu: menus.basic`, but `basic_items.create` will.
+  # - Helper methods: any helper methods defined on `menu_items` can be called on `basic_items`. We recommend only defining helper methods on the general `menu_items` object.
+  def with(**defaults)
+    clone.tap do
+      _1.defaults(**defaults) unless defaults.empty?
+      yield _1 if block_given?
+    end
+  end
+
   # Set defaults for all types:
   #
   #   loader.defaults name: -> { "Global" }, email_address: -> { … }
@@ -68,6 +117,6 @@ class Oaken::Stored::ActiveRecord
     location = @loader.definition_location or
       raise ArgumentError, "you can only define labelled records outside of tests"
 
-    class_eval "def #{name} = find(#{id.inspect})", location.path, location.lineno
+    @original_label_target.class_eval "def #{name} = find(#{id.inspect})", location.path, location.lineno
   end
 end

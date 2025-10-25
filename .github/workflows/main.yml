@@ -53,8 +53,11 @@ jobs:
     - name: Rerun seeds
       run: bin/rails db:seed
 
-    - name: Check examples/bug_report_template.rb
-      run: ruby examples/bug_report_template.rb
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check examples/bug_report_template.rb
+        run: ruby examples/bug_report_template.rb
 
-    - name: Check examples/donuts.rb
-      run: ruby examples/donuts.rb
+      - name: Check examples/donuts.rb
+        run: ruby examples/donuts.rb

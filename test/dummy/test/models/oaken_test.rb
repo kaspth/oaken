@@ -90,6 +90,36 @@ class OakenTest < ActiveSupport::TestCase
     end
   end
 
+  test """new:
+    - uses global defaults with procs
+    - allows overriding global defaults
+  """ do
+    users.new(email_address: "user@example.com").tap do |user|
+      assert_match /Customer \d+/, user.name
+      assert_equal "user@example.com", user.email_address
+    end
+
+    plans.new(price_cents: 10_00).tap do |plan|
+      assert_equal "Global Default Title", plan.title
+      assert_equal 10_00, plan.price_cents
+    end
+  end
+
+  test """build:
+    - uses global defaults with procs
+    - allows overriding global defaults
+  """ do
+    users.build(email_address: "user@example.com").tap do |user|
+      assert_match /Customer \d+/, user.name
+      assert_equal "user@example.com", user.email_address
+    end
+
+    plans.build(price_cents: 10_00).tap do |plan|
+      assert_equal "Global Default Title", plan.title
+      assert_equal 10_00, plan.price_cents
+    end
+  end
+
   test "source attribution" do
     donuts_location, kasper_location = [accounts.method(:kaspers_donuts), users.method(:kasper)].map(&:source_location)
     assert_match "db/seeds/accounts/kaspers_donuts.rb", donuts_location.first

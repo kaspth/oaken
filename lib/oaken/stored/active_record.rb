@@ -33,6 +33,12 @@ class Oaken::Stored::ActiveRecord
     record
   end
 
+  # Build a new record with the passed `attributes`.
+  def new(**attributes)
+    type.new(**attributes_for(**attributes))
+  end
+  alias_method :build, :new
+
   # Build attributes used for `create`/`upsert`, applying loader and per-type `defaults`.
   #
   #   loader.defaults name: -> { "Global" }, email_address: -> { … }

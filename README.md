@@ -385,6 +385,22 @@ Typically used for data tables, like so:
 plans.upsert :basic, unique_by: :title, title: "Basic", price_cents: 10_00
 ```
 
+#### `new`/`build`
+
+We've also got `new`/`build` in case you:
+
+- have a record that needs slightly more complex setup so you can't do `create`/`upsert`.
+- want a record that's not in the database during testing.
+
+Will have defaults applied via `attributes_for` internally.
+
+```ruby
+test "some test" do
+  user = users.new name: "Someone"
+  user = users.build name: "Someone"
+end
+```
+
 #### Using `defaults`
 
 You can set `defaults` that're applied on `create`/`upsert`, like this:

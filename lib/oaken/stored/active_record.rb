@@ -7,7 +7,7 @@ class Oaken::Stored::ActiveRecord
 
   def initialize(loader, type)
     @loader, @type = loader, type
-    @original_label_target = self # Capture original self so labels made during `with` calls, retarget original.
+    @original_label_target = singleton_class # Capture original self so labels made during `with` calls, retarget original.
     @attributes = loader.defaults_for(*type.column_names)
   end
 

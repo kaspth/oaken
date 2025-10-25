@@ -119,6 +119,9 @@ class Oaken::Stored::ActiveRecord
   #   users.admin.create # Has `role: "admin"`
   #   users.mod.create   # Has `role: "mod"`
   #   users.cool.create  # Has `cool: true`
+  #
+  #   # Chaining also works:
+  #   users.cool.admin.create # Has `cool: true, role: "admin"`
   def proxy(*names) = names.each do |name|
     define_singleton_method(name) { clone.rebind(type.public_send(name)) }
   end

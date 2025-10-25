@@ -430,6 +430,9 @@ users.create       # Has `role: "plain"`, assuming it's the default role.
 users.admin.create # Has `role: "admin"`
 users.mod.create   # Has `role: "mod"`
 users.cool.create  # Has `cool: true`
+
+# Chaining also works:
+users.cool.admin.create # Has `cool: true, role: "admin"`
 ```
 
 #### Defining helpers

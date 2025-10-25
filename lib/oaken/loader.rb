@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "active_support/core_ext/hash/indifferent_access"
+
 class Oaken::Loader
   autoload :Type, "oaken/loader/type"
 

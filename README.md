@@ -176,27 +176,27 @@ So if you call `Oaken.loader.seed :accounts`, we'll look within `db/seeds/` and 
 > [!TIP]
 > Putting a file in the top-level `db/seeds` versus `db/seeds/development` or `db/seeds/test` means it's shared in both environments. See below for more tips.
 
-Any directories and/or single-file matches are loaded in the order they're specified. So `loader.seed :setup, :accounts` would first load setup and then accounts.
+Any directories and/or single-file matches are loaded in the order they're specified. So `loader.seed :data, :accounts` would first load data and then accounts.
 
 > [!IMPORTANT]
 > Understanding and making effective use of Oaken's directory loading will pay dividends for your usage. You generally want to have 1 top-level directive `seed` call to dictate how seeding happens in e.g. `db/seeds.rb` and then let individual seed files load in no specified order within that.
 
 #### Using the `setup` phase
 
-When you call `Oaken.loader.seed` we'll also call `seed :setup` behind the scenes, though we'll only call this once. It's meant for common setup, like `defaults` and helpers.
+When you call `Oaken.seed`/`Oaken.loader.seed` we'll also call `seed :setup` for you behind the scenes, though we'll only call this once. It's meant for common setup, like setting `defaults` and defining helpers.
 
 > [!IMPORTANT]
-> We recommend you don't use `create`/`upsert` directly in setup. Add the `defaults` and/or helpers that would be useful in the later seed files.
+> Don't use `create`/`upsert` directly in setup. Add the `defaults` and/or helpers that would be useful in the later seed files.
 
 Here's some files you could add:
 
-- db/seeds/setup.rb — particularly useful as a starting point.
-- db/seeds/setup/defaults.rb — loader and type-specific defaults.
-- db/seeds/setup/defaults/*.rb — you could split out more specific files.
-- db/seeds/setup/users.rb — a type specific file for its defaults/helpers, doesn't have to just be users.
+- `db/seeds/setup.rb` — particularly useful as a starting point.
+- `db/seeds/setup/defaults.rb` — loader and type-specific defaults.
+- `db/seeds/setup/defaults/*.rb` — you could split out more specific files.
+- `db/seeds/setup/users.rb` — a type specific file for its defaults/helpers, doesn't have to just be users.
 
-- db/seeds/development/setup.rb — some defaults/helpers we only want in development.
-- db/seeds/test/setup.rb — some defaults/helpers we only want in test.
+- `db/seeds/development/setup.rb` — some defaults/helpers we only want in development.
+- `db/seeds/test/setup.rb` — some defaults/helpers we only want in test.
 
 > [!TIP]
 > Remember, since we're using `seed` internally you can nest as deeply as you want to structure however works best. There's tons of flexibility in the `**/*` glob pattern `seed` uses.
@@ -287,8 +287,8 @@ Call `loader.seed` and it'll follow the rules mentioned above:
 
 ```ruby
 # db/seeds.rb
-Oaken.loader.seed :setup, :accounts, :data
-Oaken.seed :setup, :accounts, :data # Or just this for short.
+Oaken.loader.seed :data, :accounts
+Oaken.seed :data, :accounts # Or just this for short.
 ```
 
 Both `bin/rails db:seed` and `bin/rails db:seed:replant` work as usual.
@@ -298,7 +298,7 @@ Both `bin/rails db:seed` and `bin/rails db:seed:replant` work as usual.
 If you're in the `bin/rails console`, you can invoke the same `seed` method as in `db/seeds.rb`.
 
 ```ruby
-Oaken.seed :setup, "cases/pagination"
+Oaken.seed "cases/pagination"
 ```
 
 This is useful if you're working on hammering out a single seed script.
@@ -588,7 +588,7 @@ Set Oaken up for your tests like the setup section mentions, and then only add a
 ```ruby
 # db/seeds.rb
 if Rails.env.test?
-  Oaken.loader.seed :setup, :accounts
+  Oaken.seed :accounts
   return
 end
 ```

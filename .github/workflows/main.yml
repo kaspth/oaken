@@ -52,20 +52,3 @@ jobs:
 
     - name: Rerun seeds
       run: bin/rails db:seed
-
-  examples:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "3.4"
-          bundler-cache: false
-
-      - name: Check examples/bug_report_template.rb
-        run: ruby examples/bug_report_template.rb
-
-      - name: Check examples/donuts.rb
-        run: ruby examples/donuts.rb

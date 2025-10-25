@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-lines = `bin/loc --csv`.split("\n")
+lines = `bin/loc #{ARGV.join(" ")} --csv`.strip.split("\n")
 lines.select! { _1.include?("SUM") || _1.match?(/[a-z]+$/) }
 
 rows = lines.each_slice(2).map do |path, row|

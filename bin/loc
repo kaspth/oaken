@@ -1,9 +1,14 @@
 #!/usr/bin/env ruby
 
-require_relative "../lib/oaken/version"
+oaken_version = "oaken-main"
+
+if ARGV.delete "--use-version"
+  require_relative "../lib/oaken/version"
+  oaken_version = "oaken-#{Oaken::VERSION}"
+end
 
 # To setup dependencies run with: bin/loc --install
-if ARGV.delete("--install")
+if ARGV.delete "--install"
   system "brew install cloc"
   system "gem install activerecord factory_bot fabrication test_data --no-doc"
 end
@@ -24,5 +29,5 @@ report "fabrication"
 report "test_data"
 
 dir = File.expand_path("lib")
-puts dir.sub("oaken", "oaken-#{Oaken::VERSION}")
+puts dir.sub("oaken", oaken_version)
 Dir.chdir(dir) { cloc "." }

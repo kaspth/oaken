@@ -18,8 +18,6 @@ class OakenTest < ActiveSupport::TestCase
     assert_equal "Coworker", users.coworker.name
     assert users.coworker.mod?
 
-    assert_equal users.named_coworker.type.first, users.coworker
-
     assert_equal [accounts.kaspers_donuts], users.kasper.accounts
     assert_equal [accounts.kaspers_donuts], users.coworker.accounts
     assert_equal [users.kasper, users.coworker], accounts.kaspers_donuts.users
@@ -106,6 +104,11 @@ class OakenTest < ActiveSupport::TestCase
     assert_match "db/seeds/data/plans.rb",      plans.method(:basic).source_location.first
     assert_match "db/seeds/test/data/plans.rb", plans.method(:test_premium).source_location.first
     assert_match "db/seeds/test/data/users.rb", users.method(:test_user).source_location.first
+  end
+
+  test "proxy" do
+    assert_equal users.named_coworker.type.first, users.coworker
+    assert_equal users.mod.named_coworker.type.first, users.coworker
   end
 
   test "with - labeled via helper method" do

@@ -3,6 +3,8 @@
 require "oaken/version"
 require "pathname"
 
+require "active_support/core_ext/module/delegation"
+
 module Oaken
   class Error < StandardError; end
 

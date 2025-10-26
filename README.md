@@ -499,12 +499,11 @@ You could use this to provide `FactoryBot`-like helpers. Maybe adding a `factory
 You can access other seeds from within a helper by going through `Oaken.loader.context`/`Oaken.context`. We've got a shorthand so you can just write `context`, like this:
 
 ```ruby
-users.create :kasper, name: "Kasper"
-def users.labeled_email(label) = "#{label}@example.com" # You don't have to use endless methods, they're fun though.
-
-def accounts.some_helper
-  context.users.kasper # Access the created named user.
-  context.users.labeled_email(:person) # You can also use helpers.
+# Set up a helper to ensure when we create an account we also have a default admin user.
+def accounts.bootstrap(name:, **)
+  create(name:, **).tap do
+    context.users.admin.create account: _1, name: "Primary Admin"
+  end
 end
 ```
 

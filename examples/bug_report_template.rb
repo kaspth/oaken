@@ -6,13 +6,10 @@ require "bundler/inline"; gemfile do
   gem "activerecord", require: "active_record"
   gem "sqlite3"
 
-  gem "oaken", "0.9.1", require: false # TODO: Lock to the version you're using.
+  gem "oaken" #, "0.9.1" # TODO: Lock to the version you're using.
 end
 
 require "active_support/testing/autorun"
-
-require "active_support/core_ext/hash"
-require "oaken"
 
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 

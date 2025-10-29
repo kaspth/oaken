@@ -2,6 +2,8 @@
 
 Oaken is fixtures + factories + seeds for your Rails development & test environments.
 
+You may want to head straight to the [examples](examples) directory.
+
 ## Oaken is like fixtures, without the nightmare UX
 
 Oaken takes inspiration from Rails' fixtures' approach of storytelling about your app's object graph, but replaces the nightmare YAML-based UX with Ruby-based data scripts. This makes data much easier to reason about & connect the dots.
@@ -648,7 +650,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/kaspth
 
 ## Bug Report Template
 
-When reporting bugs, please use our bug report template at [bin/bug_report_template.rb](bin/bug_report_template.rb)
+When reporting bugs, please use our bug report template at [examples/bug_report_template.rb](examples/bug_report_template.rb)
 
 ## License
 

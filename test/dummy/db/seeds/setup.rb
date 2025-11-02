@@ -1,5 +1,7 @@
 loader.defaults name: -> { "Shouldn't be used for users.name" }, title: -> { "Global Default Title" }
 
+grant_fixture_access accounts
+
 section users do
   user_count, email_address_count = 0.step, 0.step
   users.defaults name: -> { "Customer #{user_count.next}" },

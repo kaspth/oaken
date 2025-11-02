@@ -23,6 +23,11 @@ class OakenTest < ActiveSupport::TestCase
     assert_equal [users.kasper, users.coworker], accounts.kaspers_donuts.users
   end
 
+  test "accessing fixture from within rails fixtures" do
+    assert_equal 1, Account::FixtureAccess.count
+    assert_equal accounts.kaspers_donuts, Account::FixtureAccess.first.account
+  end
+
   test "accessing fixture from test env" do
     assert plans.test_premium
   end

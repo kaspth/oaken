@@ -48,4 +48,29 @@ module Oaken::Seeds
   #     end
   #   end
   def self.section(*, **) = block_given? && yield
+
+  # Make any labelled records accessible in Rails' fixtures. Useful when porting from fixtures to Oaken.
+  #
+  #   grant_fixture_access accounts
+  #
+  #   # Now passing the label `:kaspers_donuts` here makes this record accessible:
+  #   accounts.create :kaspers_donuts, name: "Kasper's Donuts"
+  #
+  #   # test/fixtures/menus.yml
+  #   basic:
+  #     name: "Basic Menu"
+  #     account: kaspers_donuts # We're accessing the named record by the label here.
+  def self.grant_fixture_access(*registers)
+    registers.each { _1.extend FixtureAccess }
+  end
+
+  module FixtureAccess
+    def create(label = nil, id: identify(label), **) = super
+    def upsert(label = nil, id: identify(label), **) = super
+
+    private
+      def identify(label)
+        ActiveRecord::FixtureSet.identify(label) if label
+      end
+  end
 end

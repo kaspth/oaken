@@ -23,7 +23,6 @@ jobs:
           - rails: "7.2"
             ruby: "3.1"
     env:
-      RAILS_ENV: test
       RAILS_VERSION: ${{ matrix.rails }}
 
     name: ${{ format('rails-{0} ruby-{1}', matrix.rails, matrix.ruby) }}
@@ -38,6 +37,8 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
+
+    - run: bin/rails db:prepare
 
     - name: Parallel Tests
       run: bin/rails test

@@ -569,7 +569,44 @@ You can convert your Rails fixtures to Oaken's seeds by running:
 bin/rails generate oaken:convert:fixtures
 ```
 
-This will convert anything in test/fixtures to db/seeds. E.g. `test/fixtures/users.yml` becomes `db/seeds/users.rb` and so on.
+This will convert anything in test/fixtures to db/seeds. E.g. `test/fixtures/users.yml` becomes `db/seeds/test/users.rb` and so on.
+
+#### Accessing Oaken seeds from fixtures
+
+Call `grant_fixture_access` to make Oaken seeds accessible from fixtures:
+
+```ruby
+# db/seeds/test/setup.rb
+grant_fixture_access accounts, users
+```
+
+> [!TIP]
+> Since fixtures are a test environment thing, place this in the test-environment dedicated setup in `db/seeds/test/setup.rb`.
+
+```ruby
+# db/seeds/test/accounts.rb
+accounts.create :kaspers_donuts, name: "Kasper's Donuts"
+accounts.create name: "Demo" # Inaccessible! Pass a label ala `:kaspers_donuts` above to access this record from fixtures.
+
+# You can also use `accounts.label` to expose records in fixtures.
+accounts.label demo: Account.find_by!(name: "Demo")
+```
+
+Now you can access the created record from fixtures:
+
+```yaml
+# test/fixtures/menus.yml
+basic_kasper_menu:
+  name: "Kasper's Basic Menu"
+  account: kaspers_donuts
+
+basic_demo_menu:
+  name: "Demo's Basic Menu"
+  account: demo
+```
+
+> [!WARNING]
+> Fixtures truncate data per table before inserting any anything. This means if you have say `test/fixtures/menus.yml`, you can't have any menus in Oaken seeds. So you have to port by file and then every fixture in a file. So convert every fixture in e.g. `test/fixtures/menus.yml` at once.
 
 #### Disable fixtures
 

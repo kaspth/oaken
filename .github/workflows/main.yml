@@ -38,6 +38,8 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
 
+    - run: bin/rails db:prepare
+
     - name: Parallel Tests
       run: bin/rails test
 

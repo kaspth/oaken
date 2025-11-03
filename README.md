@@ -574,9 +574,12 @@ This will convert anything in test/fixtures to db/seeds. E.g. `test/fixtures/use
 Call `grant_fixture_access` to make Oaken seeds accessible from fixtures:
 
 ```ruby
-# db/seeds/setup.rb
+# db/seeds/test/setup.rb
 grant_fixture_access accounts, users
 ```
+
+> [!TIP]
+> Since fixtures are a test environment thing, place this in the test-environment dedicated setup in `db/seeds/test/setup.rb`.
 
 ```ruby
 # db/seeds/test/accounts.rb

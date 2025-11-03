@@ -23,7 +23,6 @@ jobs:
           - rails: "7.2"
             ruby: "3.1"
     env:
-      RAILS_ENV: test
       RAILS_VERSION: ${{ matrix.rails }}
 
     name: ${{ format('rails-{0} ruby-{1}', matrix.rails, matrix.ruby) }}

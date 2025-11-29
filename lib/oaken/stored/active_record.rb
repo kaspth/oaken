@@ -5,10 +5,14 @@ class Oaken::Stored::ActiveRecord
   delegate :transaction, to: :type # For multi-db setups to help open a transaction on secondary connections.
   delegate :find, :insert_all, :pluck, to: :type
 
+  attr_reader :labels
+
   def initialize(loader, type)
     @loader, @type = loader, type
-    @original_label_target = singleton_class # Capture original self so labels made during `with` calls, retarget original.
     @attributes = loader.defaults_for(*type.column_names)
+
+    @labels = {}
+    @label_target = singleton_class # Capture target so labels in `with` calls go to our original instance.
   end
 
   # Create a record in the database with the passed `attributes`.
@@ -150,12 +154,17 @@ class Oaken::Stored::ActiveRecord
   #   users.label someone:, someone_else:
   #
   # Note: `users.method(:someone).source_location` also points back to the file and line of the `label` call.
-  def label(**labels) = labels.each { |label, record| _label label, record.id }
+  def label(**labels) = labels.each { |label, record| _label label, record.id, location_frame_skip: 2 }
 
-  private def _label(name, id)
-    location = @loader.definition_location or
-      raise ArgumentError, "you can only define labelled records outside of tests"
+  private def _label(name, id, location_frame_skip: 0)
+    labels.fetch name do
+      loc = loader.definition_location(start_frame: 4 + location_frame_skip) or
+        raise "Oaken can't find a source_location for this label: #{name}. Please open an issue and share what you're trying and a backtrace if you can."
 
-    @original_label_target.class_eval "def #{name} = find(#{id.inspect})", location.path, location.lineno
+      label_target.class_eval "def #{name} = find(labels.fetch(__method__))", loc.path, loc.lineno
+    end
+
+    labels[name] = id
   end
+  private attr_reader :label_target
 end

@@ -4,6 +4,41 @@ Oaken is fixtures + factories + seeds for your Rails development & test environm
 
 You may want to head straight to the [examples](examples) directory.
 
+## Benefits
+
+- In development:
+  - Add conventions for `db/seeds.rb` that feel like Rails.
+  - Grouping by scenario: choose how to best group your data.
+  - Reveal your Domain Model: describe your object graph sequentially, helping developers see how your app works.
+  - Ruby-based recipe-like data scripts: setup accounts first, then attach users, then hang other models off of those.
+  - Raise modelling problems: Oaken can help expose when something feels awkward or off to give you design clues.
+
+- In tests, reuse development seed data:
+  - Tests mirror what developers have already seen in their dev browser.
+  - Easier developer onboarding by building a proper mental model faster.
+  - Less code that's easier to maintain with more visibility into your object graph.
+
+### Benefits over factories
+
+- Fast tests! Seed shared records once and reuse them across tests, transactions rollback changes.
+- Sets you up for the long term: factories drain your mental resources quicker 
+- Visibility into your system: factories optimize for isolation, which make it easy to get started, but becomes more complex over time.
+- Less mental load: Schrödinger's Object definition
+- You can name things: don't lose hours debugging factory-based tests because everything's anonymous.
+- You can show model connections more easily:
+- Optimizing goes into the foundation, not a local maxima. When you optimize
+- Better Discoverability:
+
+### Benefits over fixtures
+
+- Still fast tests! Oaken inserts data before tests run & wraps tests in transactions, just like fixtures.
+- No more YAML: use Ruby to lay out your object graph sequentially with better organization.
+- Group by Scenario: split data into semantic files so there's no more data mixing within a file anymore.
+- Way easier to reason about your object graph: no more chasing 10 files for 10 associations.
+- Less mental load: fixtures' structure requires you to put things together in your head.
+- Way condensed data setup: Oaken can dramatically cut down on some fixture files by letting you use helpers
+- Better Discoverability: fixtures suffer
+
 ## Oaken is like fixtures, without the nightmare UX
 
 Oaken takes inspiration from Rails' fixtures' approach of storytelling about your app's object graph, but replaces the nightmare YAML-based UX with Ruby-based data scripts. This makes data much easier to reason about & connect the dots.

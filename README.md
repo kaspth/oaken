@@ -25,9 +25,15 @@ You may want to head straight to the [examples](examples) directory.
   - Another shaved off 5min on their CI time with less than a days work, and they only scratched the surface.
 
 - Visibility into your system: factories optimize for isolation, which make it easy to get started, but becomes more complex over time.
-- Save 20 lines of setup per test case: your mileage will vary, but this happened for a team that replaced factories with Oaken.
+- Save 20 lines of setup per test case.
+  - Your mileage will vary, but this happened for a team that replaced factories with Oaken.
+  - You do DRY up your tests more for non-trivial systems because you write the Oaken seed for common cases once, rather than per-test/file.
+  
 - You can name things: don't lose hours debugging factory-based tests because everything's anonymous, like I have.
 - Less mental load: factories' structure requires you to put things together in your head. How many models and associations does one factory create?
+- DRY setup:
+
+Also worth noting that you 
 
 ### Benefits over fixtures
 

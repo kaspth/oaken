@@ -32,8 +32,8 @@ You may want to head straight to the [examples](examples) directory.
 ### Benefits over fixtures
 
 - Still fast tests! Oaken inserts data before tests run & wraps tests in transactions, just like fixtures.
-- No more YAML: use Ruby to lay out your object graph sequentially with better organization.
-- Group by Scenario: split data into semantic files so there's no more data mixing within a file anymore.
+- No more YAML: use Ruby to lay out your object graph sequentially with better organization. You can even sketch it out in a `console`
+- Break out edge cases or complex scenarios: split data for edge cases or tricky test setups into their own cases, so you don't end up with a 500-line fixture file peppered with warts.
 - Way easier to reason about your object graph: no more chasing 10 files for 10 associations.
 - Less mental load: fixtures' structure requires you to put things together in your head.
 - Way condensed data setup: Oaken can dramatically cut down on some fixture files by letting you use helpers

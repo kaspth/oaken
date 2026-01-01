@@ -11,7 +11,7 @@ You may want to head straight to the [examples](examples) directory.
   - Grouping by scenario: choose how to best group your data.
   - Reveal your Domain Model: describe your object graph sequentially, helping developers see how your app works.
   - Ruby-based recipe-like data scripts: setup accounts first, then attach users, then hang other models off of those.
-  - Raise modelling problems: Oaken can help expose when something feels awkward or off to give you design clues.
+  - Raise modelling problems early: Oaken can help expose when something feels awkward or off to give you design clues.
 
 - In tests, reuse development seed data:
   - Tests mirror what developers have already seen in their dev browser.
@@ -21,13 +21,13 @@ You may want to head straight to the [examples](examples) directory.
 ### Benefits over factories
 
 - Fast tests! Seed shared records once and reuse them across tests, transactions rollback changes.
-- Sets you up for the long term: factories drain your mental resources quicker 
+  - One team saw a 3x speed increase over factories.
+  - Another shaved off 5min on their CI time with less than a days work, and they only scratched the surface.
+
 - Visibility into your system: factories optimize for isolation, which make it easy to get started, but becomes more complex over time.
-- Less mental load: Schrödinger's Object definition
-- You can name things: don't lose hours debugging factory-based tests because everything's anonymous.
-- You can show model connections more easily:
-- Optimizing goes into the foundation, not a local maxima. When you optimize
-- Better Discoverability:
+- Save 20 lines of setup per test case: your mileage will vary, but this happened for a team that replaced factories with Oaken.
+- You can name things: don't lose hours debugging factory-based tests because everything's anonymous, like I have.
+- Less mental load: factories' structure requires you to put things together in your head. How many models and associations does one factory create?
 
 ### Benefits over fixtures
 
@@ -37,7 +37,6 @@ You may want to head straight to the [examples](examples) directory.
 - Way easier to reason about your object graph: no more chasing 10 files for 10 associations.
 - Less mental load: fixtures' structure requires you to put things together in your head.
 - Way condensed data setup: Oaken can dramatically cut down on some fixture files by letting you use helpers
-- Better Discoverability: fixtures suffer
 
 ## Oaken is like fixtures, without the nightmare UX
 

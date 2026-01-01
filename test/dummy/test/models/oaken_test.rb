@@ -138,7 +138,10 @@ class OakenTest < ActiveSupport::TestCase
 
   test "proxy" do
     assert_equal users.named_coworker.type.first, users.coworker
+    assert_equal users.singleton_class, users.named_coworker.send(:label_target)
+
     assert_equal users.mod.named_coworker.type.first, users.coworker
+    assert_equal users.singleton_class, users.mod.named_coworker.send(:label_target)
   end
 
   test "with - labeled via helper method" do
@@ -177,9 +180,17 @@ class OakenTest < ActiveSupport::TestCase
     assert_match /email_address\d+@example\.com/, user.email_address
   end
 
-  test "can't use labels within tests" do
-    assert_raise ArgumentError, match: /define labelled records outside of tests/ do
-      users.label kasper_2: users.kasper
+  test "labels in tests allow overrides" do
+    first_test_user = users.create :in_test, name: "First"
+    assert_equal first_test_user, users.in_test
+
+    # Move `:in_test` "pointer" ownership to another user
+    second_test_user = users.create :in_test, name: "Second"
+    assert_equal second_test_user, users.in_test
+    refute_equal first_test_user, second_test_user
+
+    administratorships.labels.fetch(:kasper_administratorship).tap do |composite_id|
+      assert_equal [accounts.kaspers_donuts.id, users.kasper.id], composite_id
     end
   end
 

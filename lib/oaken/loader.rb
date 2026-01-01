@@ -83,16 +83,17 @@ class Oaken::Loader
     Pathname.glob lookup_paths.map { File.join _1, "#{identifier}{,/**/*}.rb" }
   end
 
-  def definition_location
-    # The first line referencing LABEL happens to be the line in the seed file.
-    caller_locations(3, 6).find { _1.base_label == LABEL }
+  def definition_location(start_frame:)
+    # Locate first frame not in `setup` phase. Rely on caller adjusting frame start to skip over their stack levels.
+    # Won't skip over helpers defined in non-setup seed files, though that's probably ok.
+    caller_locations(1 + start_frame, 4).find { !setup_files.member? _1.path }
   end
 
   private
+    def setup_files = @setup_files ||= setup.map(&:to_s).to_set
     def setup = @setup ||= glob(:setup).each { load_one _1 }
 
     def load_one(path)
       context.class_eval path.read, path.to_s
     end
-    LABEL = instance_method(:load_one).name.to_s
 end

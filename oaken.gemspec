@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Oaken aims to blend your Fixtures/Factories and levels up your database seeds."
   spec.homepage = "https://github.com/kaspth/oaken"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.0.0"
+  spec.required_ruby_version = ">= 3.2"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 

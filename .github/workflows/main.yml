@@ -14,15 +14,13 @@ jobs:
       fail-fast: false
       matrix:
         rails:
+          - "7.2"
           - "8.0"
+          - "8.1"
           - "main"
         ruby:
-          - "3.3"
-          - "3.4"
+          - "3.2"
           - "4.0"
-        include:
-          - rails: "7.2"
-            ruby: "3.1"
     env:
       RAILS_ENV: test
       RAILS_VERSION: ${{ matrix.rails }}

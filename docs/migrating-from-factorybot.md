@@ -71,6 +71,21 @@ Thoughts/ideas on how to introduce Oaken into your codebase, either alongside or
 
 Oaken's factory-esque features can frequently be a drop-in replacement for FactoryBot, but nevertheless, there are some differences that FactoryBot users should be aware of.
 
+### Sequences
+
+FactoryBot sequences can generally be replaced with Ruby's `Numeric#step` captured in local variables that you pass to blocks in `defaults`. Like this:
+
+```ruby
+# db/seeds/setup.rb
+user_count, email_address_count = 0.step, 0.step
+users.defaults name: -> { "Customer #{user_count.next}" },
+  email_address: -> { "email_address#{email_address_count.next}@example.com" }
+
+# Or set them globally on the loader if it's safe to do so:
+loader.defaults name: -> { "Customer #{user_count.next}" },
+  email_address: -> { "email_address#{email_address_count.next}@example.com" }
+```
+
 ### Build Strategies
 
 While FactoryBot offers build strategies as a feature, Oaken is more explicit by design, requiring the developer to choose between build and create upfront. This can seem frustrating when attempting to replicate factories that one would typically use with build AND/OR create AND/OR build_stubbed. 

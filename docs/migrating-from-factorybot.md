@@ -67,6 +67,16 @@ Thoughts/ideas on how to introduce Oaken into your codebase, either alongside or
 
 ## Get a handle on your object graph
 
+### Categorizing models
+
+It can be helpful to break down the object graph by grouping models into categories:
+
+- Primary: a root-level model like Account and it's Users with 1-4 other models, the most basic crucial data to have to bootstrap the app.
+- Secondary: models that hang off the primary ones, like Sessions for a User, Invites for an Account
+- Tertiary: everything else that may hang off of primary + secondary models, probably a good case for factories
+
+The lines between these categories can be pretty blurry, so treat this like a framing device rather than a rule.
+
 ### Tip: Explore the object graph using the Rails console
 
 Here's a way to identify models with few associations using the Rails console

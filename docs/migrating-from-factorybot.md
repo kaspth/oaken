@@ -65,6 +65,41 @@ Thoughts/ideas on how to introduce Oaken into your codebase, either alongside or
      - In my own codebases I'm starting to re-think how I test certain things.
      - Maybe this could contain a "cookbook" of sorts, with recipes for refactoring Rspec/FactoryBot paradigms that don't quite translate to Oaken?
 
+## Get a handle on your object graph
+
+### Tip: Explore the object graph using the Rails console
+
+Here's a way to identify models with few associations using the Rails console
+
+```
+# Enable eager loading
+dummy(dev)> Rails.application.eager_load!
+=> nil
+
+# Get number of total models
+dummy(dev)> ApplicationRecord.descendants.size
+=> 8
+
+# List all models
+dummy(dev)> ApplicationRecord.descendants
+=>
+[Menu::Item::Detail (call 'Menu::Item::Detail.load_schema' to load schema informations),
+ Menu::Item (call 'Menu::Item.load_schema' to load schema informations),
+ User (call 'User.load_schema' to load schema informations),
+ Plan (call 'Plan.load_schema' to load schema informations),
+ Order (call 'Order.load_schema' to load schema informations),
+ Menu (call 'Menu.load_schema' to load schema informations),
+ Administratorship (call 'Administratorship.load_schema' to load schema informations),
+ Account (call 'Account.load_schema' to load schema informations)]
+
+# List models with a single association
+dummy(dev)> ApplicationRecord.descendants.select { _1.reflect_on_all_associations.size < 2 }
+=> 
+[Menu::Item::Detail (call 'Menu::Item::Detail.load_schema' to load schema informations),
+ Menu::Item (call 'Menu::Item.load_schema' to load schema informations),
+ Plan (call 'Plan.load_schema' to load schema informations)]
+```
+
 ## (WIP) Gotchas and things that work differently
 
 > FYI - These are "gotchas" from my personal experience. I'm not 100% sure how to organize these.

@@ -67,6 +67,10 @@ Thoughts/ideas on how to introduce Oaken into your codebase, either alongside or
 
 ## Get a handle on your object graph
 
+Oaken helps you build an object graph that reflects your domain model. So for best results, spend some time upfront getting (re)acquainted with your app's models and how they relate to each other.
+
+Granted, that's usually easier said than done... so, where does one start?
+
 ### Categorizing models
 
 It can be helpful to break down the object graph by grouping models into categories:

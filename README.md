@@ -1,174 +1,23 @@
 # Oaken
 
-Oaken is fixtures + factories + seeds for your Rails development & test environments.
+Oaken brings conventions to your Rails app's test data and development seeds using structured seed scripts that you write in Ruby.
 
-You may want to head straight to the [examples](examples) directory.
+- Dramatically faster tests than factories
+  - One team saw **3x faster test runs**
+  - Another cut **5 min off their 20 min CI** in a day's work, and that was scratching the surface
 
-## Benefits
+- Replace super slow "pull in the world" factories with structured seed scripts loaded once before tests run
+- Retains factory-like ergonomics in a new simpler approach
 
-- In development:
-  - Add conventions for `db/seeds.rb` that feel like Rails.
-  - Grouping by scenario: choose how to best group your data.
-  - Reveal your Domain Model: describe your object graph sequentially, helping developers see how your app works.
-  - Ruby-based recipe-like data scripts: setup accounts first, then attach users, then hang other models off of those.
-  - Raise modelling problems early: Oaken can help expose when something feels awkward or off to give you design clues.
+- Fully **replace Rails' fixtures** while staying near the same speed and skip complex YAML spread over many files
 
-- In tests, reuse development seed data:
-  - Tests mirror what developers have already seen in their dev browser.
-  - Easier developer onboarding by building a proper mental model faster.
-  - Less code that's easier to maintain with more visibility into your object graph.
+- Not an either-or: you can still use factories and fixtures with Oaken
 
-### Benefits over factories
+- Faster onboarding: you can **reuse your test data as development seeds** which helps new developers understand your app faster
+- Lower maintenance costs: you'll have less code and more visibility into your app's object graph
+- Code as documentation: your seed scripts help reveal your app and functions like runnable documentation
 
-- Fast tests! Seed shared records once and reuse them across tests, transactions rollback changes.
-  - One team saw a 3x speed increase over factories.
-  - Another shaved off 5min on their CI time with less than a days work, and they only scratched the surface.
-
-- Visibility into your system: factories optimize for isolation, which make it easy to get started, but becomes more complex over time.
-- Save 20 lines of setup per test case.
-  - Your mileage will vary, but this happened for a team that replaced factories with Oaken.
-  - You do DRY up your tests more for non-trivial systems because you write the Oaken seed for common cases once, rather than per-test/file.
-  
-- You can name things: don't lose hours debugging factory-based tests because everything's anonymous, like I have.
-- Less mental load: factories' structure requires you to put things together in your head. How many models and associations does one factory create?
-- DRY setup:
-
-Also worth noting that you 
-
-### Benefits over fixtures
-
-- Still fast tests! Oaken inserts data before tests run & wraps tests in transactions, just like fixtures.
-- No more YAML: use Ruby to lay out your object graph sequentially with better organization. You can even sketch it out in a `console`
-- Break out edge cases or complex scenarios: split data for edge cases or tricky test setups into their own cases, so you don't end up with a 500-line fixture file peppered with warts.
-- Way easier to reason about your object graph: no more chasing 10 files for 10 associations.
-- Less mental load: fixtures' structure requires you to put things together in your head.
-- Way condensed data setup: Oaken can dramatically cut down on some fixture files by letting you use helpers
-
-## Oaken is like fixtures, without the nightmare UX
-
-Oaken takes inspiration from Rails' fixtures' approach of storytelling about your app's object graph, but replaces the nightmare YAML-based UX with Ruby-based data scripts. This makes data much easier to reason about & connect the dots.
-
-In Oaken, you start by creating a root-level model, typically an Account, Team, or Organization etc. to group everything on, in a scenario. From your root-level model, you then start building your object graph by mirroring how your app works.
-
-So what comes next in your account flow? Maybe it's creating Users on the account.
-
-You can go further if you need to. Is the Account about selling something, like donuts? Maybe you add a menu and some items.
-
-It'll look like this:
-
-```ruby
-account = accounts.create :kaspers_donuts, name: "Kasper's Donuts"
-
-kasper   = users.create :kasper,   name: "Kasper",   email_address: "kasper@example.com",   accounts: [account]
-coworker = users.create :coworker, name: "Coworker", email_address: "coworker@example.com", accounts: [account]
-
-menu = menus.create(account:)
-plain_donut     = menu_items.create menu:, name: "Plain",     price_cents: 10_00
-sprinkled_donut = menu_items.create menu:, name: "Sprinkled", price_cents: 10_10
-```
-
-> [!NOTE]
-> `create` takes an optional symbol label. This makes the record accessible in tests, e.g. `users.create :kasper` lets tests do `setup { @kasper = users.kasper }`.
-
-With fixtures, this would be 4 different files in `test/fixtures` for `accounts`, `users`, `menus`, and `menu_items`. It would be ~20 lines of YAML versus ~6 lines of Ruby for this data.
-
-Another issue in fixture files, is that objects from different scenarios are all mixed together making it hard to get a picture of what's going on — even in small apps.
-
-Fixtures also require you to label every record and make them unique throughout your dataset — you have to be careful not to create clashes. This gets difficult to manage quickly and requires diligence on a team that's trying to ship.
-
-However, often the fact that a record is associated onto another is enough. So in Oaken, we let you skip naming every record. Notice how the `menus.create` & `menu_items.create` calls don't pass symbol labels. You can still get at them in tests though if you really need to with `accounts.kaspers_donuts.menus.first.menu_items.first`.
-
-<details>
-  <summary>See the fixtures version</summary>
-
-```yaml
-# test/fixtures/accounts.yml
-kaspers_donuts:
-  name: Kasper's Donuts
-
-# test/fixtures/users.yml
-kasper:
-  name: "Kasper"
-  email_address: "kasper@example.com"
-  accounts: kaspers_donuts
-
-coworker:
-  name: "Coworker"
-  email_address: "coworker@example.com"
-  accounts: kaspers_donuts
-
-# test/fixtures/menus.yml
-basic:
-  account: kaspers_donuts
-
-# test/fixtures/menu/items.yml
-plain_donut:
-  menu: basic
-  name: Plain
-  price_cents: 10_00
-
-sprinkled_donut:
-  menu: basic
-  name: Sprinkled
-  price_cents: 10_10
-```
-
-</details>
-
-### Oaken is like fixtures, we seed data before tests run
-
-The reason you go through all the trouble of massaging your fixture files is to have a stable named dataset across test runs that's relatively quick to load — so the database call cost is amortized across tests.
-
-Oaken mirrors this approach giving you stability in your dataset and the relative quickness to insert the data.
-
-For instance, if you have 10 tests that each need the same 2 records, Oaken puts them in the database once before tests run, same as fixtures.
-
-The tradeoff is that if you run just 1 test we'll still seed those 2 same records, but we'll also seed any other record you've added to the shared dataset that might not be needed in those tests.
-
-We rely on Rails' tests being wrapped in transactions so any changes are rolled back after the test case run.
-
-> [!NOTE]
-> It can be a good idea to structure your object graph so you won't need database records for your tests — reality can sometimes be far from that ideal state though. Oaken aims to make your present reality easier and something you can improve.
-
-## Oaken is unlike factories, focusing on shared datasets
-
-Factories can let you start an app easier. It's just this one factory for now, ok, easy enough.
-
-Over time, however, many teams find their factory based test suite slows to a crawl. Suddenly one factory ends up pulling in the rest of the app.
-
-Factories end up requiring a lot of diligence and passing just the right things in just-so to make managable.
-
-Oaken does away with this. See the sections on the fixtures comparisons above for how.
-
-> [!WARNING]
-> Full Disclaimer: while I have worked on systems using factories, I overall don't get it and the fixtures approach makes more sense to me despite the UX issues. I'm trying to support a partial factories approach here in Oaken, see the below section for that, and I'm open to ideas here.
-
-> [!TIP]
-> Oaken is compatible with FactoryBot and Fabrication, and they should be able to work together. I consider it a bug if there's compatibility issues, so please open an issue here if you find something.
-
-### Oaken is like factories, with dynamic defaults & helper methods
-
-See the sections on defaults & helpers below.
-
-The aim for Oaken is to have most of the feature set of factories for a fraction of the implementation complexity.
-
-## Oaken gives db/seeds.rb superpowers
-
-Oaken upgrades seeds in `db/seeds.rb`, so you can put together scenarios & reuse the development data in tests.
-
-This way, the data you see in your browser, is the same data you work with in tests to make your object graph easier to get — especially for people new to your codebase.
-
-So you get a cohesive & stable dataset with a story like fixtures & their fast loading. But you also get the dynamics of FactoryBot/Fabrication as well without making tons of one-off records to handle each case.
-
-The end result is you end up writing less data back & forth to the database because you aren’t cobbling stuff together.
-
-## Praise from users
-
-> But seriously; Oaken is one of the single greatest tools I've added to my belt in the past year
->
-> It's made cross-environment shared data, data prepping for demos, edge-case tests, and overall development much more reliable & shareable across a team
->
-> [@tcannonfodder](https://github.com/tcannonfodder)
+---
 
 > Thanks for this wonderful project! My head doesn't grok factories and I just want vanilla Rails testing with something better than fixtures, and this is so much better.
 >
@@ -177,6 +26,189 @@ The end result is you end up writing less data back & forth to the database beca
 > Oaken, on the other hand, is closer to using the console, which we already know, only in a repeatable and tidier way. The testing data/seeds setup process just feels more intentional this way.
 >
 > [@evenreven](https://github.com/evenreven)
+
+> But seriously; Oaken is one of the single greatest tools I've added to my belt in the past year
+>
+> It's made cross-environment shared data, data prepping for demos, edge-case tests, and overall development much more reliable & shareable across a team
+>
+> [@tcannonfodder](https://github.com/tcannonfodder)
+
+## Setup
+
+See the [examples](examples) directory for a quick start.
+
+Oaken is organized around structured seed scripts written in Ruby placed in `db/seeds/` that you load once ahead of time in tests. You can optionally reuse the same test data for your development seeds.
+
+Tests are wrapped in transactions that are rolled back after the test finishes, just like Rails' fixtures. So you're free to create, update, and destroy within tests. If this is your first time working with transactional tests there are a few gotchas, like asserting on the delta to keep in mind. See here.
+
+For Rails tests, put this in your `test/test_helper.rb`:
+
+```ruby
+class ActiveSupport::TestCase
+  parallelize workers: :number_of_processors
+
+  include Oaken.test_setup
+end
+```
+
+> [!INFO]
+> Rails' parallel tests are supported out of the box.
+
+For RSpec specs, put this in `spec/rails_helper.rb`:
+
+```ruby
+require "oaken/rspec_setup"
+```
+
+Next let's look at what a seed file looks like and then how to load them.
+
+### Writing and loading a simple seed file
+
+Oaken seed files are Ruby files in `db/seeds/`. They're meant to follow the same steps in the same order a user would when interacting with your app, so feel free to get into a bit of storytelling.
+
+For instance, let's say we're working on a Donut Shop management app that lets admins set up menu items in a backoffice. Our seed file could look like this:
+
+```ruby
+# db/seeds/test/accounts/kaspers_donuts.rb
+account = Account.create! name: "Kasper's Donuts"
+
+User.admin.create! name: "Kasper", email_address: "kasper@example.com", accounts: [account]
+# We can blend in factories too!
+FactoryBot.create :user, :admin, name: "Coworker", email_address: "coworker@example.com", accounts: [account] 
+
+menu = Menu.create!(account:)
+plain_donut     = Menu::Item.create! menu:, name: "Plain",     price_cents: 10_00
+sprinkled_donut = Menu::Item.create! menu:, name: "Sprinkled", price_cents: 10_10
+```
+
+Since seed files are Ruby scripts we can use standard Active Record and we can even blend in our factories. We also get to show a similar path as a user would take.
+
+In a real app, it would help show an onboarding developer clues about what comes first in the app and help them form the proper mental model quicker. Developers using Oaken have also mentioned that seeing their object graph written out sequentially has helped them spot potential issues with their domain model. They can now then fix them before they reach production and become harder to change & more costly to do so.
+
+Next, we head to `db/seeds.rb` and tell Oaken to load it before tests run by calling `Oaken.seed`:
+
+```ruby
+Oaken.seed :accounts
+```
+
+This makes Oaken use a `accounts/{,**/*}.rb` file glob in `db/seeds/` and `db/seeds/test/` which matches on `db/seeds/test/accounts/kaspers_donuts.rb` and loads it. We'll cover loading more in depth later.
+
+Finally, we can now refer to these pre-seeded objects in tests:
+
+```ruby
+setup { @user = User.find_by! name: "Kasper" } # Rails tests
+let(:user) { User.find_by! name: "Kasper" } # RSpec
+```
+
+But this already gets clunky, so let's look at Oaken's answer to this.
+
+#### Using Oaken's structured seed scripts
+
+Writing seed scripts in plain Active Record has a number of drawbacks:
+
+- Code grows inconsistent over time
+- There's no conventional place for seed-specific code, like helpers
+- There's no way to set common defaults for new columns
+- Referring to seeded data in tests is clunky
+
+Instead, Oaken has [Oaken::Stored::ActiveRecord](blob/main/lib/oaken/stored/active_record.rb) to wrap Active Records and solve the issues above.
+
+You can manually register records to be wrapped like this:
+
+```ruby
+register Account, as: :accounts
+register User, as: :users
+register Menu, as: :menus
+register Menu::Item, as: :menu_items
+```
+
+However, Oaken will do this for you automatically and you don't have to.
+
+Now we can write our script like this:
+
+```ruby
+# db/seeds/test/accounts/kaspers_donuts.rb
+account = accounts.create :kaspers_donuts, name: "Kasper's Donuts"
+
+kasper   = users.admin.create :kasper,   name: "Kasper",   email_address: "kasper@example.com",   accounts: [account]
+coworker = users.admin.create :coworker, name: "Coworker", email_address: "coworker@example.com", accounts: [account]
+
+menu = menus.create(account:)
+plain_donut     = menu_items.create menu:, name: "Plain",     price_cents: 10_00
+sprinkled_donut = menu_items.create menu:, name: "Sprinkled", price_cents: 10_10
+```
+
+You can then refer to `accounts.kaspers_donuts` and `users.kasper` in tests. Similar to fixtures, Oaken doesn't cache these and each call returns a new instance.
+
+---
+
+Here Oaken also solves a major data consistency issue with RSpec's `let` caching that often leads to subtle bugs.
+
+Consider a request test that intends to update a user name:
+
+```ruby
+let(:user) { create(:user) }
+
+it "achieves metamorphosis" do
+  put user_url(user), params: { name: "Gregor Samsa" }
+
+  expect(user.name).to be_equal("Gregor Samsa")
+end
+```
+
+If the request
+
+If you meant to mutate a record in a request, you have to remember to call `reload` on the record 
+
+or subtle data bugs can creep in. If you instead refer to `users.kasper` without using `let` it'll work!
+
+```ruby
+it "achieves metamorphosis" do
+  put user_url(users.kasper), params: { name: "Gregor Samsa" }
+
+  expect(users.kasper.name).to be_equal("Gregor Samsa")
+end
+```
+
+### Loading seeds via db/seeds.rb
+
+You can place them in a few different places:
+
+- `db/seeds/test/` for test-only seeds
+- `db/seeds/development/` for development-only seeds
+- `db/seeds/` for cross-environment seeds that are loaded in test and development.
+
+Oaken also supports per-environment seeds in `db/seeds/<Rails.env>/`. So you can put test only seeds in `db/seeds/test/` and development only seeds in `db/seeds/development/`, while putting cross-environment seeds directly in `db/seeds/`.
+
+This happens by calling `Oaken.seed` in `db/seeds.rb`, like this:
+
+```ruby
+Oaken.seed :data
+```
+
+This tells `Oaken.seed` to look for seed scripts in `db/seeds/` via a `data` file glob `data{,/**/*}.rb`. This gives you control and flexibility over how to structure your data.
+
+First, files are matched with the glob `data{,/**/*}.rb`
+
+
+> [!NOTE]
+> Internally, `Oaken.seed` uses `Oaken.lookup_paths` same as how `Kernel#require` uses `$LOAD_PATH`.
+
+> [!TIP]
+> Call `Oaken.glob(:data)` in a console and we'll return the files we'll match.
+
+> [!NOTE]
+> Choosing whether a particular seed is loaded in test and/or development is about where you place it.
+
+> [!TIP]
+> You could also have a cases directory that you load on demand in a console like `Oaken.seed "performance/small"`.
+
+> [!TIP]
+> Having development seed data be both what you see in your dev browser and your tests helps strengthen your understanding of your app's domain model. It'll make for easier onboarding of new developers and it's less work than maintaining two datasets.
+
+## Next Steps
+
+### Understanding loaders
 
 ## Design goals
 
@@ -344,28 +376,6 @@ Oaken.seed "cases/pagination"
 ```
 
 This is useful if you're working on hammering out a single seed script.
-
-> [!TIP]
-> Oaken wraps each file load in an `ActiveRecord::Base.transaction` so any invalid data rolls back the whole file.
-
-#### In tests & specs
-
-If you're using Rails' default minitest-based tests call this:
-
-```ruby
-# test/test_helper.rb
-class ActiveSupport::TestCase
-  include Oaken.loader.test_setup
-end
-```
-
-We've got full support for Rails' test parallelization out of the box.
-
-> [!NOTE]
-> For RSpec, you can put this in `spec/rails_helper.rb`:
-> ```ruby
-> require "oaken/rspec_setup"
-> ```
 
 ### Writing Seed Data Scripts
 

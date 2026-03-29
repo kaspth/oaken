@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Kasper Timm Hansen"]
   spec.email = ["hey@kaspth.com"]
 
-  spec.summary = "Oaken aims to blend your Fixtures/Factories and levels up your database seeds."
+  spec.summary = "Oaken speeds up your test suite and makes your seeds easy to maintain. Replace slow factories & skip the maintenance burden of fixtures. Fast tests, clear datasets."
   spec.homepage = "https://github.com/kaspth/oaken"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.2"

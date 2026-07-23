@@ -1,5 +1,7 @@
 # Oaken
 
+[![Ruby Users Forum](https://img.shields.io/discourse/topics?server=https%3A%2F%2Fwww.rubyforum.org&style=flat&logo=discourse&label=Ruby%20Users%20Forum)](https://www.rubyforum.org/tag/oaken)
+
 Oaken is fixtures + factories + seeds for your Rails development & test environments.
 
 You may want to head straight to the [examples](examples) directory.
@@ -677,6 +679,10 @@ Install the gem and add to the application's Gemfile by executing:
 If bundler is not being used to manage dependencies, install the gem by executing:
 
     $ gem install oaken
+
+## Community
+
+Join us in the `oaken` category on the [Ruby Users Forum](https://www.rubyforum.org/tag/oaken).
 
 ## Development
 

@@ -8,4 +8,5 @@ class ActiveSupport::TestCase
   parallelize workers: :number_of_processors, threshold: ENV.fetch("PARALLEL_TEST_THRESHOLD", 5).to_i
 
   include Oaken.test_setup
+  fixtures "account/fixture_accesses"
 end

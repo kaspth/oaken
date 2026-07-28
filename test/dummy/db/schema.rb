@@ -10,7 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_24_125945) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_02_174456) do
+  create_table "account_fixture_accesses", force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_account_fixture_accesses_on_account_id"
+  end
+
   create_table "accounts", id: :string, default: -> { "ULID()" }, force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false

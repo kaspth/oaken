@@ -19,7 +19,7 @@ jobs:
           - "8.1"
           - "main"
         ruby:
-          - "3.2"
+          - "3.3"
           - "4.0"
     env:
       RAILS_ENV: test

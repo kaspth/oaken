@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-source "https://rubygems.org"
+source "https://gem.coop"
 
 # Specify your gem's dependencies in oaken.gemspec
 gemspec
@@ -9,7 +9,7 @@ gem "rake"
 gem "minitest", "< 6"
 gem "debug"
 
-gem "nokogiri", "1.17.2" # TODO: Lift this restriction after dropping Ruby 3.0 support.
+gem "nokogiri"
 
 rails_version = ENV.fetch("RAILS_VERSION", "8.0")
 

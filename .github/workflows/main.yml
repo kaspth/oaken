@@ -17,10 +17,14 @@ jobs:
           - "7.2"
           - "8.0"
           - "8.1"
-          - "main"
         ruby:
-          - "3.3"
+          - "3.2"
           - "4.0"
+        include:
+          - rails: "main"
+            ruby: "3.3"
+          - rails: "main"
+            ruby: "4.0"
     env:
       RAILS_ENV: test
       RAILS_VERSION: ${{ matrix.rails }}
